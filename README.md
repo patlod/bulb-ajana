@@ -3,6 +3,7 @@
 A customised brainstorming tool. 
 
 It's functionality is derived from usual note taking apps and extended to enable better visual display of your thoughts and ideas while staying as simple as possible. (therefore: __A__ lmost __J__ ust __A__ nother __N__ otes __A__ pp)
+One may notice a strong similarity with the Apple Notes App for a reason, as this is in my opinion one of the best notes applications out there, simply for the reason that creates the perfect combination of usability and simplicity. I use it all the time but for me it lacked a couple of very important features beyond ordinary thought documentation.
 
 While you can write notes in the way you are used to it, Bulb offers two main features:
 
@@ -13,4 +14,24 @@ The idea for the tool originated from two trigger points:
 1. The troubles that come from expectations in work speed in the software development process as a single individual where you have to constantly ping pong your own thougths. 
 2. The need for a prototype to test the idea for a bigger vision.
 
+Next to the two points just mentioned above the following can also be named as intentions of the project:
+3. Warm myself up in programming for a bigger project & potential business idea, after I had spent a year on developing hardware & working with flight controller software.
+4. Create a software portfolio project
+5. Practice my passion for working with all kinds of technology that orignated from the web technology domain.
+6. Create a tool I needed myself, exactly as I needed to.
+6. Fun.
 
+
+## Usage
+Bulb works based on projects, in each project you document your notes, and each project can have one project graph. 
+
+Data is stored as JSON format in file databases which can be stored anywhere on your computer. 
+This introduces the following advantages: 
+1. If you have a project of any kind you can conveniently store all your note data within the specific project. And thus have your data all together. 
+2. You can directly access and modify your data also without your notes application.
+
+The only disadvantage: If you violate or destroy the JSON format of your database file, Bulb will not be able to process it..
+
+
+
+### TODO
