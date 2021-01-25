@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Bulb</title>
+    <!-- 
+      This tag was preventing to require() modules in the example/index.js 
+      <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" /> 
+    -->
+    <!-- CSS directed-graph-creator -->
+    <link rel="stylesheet" href="./public/css/graph-creator.css" />
+    <!-- CSS fs-explorer -->
+    <link rel="stylesheet" href="node_modules/normalize.css/normalize.css">
+    <link rel="stylesheet" href="node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+    <!-- <link rel="stylesheet" href="example/index.css"> -->
+
+    <!-- Semantic-UI -->
+    <link rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css">
+
+    <!-- Semantic-UI Explorer -->
+    <link rel="stylesheet" type="text/css" href="public/css/file-tree.css">
+    <link rel="stylesheet" type="text/css" href="public/css/layout.css">
+
+    <!-- Tagify -->
+    <link rel="stylesheet" type="text/css" href="./public/css/tagify.css">
+    
+    <script>window.$ = window.jQuery = require('jquery');</script>
+    <script src="semantic/dist/semantic.min.js"></script>
+  </head>
+
+  <body>
+    
+    <script>
+      if (typeof require !== 'function') {
+        // If we are in a web env
+        var script = document.createElement('script')
+        script.src = 'bundle.js'
+        document.currentScript.parentNode.insertBefore(script, document.currentScript)
+      } else {
+        // If we are in the electron env
+        var entry = require('./index.js')(document.body)
+      }
+    </script>
+
+    <!-- Latest compiled and minified CSS -->
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">     
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> -->
+  </body>
+
+</html>
+

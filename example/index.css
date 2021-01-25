@@ -1,0 +1,38 @@
+body {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  background-color: #ecf0f1;
+  color: #2c3e50;
+  font-family: 'Lucida Grande', Helvetica, Arial;
+  margin: 0;
+  box-sizing: border-box;
+}
+ul {
+  margin: 0;
+  padding: 0;
+}
+button {
+  background: transparent;
+  border: none;
+}
+button:hover {
+  color: #827717;
+}
+button:focus {
+  outline: none;
+}
+
+.loading {
+  text-align: center;
+  margin: 2em auto;
+}
+
+/* breadcrumb doesnt have css modular yet */
+.breadcrumb {
+  margin: 0 0 2rem 0;
+}
+.breadcrumb li {
+  list-style: none;
+  float: left;
+}
