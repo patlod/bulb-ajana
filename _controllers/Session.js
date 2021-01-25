@@ -9,7 +9,7 @@ const { v4: uuidv4 } = require('uuid');
 
 //const Config = require('../config.js')
 
-const App = require('../index.js')
+const App = require('../App.js')
 const Project = require('./Project')
 const { path } = require('d3')
 

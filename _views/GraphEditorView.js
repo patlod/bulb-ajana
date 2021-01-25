@@ -114,7 +114,7 @@ GraphEditorView.prototype.init = function(svg, nodes, edges){
 
   // svg nodes and edges
   self.paths = svgG.append("g").selectAll("g");
-  self.circles = svgG.append("g").selectAll("g");
+  self.circles = svgG.append("g").selectAll("foreignObject");
 
   self.drag = d3.behavior.drag()
         .origin(function(d){
@@ -251,8 +251,6 @@ GraphEditorView.prototype.dragmove = function(d) {
     self.updateGraph();
   }
 };
-
-// s
 
 // Select all text in element: taken from http://stackoverflow.com/questions/6139107/programatically-select-text-in-a-contenteditable-html-element 
 GraphEditorView.prototype.selectElementContents = function(el) {
@@ -470,19 +468,22 @@ GraphEditorView.prototype.svgMouseUp = function(){
   if (state.justScaleTransGraph) {
     // dragged not clicked
     state.justScaleTransGraph = false;
-  } else if (state.graphMouseDown && d3.event.shiftKey){ // Create new node
+  } else if (state.graphMouseDown && d3.event.shiftKey){ 
     // clicked not dragged from svg
+
+    // CREATE NEW NOTE
     var xycoords = d3.mouse(self.svgG.node())
+    console.log(xycoords)
     var d = {id: self.idct++, title: consts.defaultTitle, x: xycoords[0], y: xycoords[1]}
     self.nodes.push(d);
     self.updateGraph();
     // make title of text immediently editable
-    var d3txt = self.changeTextOfNode(self.circles.filter(function(dval){
-      return dval.id === d.id;
-    }), d),
-        txtNode = d3txt.node();
-    self.selectElementContents(txtNode);
-    txtNode.focus();
+    // var d3txt = self.changeTextOfNode(self.circles.filter(function(dval){
+    //   return dval.id === d.id;
+    // }), d),
+    //     txtNode = d3txt.node();
+    // self.selectElementContents(txtNode);
+    // txtNode.focus();
   } else if (state.shiftNodeDrag){
     // dragged from node
     state.shiftNodeDrag = false;
@@ -536,7 +537,8 @@ GraphEditorView.prototype.updateGraph = function(){
     return String(d.source.id) + "+" + String(d.target.id);
   });
   var paths = self.paths;
-  // update existing paths
+
+  // Update existing paths
   paths.style('marker-end', 'url(#end-arrow)')
     .classed(consts.selectedClass, function(d){
       return d === state.selectedEdge;
@@ -545,7 +547,7 @@ GraphEditorView.prototype.updateGraph = function(){
       return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y;
     });
 
-  // add new paths
+  // Add new paths
   paths.enter()
     .append("path")
     .style('marker-end','url(#end-arrow)')
@@ -561,19 +563,64 @@ GraphEditorView.prototype.updateGraph = function(){
       state.mouseDownLink = null;
     });
 
-  // remove old links
+  // Remove old links
   paths.exit().remove();
 
-  // update existing nodes
+  console.log("self.nodes:")
+  console.log(self.nodes)
+
+  // Update existing nodes
+  console.log("self.circles:")
+  console.log(self.circles)
+
   self.circles = self.circles.data(self.nodes, function(d){ return d.id;});
   self.circles.attr("transform", function(d){return "translate(" + d.x + "," + d.y + ")";});
 
-  // add new nodes
-  var newGs= self.circles.enter()
-        .append("g");
+  let html_str = `
+    <div id="note-editor" > 
+      <div class="note-header">
+        <div class="datetime">
+          <span id="dt-created">Created: Date here</span>
+        </div>
+        <div style="background: white" name='note-tags'>
+          Tags 
+        </div>
+      </div>
+      <!-- <div id="notepad" class="note-content" contenteditable="true"> -->
+        <!-- Alternative HTML: <textarea id="notepad">Note text here</textarea> -->
+        <div id="notepad" class="note-content" >Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar,</div>
+      <!-- </div> -->
+    </div>
+`
+
+
+  // Add new nodes
+  var newGs = self.circles.enter()
+        //.append("g");
+        .append("foreignObject")
+
+  console.log("self.circles after enter():")
+  console.log(self.circles)
 
   newGs.classed(consts.circleGClass, true)
+    .attr("width", 320)
+    .attr("height", 1)
+    .attr("overflow", "visible")
     .attr("transform", function(d){return "translate(" + d.x + "," + d.y + ")";})
+    .append("xhtml:div")
+      .style("font", "11px 'Verdana'")
+      .html(html_str)
+    
+
+  // newGs.append("circle")
+  //   .attr("r", String(consts.nodeRadius));
+
+  // newGs.each(function(d){
+  //   self.insertTitleLinebreaks(d3.select(this), d.title);
+  // });
+
+  newGs.each(function(d){
+    d3.select(this).select('#note-editor')
     .on("mouseover", function(d){
       if (state.shiftNodeDrag){
         d3.select(this).classed(consts.connectClass, true);
@@ -589,15 +636,9 @@ GraphEditorView.prototype.updateGraph = function(){
       self.circleMouseUp.call(self, d3.select(this), d);
     })
     .call(self.drag);
+  })
 
-  newGs.append("circle")
-    .attr("r", String(consts.nodeRadius));
-
-  newGs.each(function(d){
-    self.insertTitleLinebreaks(d3.select(this), d.title);
-  });
-
-  // remove old nodes
+  // Remove old nodes
   self.circles.exit().remove();
 };
 
@@ -608,10 +649,13 @@ GraphEditorView.prototype.zoomed = function(){
 };
 
 GraphEditorView.prototype.updateWindow = function(svg){
-  var docEl = document.documentElement,
-      bodyEl = document.getElementsByTagName('body')[0];
-  var x = window.innerWidth || docEl.clientWidth || bodyEl.clientWidth;
-  var y = window.innerHeight|| docEl.clientHeight|| bodyEl.clientHeight;
+  // var docEl = document.documentElement,
+  //     bodyEl = document.getElementsByTagName('body')[0];
+  // var x = window.innerWidth || docEl.clientWidth || bodyEl.clientWidth;
+  // var y = window.innerHeight|| docEl.clientHeight|| bodyEl.clientHeight;
+  var style = getComputedStyle(document.getElementById('content'))
+  var x = style.width
+  var y = style.height
   svg.attr("width", x).attr("height", y);
 };
 
@@ -663,11 +707,15 @@ GraphEditorView.prototype.render = function(session){
   /* ====================================================================== */
   /* ====================================================================== */
 
-  var docEl = document.documentElement
-  var bodyEl = document.getElementsByTagName('body')[0]
+  // var docEl = document.documentElement
+  // var bodyEl = document.getElementsByTagName('body')[0]
 
-  var width = window.innerWidth || docEl.clientWidth || bodyEl.clientWidth
-  var height =  window.innerHeight|| docEl.clientHeight|| bodyEl.clientHeight
+  // var width = window.innerWidth || docEl.clientWidth || bodyEl.clientWidth
+  // var height =  window.innerHeight|| docEl.clientHeight|| bodyEl.clientHeight
+
+  var style = getComputedStyle(document.getElementById('content'))
+  var width = style.width
+  var height = style.height
 
   var nodes = []
   var edges = []

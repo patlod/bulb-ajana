@@ -39,7 +39,7 @@
         document.currentScript.parentNode.insertBefore(script, document.currentScript)
       } else {
         // If we are in the electron env
-        var entry = require('./index.js')(document.body)
+        var entry = require('./App.js')(document.body)
       }
     </script>
 
