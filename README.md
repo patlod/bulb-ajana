@@ -2,7 +2,7 @@
 ## Bulb 
 A customised brainstorming tool. 
 
-It's functionality is derived from usual note taking apps and extended to enable better visual display of your thoughts and ideas while staying as simple as possible. (therefore: __A__lmost __J__ust __A__nother __N__otes __A__pp)
+It's functionality is derived from usual note taking apps and extended to enable better visual display of your thoughts and ideas while staying as simple as possible. (therefore: __A__ lmost __J__ ust __A__ nother __N__ otes __A__ pp)
 One may notice a strong similarity with the Apple Notes App for a reason, as this is in my opinion one of the best notes applications out there, simply for the reason that creates the perfect combination of usability and simplicity. I use it all the time but for me it lacked a couple of very important features beyond ordinary thought documentation.
 
 While you can write notes in the way you are used to it, Bulb offers two main features:
