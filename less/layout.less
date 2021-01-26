@@ -376,7 +376,7 @@ height: 100%;
 }
 .note-thmb-tags > span {
   padding: 2px 4px;
-  background: #B7C1C6;
+  background: #D6D7F1;
   /*opacity: 0.3;*/
   margin-left: 2px;
   margin-right: 2px;
@@ -399,7 +399,6 @@ height: 100%;
 #dt-modified.hidden{
   display: none !important;
 }
-
 
 .note-header textarea{
   font-size: 11px !important;
@@ -430,6 +429,54 @@ height: 100%;
   overflow: hidden;
   padding: 8px 16px;
 }*/
+.graph-note {
+  border: 1px solid #ddd;
+  background: #F3D4C2;
+  -webkit-box-shadow: -3px 6px 12px -8px #000000;
+  box-shadow: -3px 6px 12px -8px #000000;
+}
+
+.graph-note .graph-note-content{
+  border-style: none;
+  resize: none;
+  outline: none;
+  overflow: auto;
+  max-height: 500px;
+  font-size: 11px !important;
+  display: block;
+  position: relative;
+  bottom: 0px;
+  width: 100%;
+  height: auto !important;
+  padding: 7px 11px;
+  /*background-color:  #E4E4E4;*/
+}
+.graph-note-tags {
+  display: block;
+  width: 100%;
+  padding: 4px 4px;
+  border-top:1px solid #3595f6;
+  border-bottom: 1px solid #3595f6;
+}
+.graph-note-tags > span {
+  display: inline-block;
+  padding: 2px 4px;
+  background: #D6D7F1;
+  /*opacity: 0.3;*/
+  margin-left: 2px;
+  margin-right: 2px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  color: black;
+  border-radius: 4px;
+}
+
+foreignObject.selected {
+  box-shadow: 0 0 0 3px #97C3E1;
+}
+
+
+
 
 #search {
   display: block;

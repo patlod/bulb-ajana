@@ -15,6 +15,28 @@ var consts = {
   defaultTitle: "random variable"
 };
 
+
+
+/**
+ * GraphEditorView class that handles everything considering the 
+ * Graph Creator.
+ * 
+ * Nodes and edges are represented as object structures here:
+ * - Node: 
+ *      {
+ *        id:      Int,
+ *        title:   String,
+ *        x:       Double,
+ *        y:       Double
+ *      }
+ * - Edge: 
+ *      {
+ *        source:   Node,
+ *        target:   Node
+ *      }
+ * 
+ * @param {DOMElement} target - The DOM element of the UI for EventEmitter
+ */
 function GraphEditorView(target) {
   var self = this
   EventEmitterElement.call(this, target)
@@ -47,7 +69,7 @@ function GraphEditorView(target) {
   this.consts =  {
     selectedClass: "selected",
     connectClass: "connect-node",
-    circleGClass: "conceptG",
+    nodeClass: "noteForeignObj",
     graphClass: "graph",
     activeEditId: "active-editing",
     BACKSPACE_KEY: 8,
@@ -58,6 +80,14 @@ function GraphEditorView(target) {
 
 }
 inherits(GraphEditorView, EventEmitterElement)
+
+
+/**
+ * (Re)Initialises the GraphEditorView
+ * @param {} svg    - The svg the GraphCreator is initialised on
+ * @param {*} nodes - Array of nodes
+ * @param {*} edges - Array of edges
+ */
 
 GraphEditorView.prototype.init = function(svg, nodes, edges){
   var self = this;
@@ -70,7 +100,9 @@ GraphEditorView.prototype.init = function(svg, nodes, edges){
     selectedNode: null,
     selectedEdge: null,
     mouseDownNode: null,
+    //mouseDownD3Node: null,
     mouseDownLink: null,
+    //mouseDownD3Link: null,
     justDragged: false,
     justScaleTransGraph: false,
     lastKeyDown: -1,
@@ -84,8 +116,8 @@ GraphEditorView.prototype.init = function(svg, nodes, edges){
     .attr('id', 'end-arrow')
     .attr('viewBox', '0 -5 10 10')
     .attr('refX', "32")
-    .attr('markerWidth', 3.5)
-    .attr('markerHeight', 3.5)
+    .attr('markerWidth', 2)     // 3.5
+    .attr('markerHeight', 2)    // 3.5
     .attr('orient', 'auto')
     .append('svg:path')
     .attr('d', 'M0,-5L10,0L0,5');
@@ -95,8 +127,8 @@ GraphEditorView.prototype.init = function(svg, nodes, edges){
     .attr('id', 'mark-end-arrow')
     .attr('viewBox', '0 -5 10 10')
     .attr('refX', 7)
-    .attr('markerWidth', 3.5)
-    .attr('markerHeight', 3.5)
+    .attr('markerWidth', 2)     // 3.5
+    .attr('markerHeight', 2)    // 3.5
     .attr('orient', 'auto')
     .append('svg:path')
     .attr('d', 'M0,-5L10,0L0,5');
@@ -118,18 +150,18 @@ GraphEditorView.prototype.init = function(svg, nodes, edges){
 
   self.drag = d3.behavior.drag()
         .origin(function(d){
-          return {x: d.x, y: d.y};
+          return {x: d.x, y: d.y}; // self.calcNodeCenter(d3.select(this), d)
         })
-        .on("drag", function(args){
+        .on("drag", function(d){
           self.state.justDragged = true;
-          self.dragmove.call(self, args);
+          self.dragmove.call(self, d);
         })
         .on("dragend", function() {
           // todo check if edge-mode is selected
         });
 
   // listen for key events
-  d3.select(window).on("keydown", function(){
+  d3.select("#content").on("keydown", function(){
     self.svgKeyDown.call(self);
   })
   .on("keyup", function(){
@@ -154,16 +186,16 @@ GraphEditorView.prototype.init = function(svg, nodes, edges){
           if (ael){
             ael.blur();
           }
-          if (!d3.event.sourceEvent.shiftKey) d3.select('body').style("cursor", "move");
+          if (!d3.event.sourceEvent.shiftKey) d3.select('#content').style("cursor", "move");
         })
         .on("zoomend", function(){
-          d3.select('body').style("cursor", "auto");
+          d3.select('#content').style("cursor", "auto");
         });
 
   svg.call(dragSvg).on("dblclick.zoom", null);
 
   // listen for resize
-  window.onresize = function(){self.updateWindow(svg);};
+  document.getElementById('content').onresize = function(){self.updateWindow(svg);};
 
 
   /* ====================================================================*/
@@ -227,24 +259,15 @@ GraphEditorView.prototype.setIdCt = function(idct){
   this.idct = idct;
 };
 
-// GraphEditorView.prototype.consts =  {
-//   selectedClass: "selected",
-//   connectClass: "connect-node",
-//   circleGClass: "conceptG",
-//   graphClass: "graph",
-//   activeEditId: "active-editing",
-//   BACKSPACE_KEY: 8,
-//   DELETE_KEY: 46,
-//   ENTER_KEY: 13,
-//   nodeRadius: 50
-// };
-
 // PROTOTYPE FUNCTIONS 
 
 GraphEditorView.prototype.dragmove = function(d) {
   var self = this;
+
+  console.log("dragmove")
+
   if (self.state.shiftNodeDrag){
-    self.dragLine.attr('d', 'M' + d.x + ',' + d.y + 'L' + d3.mouse(self.svgG.node())[0] + ',' + d3.mouse(this.svgG.node())[1]);
+    self.dragLine.attr('d', 'M' + (d.x - 5)  + ',' + (d.y - 5) + 'L' + d3.mouse(self.svgG.node())[0] + ',' + d3.mouse(this.svgG.node())[1]);
   } else{
     d.x += d3.event.dx;
     d.y +=  d3.event.dy;
@@ -347,54 +370,63 @@ GraphEditorView.prototype.circleMouseDown = function(d3node, d){
       state = self.state;
   d3.event.stopPropagation();
   state.mouseDownNode = d;
+
+  let c = self.calcNodeCenter(d3node, d)
+
+  console.log("corner coords:")
+  console.log(d)
+  console.log("center coords:")
+  console.log(c)
+  //state.mouseDownD3Node = d3node
+
   if (d3.event.shiftKey){
     state.shiftNodeDrag = d3.event.shiftKey;
     // reposition dragged directed edge
     self.dragLine.classed('hidden', false)
-      .attr('d', 'M' + d.x + ',' + d.y + 'L' + d.x + ',' + d.y);
+      .attr('d', 'M' + c.x + ',' + c.y + 'L' + c.x + ',' + c.y);
     return;
   }
 };
 
 // place editable text on node in place of svg text
-GraphEditorView.prototype.changeTextOfNode = function(d3node, d){
-  var self= this,
-      consts = self.consts,
-      htmlEl = d3node.node();
-  d3node.selectAll("text").remove();
-  var nodeBCR = htmlEl.getBoundingClientRect(),
-      curScale = nodeBCR.width/consts.nodeRadius,
-      placePad  =  5*curScale,
-      useHW = curScale > 1 ? nodeBCR.width*0.71 : consts.nodeRadius*1.42;
-  // replace with editableconent text
-  var d3txt = self.svg.selectAll("foreignObject")
-        .data([d])
-        .enter()
-        .append("foreignObject")
-        .attr("x", nodeBCR.left + placePad )
-        .attr("y", nodeBCR.top + placePad)
-        .attr("height", 2*useHW)
-        .attr("width", useHW)
-        .append("xhtml:p")
-        .attr("id", consts.activeEditId)
-        .attr("contentEditable", "true")
-        .text(d.title)
-        .on("mousedown", function(d){
-          d3.event.stopPropagation();
-        })
-        .on("keydown", function(d){
-          d3.event.stopPropagation();
-          if (d3.event.keyCode == consts.ENTER_KEY && !d3.event.shiftKey){
-            this.blur();
-          }
-        })
-        .on("blur", function(d){
-          d.title = this.textContent;
-          self.insertTitleLinebreaks(d3node, d.title);
-          d3.select(this.parentElement).remove();
-        });
-  return d3txt;
-};
+// GraphEditorView.prototype.changeTextOfNode = function(d3node, d){
+//   var self= this,
+//       consts = self.consts,
+//       htmlEl = d3node.node();
+//   d3node.selectAll("text").remove();
+//   var nodeBCR = htmlEl.getBoundingClientRect(),
+//       curScale = nodeBCR.width/consts.nodeRadius,
+//       placePad  =  5*curScale,
+//       useHW = curScale > 1 ? nodeBCR.width*0.71 : consts.nodeRadius*1.42;
+//   // replace with editableconent text
+//   var d3txt = self.svg.selectAll("foreignObject")
+//         .data([d])
+//         .enter()
+//         .append("foreignObject")
+//         .attr("x", nodeBCR.left + placePad )
+//         .attr("y", nodeBCR.top + placePad)
+//         .attr("height", 2*useHW)
+//         .attr("width", useHW)
+//         .append("xhtml:p")
+//         .attr("id", consts.activeEditId)
+//         .attr("contentEditable", "true")
+//         .text(d.title)
+//         .on("mousedown", function(d){
+//           d3.event.stopPropagation();
+//         })
+//         .on("keydown", function(d){
+//           d3.event.stopPropagation();
+//           if (d3.event.keyCode == consts.ENTER_KEY && !d3.event.shiftKey){
+//             this.blur();
+//           }
+//         })
+//         .on("blur", function(d){
+//           d.title = this.textContent;
+//           self.insertTitleLinebreaks(d3node, d.title);
+//           d3.select(this.parentElement).remove();
+//         });
+//   return d3txt;
+// };
 
 // mouseup on nodes
 GraphEditorView.prototype.circleMouseUp = function(d3node, d){
@@ -420,6 +452,7 @@ GraphEditorView.prototype.circleMouseUp = function(d3node, d){
       }
       return d.source === newEdge.source && d.target === newEdge.target;
     });
+
     if (!filtRes[0].length){
       self.edges.push(newEdge);
       self.updateGraph();
@@ -433,10 +466,10 @@ GraphEditorView.prototype.circleMouseUp = function(d3node, d){
       // clicked, not dragged
       if (d3.event.shiftKey){
         // shift-clicked node: edit text content
-        var d3txt = self.changeTextOfNode(d3node, d);
-        var txtNode = d3txt.node();
-        self.selectElementContents(txtNode);
-        txtNode.focus();
+        // var d3txt = self.changeTextOfNode(d3node, d);
+        // var txtNode = d3txt.node();
+        // self.selectElementContents(txtNode);
+        // txtNode.focus();
       } else{
         if (state.selectedEdge){
           self.removeSelectFromEdge();
@@ -452,6 +485,7 @@ GraphEditorView.prototype.circleMouseUp = function(d3node, d){
     }
   }
   state.mouseDownNode = null;
+  // state.mouseDownD3Node = null;
   return;
 
 }; // end of circles mouseup
@@ -528,10 +562,16 @@ GraphEditorView.prototype.svgKeyUp = function() {
 
 // call to propagate changes to graph
 GraphEditorView.prototype.updateGraph = function(){
-
   var self = this
   var consts = self.consts
   var state = self.state
+
+
+  console.log("====> Edges:")
+  console.log(self.edges)
+  console.log("====> Nodes:")
+  console.log(self.nodes)
+
 
   self.paths = self.paths.data(self.edges, function(d){
     return String(d.source.id) + "+" + String(d.target.id);
@@ -566,61 +606,57 @@ GraphEditorView.prototype.updateGraph = function(){
   // Remove old links
   paths.exit().remove();
 
-  console.log("self.nodes:")
-  console.log(self.nodes)
-
   // Update existing nodes
-  console.log("self.circles:")
-  console.log(self.circles)
-
   self.circles = self.circles.data(self.nodes, function(d){ return d.id;});
   self.circles.attr("transform", function(d){return "translate(" + d.x + "," + d.y + ")";});
 
   let html_str = `
-    <div id="note-editor" > 
-      <div class="note-header">
-        <div class="datetime">
-          <span id="dt-created">Created: Date here</span>
-        </div>
-        <div style="background: white" name='note-tags'>
-          Tags 
-        </div>
+    <div class="note-header">
+      <div class="datetime">
+        <span id="dt-created">Created: Date here</span>
       </div>
-      <!-- <div id="notepad" class="note-content" contenteditable="true"> -->
-        <!-- Alternative HTML: <textarea id="notepad">Note text here</textarea> -->
-        <div id="notepad" class="note-content" >Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar,</div>
-      <!-- </div> -->
+      <div class="graph-note-tags">
+        <span>Tags</span><span>Tags</span><span>Tags</span><span>Tags</span><span>Tags</span><span>Tags</span><span>Tags</span><span>Tags</span><span>Tags</span><span>Tags</span><span>Tags</span><span>Tags</span><span>Tags</span><span>Tags</span><span>Tags</span><span>Tags</span><span>Tags</span><span>Tags</span>
+      </div>
     </div>
-`
-
+    <div class="graph-note-content" >
+    Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar,
+    Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar,
+      Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar,
+      Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar,
+      Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar,
+      Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar,
+      Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar,
+    </div>
+  `
 
   // Add new nodes
   var newGs = self.circles.enter()
         //.append("g");
         .append("foreignObject")
 
-  console.log("self.circles after enter():")
-  console.log(self.circles)
-
-  newGs.classed(consts.circleGClass, true)
-    .attr("width", 320)
-    .attr("height", 1)
+  newGs.classed(consts.nodeClass, true)
+    .attr("width", 427)    // "80%"
+    .attr("height", 1)     
     .attr("overflow", "visible")
     .attr("transform", function(d){return "translate(" + d.x + "," + d.y + ")";})
     .append("xhtml:div")
-      .style("font", "11px 'Verdana'")
+      .attr('class', 'graph-note')
       .html(html_str)
-    
 
-  // newGs.append("circle")
-  //   .attr("r", String(consts.nodeRadius));
-
-  // newGs.each(function(d){
-  //   self.insertTitleLinebreaks(d3.select(this), d.title);
-  // });
 
   newGs.each(function(d){
-    d3.select(this).select('#note-editor')
+    let foreignObj = d3.select(this)
+    let gNote = foreignObj.select('.graph-note').node()
+    // console.log("offsetSizes:")
+    // console.log(gNote.offsetWidth)
+    // console.log(gNote.offsetHeight)
+    // console.log("clientSizes:")
+    // console.log(gNote.clientWidth)
+    // console.log(gNote.clientHeight)
+
+    // Adjust the height to content
+    foreignObj.attr("height", gNote.offsetHeight)
     .on("mouseover", function(d){
       if (state.shiftNodeDrag){
         d3.select(this).classed(consts.connectClass, true);
@@ -659,13 +695,22 @@ GraphEditorView.prototype.updateWindow = function(svg){
   svg.attr("width", x).attr("height", y);
 };
 
-/**
- * (Re)Initialises the GraphEditorView
- * @param {} svg    - The svg the GraphCreator is initialised on
- * @param {*} nodes - Array of nodes
- * @param {*} edges - Array of edges
- */
 
+/**
+ * Calculates the center coordinates of a node which is a rectangular
+ * foreignObject filled with HTML note content.
+ * 
+ * The default origin of the foreignObject is the corner at North-West
+ * 
+ * @param {DOM} node - The node for which the center coordinates shall be returned 
+ */
+GraphEditorView.prototype.calcNodeCenter = function(d3node, d){
+  let gNote = d3node.select('.graph-note').node()
+  let nW = gNote.offsetWidth
+  let nH = gNote.offsetHeight
+
+  return {x: d.x + nW/2, y: d.y + nH/2}
+}
 
 
 /* ============================================================================== */
