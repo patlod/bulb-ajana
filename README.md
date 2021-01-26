@@ -10,15 +10,15 @@ While you can write notes in the way you are used to it, Bulb offers two main ad
 1. __Graph View__: You can switch between a note editor and a graph editor display where you can set connections between your notes. This should assist your work process in a mindmap way. While thinking about complex structures of any kind of information some of us (me included) have the need to get out a sheet of paper and visualise their thoughts and associations while thinking. _E.g. in a one man software development endeavor, during a more advanced writing process, systems analysis, investigation, information gathering, etc. you often find yourself in a situation, where you benefit from organising your thoughts in a map display or something similar, to see connections and change the perspective on the data, to minimise the efforts of your brain to do so and then focus its energy on the actual analytical thought process._
 2. __Tagging__: Setting tags on the notes can assist that process as it allows to form any kind of categories on your data such as prioritisation, grouping, pointing out features, etc.
 
-The idea for the tool originated from two trigger points:
-1. The troubles that come from expectations in work speed in the software development process as a single individual where you have to constantly ping pong your own thougths. 
-2. The need for a prototype to test the idea for a bigger vision.
+The idea for the tool originated from two motivations:
+1. The troubles that come with higher expectations in working pace in the software development process as a single individual where you have to constantly ping pong your own thougths. 
+2. The need for a prototype to test an idea for a bigger vision.
 
-Next to the two points just mentioned above the following can also be named as intentions of the project:
-3. Warm myself up in programming for a bigger project & potential business idea, after I had spent a year on developing hardware & working with flight controller software.
+In addition to the two points mentioned above the following intentions of the project can be named:
+3. Warm my programming skills up for a bigger project & potential business idea, after I had spent a year on developing hardware & working with flight controller software.
 4. Create a software portfolio project
 5. Practice my passion for working with all kinds of technology that orignated from the web technology domain.
-6. Create a tool I needed myself, exactly as I needed to.
+6. Create a tool I needed myself, in the way I wanted to.
 6. Fun.
 
 
