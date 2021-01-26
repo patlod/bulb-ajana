@@ -25,7 +25,10 @@
     <!-- Tagify -->
     <link rel="stylesheet" type="text/css" href="./public/css/tagify.css">
     
-    <script>window.$ = window.jQuery = require('jquery');</script>
+    <script>
+      window.$ = window.jQuery = require('jquery');
+      require('jquery-ui-dist/jquery-ui')
+    </script>
     <script src="semantic/dist/semantic.min.js"></script>
   </head>
 
@@ -42,6 +45,7 @@
         var entry = require('./App.js')(document.body)
       }
     </script>
+
 
     <!-- Latest compiled and minified CSS -->
     <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">     

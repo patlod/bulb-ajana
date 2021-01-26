@@ -24,6 +24,7 @@
     "gulp-less": "^4.0.1",
     "jest-cli": "^26.6.3",
     "jquery": "^3.5.1",
+    "jquery-ui-dist": "^1.12.1",
     "less": "^3.13.0",
     "lowdb": "^1.0.0",
     "moment": "^2.29.1",

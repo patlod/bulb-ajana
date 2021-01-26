@@ -131,7 +131,7 @@ body {
   height: 100%;
   /* calc(100% - @titlebar-height);*/
   background: #f7f7f7;
-  z-index: 5;
+  /*z-index: 5;*/
   border-right: 1px solid #666666;
   min-width: 100px;
 }
@@ -389,35 +389,37 @@ body {
   -webkit-box-shadow: 1px 6px 12px -8px #000000;
   box-shadow: 1px 6px 12px -8px #000000;
 }
-/*#notepad {
-  width: 100%;
-  border: none;
-  background: #ddd;
-  resize: none;
-  outline: none;
-  overflow: hidden;
-  padding: 8px 16px;
+.graph-droppable-active {
+  border: 3px solid #DDD3DB;
+  border-radius: 6px;
+}
+/*.graph-droppable-hover{
+  background: red
 }*/
 .graph-note {
   border: 1px solid #ddd;
   background: #F3D4C2;
   -webkit-box-shadow: -3px 6px 12px -8px #000000;
   box-shadow: -3px 6px 12px -8px #000000;
+  display: inline-block;
 }
-.graph-note .graph-note-content {
+.graph-note-header .datetime {
+  font-size: 11px;
+  text-align: center;
+  padding: 3px 3px;
+}
+.graph-note-content {
   border-style: none;
   resize: none;
   outline: none;
   overflow: auto;
   max-height: 500px;
-  font-size: 11px !important;
+  font-size: 11px;
   display: block;
-  position: relative;
-  bottom: 0px;
   width: 100%;
-  height: auto !important;
+  height: auto;
   padding: 7px 11px;
-  /*background-color:  #E4E4E4;*/
+  background: #F3D4C2;
 }
 .graph-note-tags {
   display: block;
@@ -425,6 +427,7 @@ body {
   padding: 4px 4px;
   border-top: 1px solid #3595f6;
   border-bottom: 1px solid #3595f6;
+  background: #F3D4C2;
 }
 .graph-note-tags > span {
   display: inline-block;

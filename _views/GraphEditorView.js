@@ -161,7 +161,7 @@ GraphEditorView.prototype.init = function(svg, nodes, edges){
         });
 
   // listen for key events
-  d3.select("#content").on("keydown", function(){
+  d3.select(window).on("keydown", function(){
     self.svgKeyDown.call(self);
   })
   .on("keyup", function(){
@@ -186,10 +186,10 @@ GraphEditorView.prototype.init = function(svg, nodes, edges){
           if (ael){
             ael.blur();
           }
-          if (!d3.event.sourceEvent.shiftKey) d3.select('#content').style("cursor", "move");
+          if (!d3.event.sourceEvent.shiftKey) d3.select('#graph-editor').style("cursor", "move");
         })
         .on("zoomend", function(){
-          d3.select('#content').style("cursor", "auto");
+          d3.select('#graph-editor').style("cursor", "auto");
         });
 
   svg.call(dragSvg).on("dblclick.zoom", null);
@@ -197,62 +197,12 @@ GraphEditorView.prototype.init = function(svg, nodes, edges){
   // listen for resize
   document.getElementById('content').onresize = function(){self.updateWindow(svg);};
 
+}
 
-  /* ====================================================================*/
-  /* Not needed here (download, share/upload, delete)
-  /* ====================================================================*/
-  // handle download data
-  /* d3.select("#download-input").on("click", function(){
-    var saveEdges = [];
-    self.edges.forEach(function(val, i){
-      saveEdges.push({source: val.source.id, target: val.target.id});
-    });
-    var blob = new Blob([window.JSON.stringify({"nodes": self.nodes, "edges": saveEdges})], {type: "text/plain;charset=utf-8"});
-    filesaver.saveAs(blob, "mydag.json");
-  });
-
-
-  // handle uploaded data
-  d3.select("#upload-input").on("click", function(){
-    document.getElementById("hidden-file-upload").click();
-  });
-  d3.select("#hidden-file-upload").on("change", function(){
-    if (window.File && window.FileReader && window.FileList && window.Blob) {
-      var uploadFile = this.files[0];
-      var filereader = new window.FileReader();
-
-      filereader.onload = function(){
-        var txtRes = filereader.result;
-        // TODO better error handling
-        try{
-          var jsonObj = JSON.parse(txtRes);
-          self.deleteGraph(true);
-          self.nodes = jsonObj.nodes;
-          self.setIdCt(jsonObj.nodes.length + 1);
-          var newEdges = jsonObj.edges;
-          newEdges.forEach(function(e, i){
-            newEdges[i] = {source: self.nodes.filter(function(n){return n.id == e.source;})[0],
-                        target: self.nodes.filter(function(n){return n.id == e.target;})[0]};
-          });
-          self.edges = newEdges;
-          self.updateGraph();
-        }catch(err){
-          window.alert("Error parsing uploaded file\nerror message: " + err.message);
-          return;
-        }
-      };
-      filereader.readAsText(uploadFile);
-
-    } else {
-      alert("Your browser won't let you save this graph -- try upgrading your browser to IE 10+ or Chrome or Firefox.");
-    }
-
-  });
-
-  // handle delete graph
-  d3.select("#delete-graph").on("click", function(){
-    self.deleteGraph(false);
-  }); */
+GraphEditorView.prototype.takedown = function(){
+  d3.select(window)
+  .on("keydown", null)
+  .on("keyup", null);
 }
 
 GraphEditorView.prototype.setIdCt = function(idct){
@@ -264,11 +214,12 @@ GraphEditorView.prototype.setIdCt = function(idct){
 GraphEditorView.prototype.dragmove = function(d) {
   var self = this;
 
-  console.log("dragmove")
-
   if (self.state.shiftNodeDrag){
-    self.dragLine.attr('d', 'M' + (d.x - 5)  + ',' + (d.y - 5) + 'L' + d3.mouse(self.svgG.node())[0] + ',' + d3.mouse(this.svgG.node())[1]);
-  } else{
+    // Create & drag edge
+    let midCoords = self.calcNodeCenter(d)
+    self.dragLine.attr('d', 'M' + midCoords.x  + ',' + midCoords.y + 'L' + d3.mouse(self.svgG.node())[0] + ',' + d3.mouse(this.svgG.node())[1]);
+  } else{ 
+    // or move the node
     d.x += d3.event.dx;
     d.y +=  d3.event.dy;
     self.updateGraph();
@@ -371,62 +322,16 @@ GraphEditorView.prototype.circleMouseDown = function(d3node, d){
   d3.event.stopPropagation();
   state.mouseDownNode = d;
 
-  let c = self.calcNodeCenter(d3node, d)
-
-  console.log("corner coords:")
-  console.log(d)
-  console.log("center coords:")
-  console.log(c)
-  //state.mouseDownD3Node = d3node
 
   if (d3.event.shiftKey){
     state.shiftNodeDrag = d3.event.shiftKey;
     // reposition dragged directed edge
+    let midCoords = self.calcNodeCenter(d)
     self.dragLine.classed('hidden', false)
-      .attr('d', 'M' + c.x + ',' + c.y + 'L' + c.x + ',' + c.y);
+      .attr('d', 'M' + midCoords.x + ',' + midCoords.y + 'L' + midCoords.x + ',' + midCoords.y );
     return;
   }
 };
-
-// place editable text on node in place of svg text
-// GraphEditorView.prototype.changeTextOfNode = function(d3node, d){
-//   var self= this,
-//       consts = self.consts,
-//       htmlEl = d3node.node();
-//   d3node.selectAll("text").remove();
-//   var nodeBCR = htmlEl.getBoundingClientRect(),
-//       curScale = nodeBCR.width/consts.nodeRadius,
-//       placePad  =  5*curScale,
-//       useHW = curScale > 1 ? nodeBCR.width*0.71 : consts.nodeRadius*1.42;
-//   // replace with editableconent text
-//   var d3txt = self.svg.selectAll("foreignObject")
-//         .data([d])
-//         .enter()
-//         .append("foreignObject")
-//         .attr("x", nodeBCR.left + placePad )
-//         .attr("y", nodeBCR.top + placePad)
-//         .attr("height", 2*useHW)
-//         .attr("width", useHW)
-//         .append("xhtml:p")
-//         .attr("id", consts.activeEditId)
-//         .attr("contentEditable", "true")
-//         .text(d.title)
-//         .on("mousedown", function(d){
-//           d3.event.stopPropagation();
-//         })
-//         .on("keydown", function(d){
-//           d3.event.stopPropagation();
-//           if (d3.event.keyCode == consts.ENTER_KEY && !d3.event.shiftKey){
-//             this.blur();
-//           }
-//         })
-//         .on("blur", function(d){
-//           d.title = this.textContent;
-//           self.insertTitleLinebreaks(d3node, d.title);
-//           d3.select(this.parentElement).remove();
-//         });
-//   return d3txt;
-// };
 
 // mouseup on nodes
 GraphEditorView.prototype.circleMouseUp = function(d3node, d){
@@ -541,6 +446,9 @@ GraphEditorView.prototype.svgKeyDown = function() {
   switch(d3.event.keyCode) {
   case consts.BACKSPACE_KEY:
   case consts.DELETE_KEY:
+
+    console.log("backspace pressed..")
+
     d3.event.preventDefault();
     if (selectedNode){
       self.nodes.splice(self.nodes.indexOf(selectedNode), 1);
@@ -548,6 +456,7 @@ GraphEditorView.prototype.svgKeyDown = function() {
       state.selectedNode = null;
       self.updateGraph();
     } else if (selectedEdge){
+      console.log("delete edge..")
       self.edges.splice(self.edges.indexOf(selectedEdge), 1);
       state.selectedEdge = null;
       self.updateGraph();
@@ -567,10 +476,10 @@ GraphEditorView.prototype.updateGraph = function(){
   var state = self.state
 
 
-  console.log("====> Edges:")
-  console.log(self.edges)
-  console.log("====> Nodes:")
-  console.log(self.nodes)
+  // console.log("====> Edges:")
+  // console.log(self.edges)
+  // console.log("====> Nodes:")
+  // console.log(self.nodes)
 
 
   self.paths = self.paths.data(self.edges, function(d){
@@ -584,7 +493,9 @@ GraphEditorView.prototype.updateGraph = function(){
       return d === state.selectedEdge;
     })
     .attr("d", function(d){
-      return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y;
+      let source_midCoords = self.calcNodeCenter(d.source)
+      let target_midCoords = self.calcNodeCenter(d.target)
+      return "M" + source_midCoords.x + "," + source_midCoords.y + "L" + target_midCoords.x + "," + target_midCoords.y;
     });
 
   // Add new paths
@@ -593,7 +504,9 @@ GraphEditorView.prototype.updateGraph = function(){
     .style('marker-end','url(#end-arrow)')
     .classed("link", true)
     .attr("d", function(d){
-      return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y;
+      let source_midCoords = self.calcNodeCenter(d.source)
+      let target_midCoords = self.calcNodeCenter(d.target)
+      return "M" + source_midCoords.x + "," + source_midCoords.y + "L" + target_midCoords.x + "," + target_midCoords.y;
     })
     .on("mousedown", function(d){
       self.pathMouseDown.call(self, d3.select(this), d);
@@ -611,7 +524,7 @@ GraphEditorView.prototype.updateGraph = function(){
   self.circles.attr("transform", function(d){return "translate(" + d.x + "," + d.y + ")";});
 
   let html_str = `
-    <div class="note-header">
+    <div class="graph-note-header">
       <div class="datetime">
         <span id="dt-created">Created: Date here</span>
       </div>
@@ -655,6 +568,16 @@ GraphEditorView.prototype.updateGraph = function(){
     // console.log(gNote.clientWidth)
     // console.log(gNote.clientHeight)
 
+    console.log("newGs.each")
+    console.log(d)
+    // Calculate center coordinates of graph note and add to node object
+    
+    d["width"] = gNote.offsetWidth
+    d["height"] = gNote.offsetHeight
+
+    console.log("newGs.each")
+    console.log(d)
+
     // Adjust the height to content
     foreignObj.attr("height", gNote.offsetHeight)
     .on("mouseover", function(d){
@@ -685,10 +608,6 @@ GraphEditorView.prototype.zoomed = function(){
 };
 
 GraphEditorView.prototype.updateWindow = function(svg){
-  // var docEl = document.documentElement,
-  //     bodyEl = document.getElementsByTagName('body')[0];
-  // var x = window.innerWidth || docEl.clientWidth || bodyEl.clientWidth;
-  // var y = window.innerHeight|| docEl.clientHeight|| bodyEl.clientHeight;
   var style = getComputedStyle(document.getElementById('content'))
   var x = style.width
   var y = style.height
@@ -704,13 +623,10 @@ GraphEditorView.prototype.updateWindow = function(svg){
  * 
  * @param {DOM} node - The node for which the center coordinates shall be returned 
  */
-GraphEditorView.prototype.calcNodeCenter = function(d3node, d){
-  let gNote = d3node.select('.graph-note').node()
-  let nW = gNote.offsetWidth
-  let nH = gNote.offsetHeight
-
-  return {x: d.x + nW/2, y: d.y + nH/2}
+GraphEditorView.prototype.calcNodeCenter = function(d){
+  return {x: d.x + d.width/2, y: d.y + d.height/2}
 }
+
 
 
 /* ============================================================================== */

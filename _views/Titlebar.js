@@ -52,7 +52,7 @@ Titlebar.prototype.render = function (session) {
 
         session.setGraphMode(true)
 
-        self.send('render')
+        self.send('transitionEditor')
     }
     function clickDefaultEditor(){
         if(!session.getGraphMode()){
@@ -61,7 +61,7 @@ Titlebar.prototype.render = function (session) {
         
         session.setGraphMode(false)
 
-        self.send('render')
+        self.send('transitionEditor')
     }
 
     function clickCreateNewNote(e){

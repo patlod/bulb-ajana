@@ -127,37 +127,44 @@ function App(el){
     // Adjust height of the textarea in NoteEditorView to fit content
     self.views.editor.resizeElementByContent($('#notepad')[0])
 
-    // If graph_mode then reinitialise GraphCreator
-    // if(self.session.getActiveProject().getGraphMode()){
-    //   var docEl = document.documentElement,
-    //   bodyEl = document.getElementsByTagName('body')[0];
-
-    //   var width = window.innerWidth || docEl.clientWidth || bodyEl.clientWidth,
-    //       height =  window.innerHeight|| docEl.clientHeight|| bodyEl.clientHeight;
-
-    //   var nodes = [];
-    //   var edges = [];
-
-    //   var svg = d3.select('#content').append("svg")
-    //         .attr("width", width)
-    //         .attr("height", height);
-    //         console.log(svg)
-      
-      // REFACTOR: Just wrap this into a initalize function of GraphCreatorView 
-      // and put all the graph-creator.js code into the GraphCreatorView.
-      // It is UI code anyways..
-       
-      // var graph = new GraphCreator(svg, nodes, edges);
-      //     graph.setIdCt(2);
-      // graph.updateGraph(); 
-      
-    // }
+    if(self.session.getGraphMode()){
+      $('#content').droppable({
+        //accept:'.note-thmb-wrap',
+        classes: {
+          "ui-droppable-active": "graph-droppable-active",
+          "ui-droppable-hover": "graph-droppable-hover"
+        },
+        /*over: function(event, ui) {
+          ui.draggable.css("cursor", "copy");
+        },
+        out: function(event, ui) {
+          ui.draggable.css("cursor", "no-drop");
+        },*/
+        drop: function(event,ui){
+            console.log("Dropped note in graph..")
+            /**
+             * TODO: Add node to graph here..
+             * 
+             * - At this point it becomes necessary to create a Graph controller which
+             *   accesses database etc.
+             */
+        }
+      });
+    }
+    
   }
 
   /**
    * == Listeners EventEmitter =====================================
    */
   self.on('render', render)
+
+  self.on('transitionEditor', function(){
+    if(!self.session.getGraphMode()){ // Swtich from graph
+      self.views.graph.takedown()
+    }
+    render()
+  })
 
   self.on('switchProject', function(project){
     // For currently active project save the content of active note
@@ -276,10 +283,10 @@ function App(el){
 
 /**
  *  
- * @param {Boolean} lazy_load - When the graph mode is active lazy loading can
- * does not reload the full graph with rendering but treats it separate once
- * it is initialised. This can be benefitial when the grahp svg deals with 
- * a lot of elements..
+ * @param {Boolean} lazy_load - When the graph mode is active lazy loading 
+ * does not reload the full graph with rendering but treats it separate so once
+ * it is initialised the graph content will updated by the GraphEditorView.
+ * Benefitial when the graph svg deals with a lot of elements..
  */
 App.prototype.renderContentArea = function(lazy_load = false){
   var self = this
@@ -288,11 +295,13 @@ App.prototype.renderContentArea = function(lazy_load = false){
       return document.getElementById('content')
     }
 
-    return yo `
+    let content = yo `
       <div id="content" class="graph-active">
       ${self.views.graph.render(self.session.getActiveProject())}
       </div>
     `
+    return content
+
   }else{
     return yo `
     <div id="content">

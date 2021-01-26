@@ -127,8 +127,8 @@ NoteListView.prototype.render = function(project){
 
     var className = note.isActive() ? 'active' : ''
     
-    return yo`
-      <div>
+    let note_thumb = yo`
+      <div class="note-thmb-wrap">
         <div class="note-thmb ${className}" data-id=${note.uuid} onclick=${clickNoteThmb}>
           <div class="flex-wrap">
             <span class="note-thmb-head">${note.getHeader()}</span>
@@ -142,6 +142,24 @@ NoteListView.prototype.render = function(project){
         </div>
       </div>
     `
+  
+    // Create the draggable functionality on each note-thumb
+    $(note_thumb).draggable({
+    revert: true, 
+    helper: function(e,ui){
+      return $($.parseHTML('<p style="background: pink">Copy!</p>'))
+    }, 
+    cursorAt: { left: 2, top: 2},
+    appendTo: '#layout',
+    start: function(event,ui){
+      $(this).css("cursor", "no-drop");
+     },
+     stop: function(event,ui){
+      $(this).css("cursor", "initial");
+     }
+    })
+
+    return note_thumb
   })
 
   //console.log("Notes thumbnails..")
