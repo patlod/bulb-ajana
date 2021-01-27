@@ -3,10 +3,12 @@ module.exports = SplitManager
 var Split1 = require("split.js")
 var Split2 = require("split.js")
 
-function SplitManager(aInit = 20, bInit = 22, cInit = 58, 
+function SplitManager(app, aInit = 20, bInit = 22, cInit = 58, 
             aMinSize = 140, bMinSize = 120, cMinSize = 30){
 
   var self = this
+
+  self.app = app
 
   self.aInit = aInit 
   self.bInit = bInit
@@ -68,6 +70,11 @@ function SplitManager(aInit = 20, bInit = 22, cInit = 58,
       // Hide the content panel
       self.split_main.setSizes([sizes[0],mid_w_percent,percent_40px])
       self.sizesBuffer = [sizes[0],mid_w_percent,percent_40px]
+    }
+
+    // If project is in graph mode update the GraphEditorView
+    if(self.app.session.getGraphMode()){
+      self.app.views.graph.updateWindow()
     }
   
   }

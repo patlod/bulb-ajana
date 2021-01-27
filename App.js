@@ -74,7 +74,7 @@ function App(el){
   /* ============================================= */
 
   // Initialise the split screen manager object
-  self.split_manager = new SplitManager()
+  self.split_manager = new SplitManager(this)
 
   /**
    * Inserts script tags 

@@ -195,14 +195,16 @@ GraphEditorView.prototype.init = function(svg, nodes, edges){
   svg.call(dragSvg).on("dblclick.zoom", null);
 
   // listen for resize
-  document.getElementById('content').onresize = function(){self.updateWindow(svg);};
+  // document.getElementById('#content')
+  window.onresize = function(){self.updateWindow();};
 
 }
 
 GraphEditorView.prototype.takedown = function(){
   d3.select(window)
   .on("keydown", null)
-  .on("keyup", null);
+  .on("keyup", null)
+  .on("resize", null)
 }
 
 GraphEditorView.prototype.setIdCt = function(idct){
@@ -607,11 +609,13 @@ GraphEditorView.prototype.zoomed = function(){
     .attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
 };
 
-GraphEditorView.prototype.updateWindow = function(svg){
+GraphEditorView.prototype.updateWindow = function(){
+  var self = this
+  
   var style = getComputedStyle(document.getElementById('content'))
   var x = style.width
   var y = style.height
-  svg.attr("width", x).attr("height", y);
+  self.svg.attr("width", x).attr("height", y);
 };
 
 
