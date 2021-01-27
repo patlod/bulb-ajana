@@ -254,7 +254,10 @@ GraphEditorView.prototype.insertTitleLinebreaks = function (gEl, title) {
 };
 
 
-// remove edges associated with a node
+// Remove edges associated with a node
+
+// TODO: Move into Edges class
+
 GraphEditorView.prototype.spliceLinksForNode = function(node) {
   var self = this,
       toSplice = self.edges.filter(function(l) {
@@ -412,7 +415,7 @@ GraphEditorView.prototype.svgMouseUp = function(){
   } else if (state.graphMouseDown && d3.event.shiftKey){ 
     // clicked not dragged from svg
 
-    // CREATE NEW NOTE
+    // CREATE NEW NOTE/VERTICE
     var xycoords = d3.mouse(self.svgG.node())
     console.log(xycoords)
     var d = {id: self.idct++, title: consts.defaultTitle, x: xycoords[0], y: xycoords[1]}
@@ -449,7 +452,7 @@ GraphEditorView.prototype.svgKeyDown = function() {
   case consts.BACKSPACE_KEY:
   case consts.DELETE_KEY:
 
-    console.log("backspace pressed..")
+    // console.log("backspace pressed..")
 
     d3.event.preventDefault();
     if (selectedNode){
@@ -471,8 +474,8 @@ GraphEditorView.prototype.svgKeyUp = function() {
   this.state.lastKeyDown = -1;
 };
 
-// call to propagate changes to graph
-GraphEditorView.prototype.updateGraph = function(){
+// Call to propagate changes to graph
+GraphEditorView.prototype.updateGraph = function(graphController){
   var self = this
   var consts = self.consts
   var state = self.state
@@ -611,7 +614,7 @@ GraphEditorView.prototype.zoomed = function(){
 
 GraphEditorView.prototype.updateWindow = function(){
   var self = this
-  
+
   var style = getComputedStyle(document.getElementById('content'))
   var x = style.width
   var y = style.height
@@ -682,6 +685,7 @@ GraphEditorView.prototype.render = function(session){
   var width = style.width
   var height = style.height
 
+  // TODO: Normally these are fetched from session.getActiveProject().getActiveGraph()
   var nodes = []
   var edges = []
 

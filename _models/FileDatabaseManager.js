@@ -13,33 +13,63 @@ var FileDatabaseManager = {
   },
   getEmptyNoteJSON: function(){
     let empty_note = { 
-      uuid: uuidv4(),
-      created: Date.now(),
-      modified: Date.now(),
-      tags: [], 
-      text: "", 
+      uuid:         uuidv4(),
+      created:      Date.now(),
+      modified:     Date.now(),
+      tags:         [], 
+      text:         "", 
       associations: []
     }
     return empty_note
   },
   getEmptyTagJSON: function(){
     let empty_tag = { 
-      uuid: uuidv4(),
-      created: Date.now(),
-      modified: Date.now(),
-      name: "",
-      notes: [], 
+      uuid:         uuidv4(),
+      created:      Date.now(),
+      modified:     Date.now(),
+      name:         "",
+      notes:        [], 
     }
     return empty_tag
   },
   getEmptyStorageJSON: function(){
     let empty_storage = {
-      uuid: uuidv4(),
-      created: Date.now(),
-      modified: Date.now(),
-      name: ""
+      uuid:       uuidv4(),
+      created:    Date.now(),
+      modified:   Date.now(),
+      name:       ""
     }
     return empty_storage
+  },
+  getEmptyGraphJSON: function(){
+    let empty_graph = {
+      uuid:       uuidv4(),
+      created:    Date.now(),
+      modified:   Date.now(),
+      vertices:   [],
+      edges:      []
+    }
+    return empty_graph
+  },
+  getEmptyVerticeJSON: function(){
+    let empty_vertice = {
+      uuid:      uuidv4(),
+      created:   Date.now(),
+      modified:  Date.now(),
+      note:      null,
+      posX:      0,
+      posY:      0,
+    }
+    return empty_vertice
+  },
+  getEmptyEdgeJSON: function(){
+    let empty_edge = {
+      uuid:       uuidv4(),
+      created:    Date.now(),
+      source:     null,
+      target:     null,
+    }
+    return empty_edge
   }
 }
 

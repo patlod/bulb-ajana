@@ -1,28 +1,26 @@
-module.exports = Graph
+module.exports = Edge
 
 const FileDatabaseManager = require('../_models/FileDatabaseManager')
 
 
-function Graph(project, data = FileDatabaseManager.getEmptyGraphJSON()) 
+function Edge(graph, data = FileDatabaseManager.getEmptyEdgeJSON()) 
 {
   var self = this
 
-  // Graph data
+  // Edge data
   this.uuid = data.uuid
   this.created = data.created
-  // this.modified = data.modified
-  this.vertices = data.vertices
-  this.edges = data.edges
+  // this.modified = 0
+  this.source = data.source
+  this.target = data.target
 
-  // this.active = false
-
-  this.project = project
+  this.graph = graph
 
   // Load data on creation
   this.loadData()
 }
 
-Graph.prototype.loadData = function(){
+Edge.prototype.loadData = function(){
   // this.uuid = this.db.getUUID()
   // this.datetime = this.db.getCreated()
   // this.name = this.db.getName()
@@ -30,6 +28,6 @@ Graph.prototype.loadData = function(){
   // this.notes = this.loadNotes()
 }
 
-Graph.prototype.saveData = function(){
+Edge.prototype.saveData = function(){
   
 }

@@ -1,10 +1,6 @@
 module.exports = Note
 
-const { geoDistance } = require('d3')
-const { remote } = require('electron')
-const FileDatabase = require('../_models/FileDatabase')
 const FileDatabaseManager = require('../_models/FileDatabaseManager')
-const { app, dialog } = remote
 
 
 function Note(project, data = FileDatabaseManager.getEmptyNoteJSON()) 

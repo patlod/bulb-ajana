@@ -1,11 +1,7 @@
 module.exports = Project
 
-const { remote } = require('electron')
-const { app, dialog } = remote
 const fs = require('fs')
-const { path } = require('d3');
 
-const Session = require("./Session");
 const FileDatabase = require("../_models/FileDatabase");
 const FileDatabaseManager = require('../_models/FileDatabaseManager');
 const Note = require('./note');
@@ -18,7 +14,7 @@ const Note = require('./note');
  * - Instantiated objects are empty. 
  *    - Data has to be loaded from the database explicitly
  */
-function Project(path, session) {
+function Project(path, session, data = FileDatabaseManager.getEmptyProjectJSON()) {
   /*if(typeof path !== String)
     return null;*/
 
@@ -28,12 +24,12 @@ function Project(path, session) {
   this.db = new FileDatabase(path)
 
   // Project data
-  this.uuid = ""
-  this.created = 0
-  this.name = ""
-  this.tags = []
-  this.notes = [];
-  this.selected_notes = []
+  this.uuid =     data.uuid
+  this.created =  data.created
+  this.name = data.name
+  this.tags = data.tags
+  this.notes = data.notes
+  //this.selected_notes = []
 
   this.active = false
 

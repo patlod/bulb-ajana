@@ -1,20 +1,19 @@
-module.exports = Graph
+module.exports = Vertice
 
 const FileDatabaseManager = require('../_models/FileDatabaseManager')
 
 
-function Graph(project, data = FileDatabaseManager.getEmptyGraphJSON()) 
+function Vertice(graph, data = FileDatabaseManager.getEmptyVerticeJSON()) 
 {
   var self = this
 
-  // Graph data
+  // Vertice data
   this.uuid = data.uuid
   this.created = data.created
-  // this.modified = data.modified
-  this.vertices = data.vertices
-  this.edges = data.edges
-
-  // this.active = false
+  this.modified = data.modified
+  this.note = data.note
+  this.posX = data.posX
+  this.posY = data.posY
 
   this.project = project
 
@@ -22,7 +21,7 @@ function Graph(project, data = FileDatabaseManager.getEmptyGraphJSON())
   this.loadData()
 }
 
-Graph.prototype.loadData = function(){
+Vertice.prototype.loadData = function(){
   // this.uuid = this.db.getUUID()
   // this.datetime = this.db.getCreated()
   // this.name = this.db.getName()
@@ -30,6 +29,6 @@ Graph.prototype.loadData = function(){
   // this.notes = this.loadNotes()
 }
 
-Graph.prototype.saveData = function(){
+Vertice.prototype.saveData = function(){
   
 }

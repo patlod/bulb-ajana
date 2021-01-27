@@ -143,7 +143,7 @@ NoteListView.prototype.render = function(project){
       </div>
     `
   
-    // Create the draggable functionality on each note-thumb
+    // Make note-thumbs draggable elements
     $(note_thumb).draggable({
       start: function(event,ui){
         $('body').css("cursor", "no-drop")

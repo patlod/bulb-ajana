@@ -128,6 +128,7 @@ function App(el){
     self.views.editor.resizeElementByContent($('#notepad')[0])
 
     if(self.session.getGraphMode()){
+      // Make the #content container of the graph a droppable element for the notes
       $('#content').droppable({
         accept:'.note-thmb-wrap',
         classes: {
