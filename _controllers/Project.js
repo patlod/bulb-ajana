@@ -4,6 +4,7 @@ const fs = require('fs')
 
 const FileDatabase = require("../_models/FileDatabase");
 const FileDatabaseManager = require('../_models/FileDatabaseManager');
+const Graph = require('./Graph');
 const Note = require('./note');
 
 
@@ -36,6 +37,7 @@ function Project(path, session, data = FileDatabaseManager.getEmptyProjectJSON()
   this.session = session
 
   this.graph_mode = false   // Default: Graph is off..
+  this.graphs = data.graphs
 
   // Load data on creation
   this.loadData()
@@ -52,11 +54,12 @@ Project.prototype.printSessionProjects = function(){
  * database.
  */
 Project.prototype.loadData = function(){
-  this.uuid = this.db.getUUID()
-  this.datetime = this.db.getCreated()
-  this.name = this.db.getName()
+  this.uuid = this.db.getProjectUUID()
+  this.datetime = this.db.getProjectCreated()
+  this.name = this.db.getProjectName()
   this.tags = this.db.getProjectTags()
   this.notes = this.loadNotes()
+  //this.graphs = this.loadGraphs()
 }
 
 /**
@@ -65,6 +68,11 @@ Project.prototype.loadData = function(){
 Project.prototype.loadTags = function(){
   this.db.read()
   this.tags = this.db.getProjectTags()
+}
+
+Project.prototype.loadGraphs = function(){
+  // this.db.read()
+  // this.graphs = this.db.getGraphs()
 }
 
 /**
@@ -85,43 +93,6 @@ Project.prototype.getActiveNote = function(){
   for(var i in this.notes){
     if(this.notes[i].isActive()) return this.notes[i]
   }
-}
-
-/**
- * Returns the graph of the project
- */
-Project.prototype.getGraphMode = function(){
-  return this.graph_mode
-}
-
-/**
- * Sets the graph of the project
- */
-Project.prototype.setGraphMode = function(val){
-  this.graph_mode = val
-}
-
-/**
- * Returns empty note without textual content
- * 
- * ATTENTION: This should only maximally find one empty note
- * if more are stored in project there are inconsistencies as 
- * empty notes should be deleted on regular basis..
- * 
- */
-Project.prototype.getEmptyNotes = function(){
-  let empties = []
-  for(var i in this.notes){
-    if(this.notes[i].isEmpty()){
-      empties.push(this.notes[i])
-    }
-  }
-  //console.log(empties)
-  if(empties.length > 1){
-    console.error("ERROR: More than one empty note in project")
-    return null
-  }
-  return empties
 }
 
 /**
@@ -156,6 +127,96 @@ Project.prototype.setActiveNoteAtIndex = function(index){
 Project.prototype.resetActiveNote = function(){
   this.toggleActiveNote()
 }
+
+/**
+ * Returns empty note without textual content
+ * 
+ * ATTENTION: This should only maximally find one empty note
+ * if more are stored in project there are inconsistencies as 
+ * empty notes should be deleted on regular basis..
+ * 
+ */
+Project.prototype.getEmptyNotes = function(){
+  let empties = []
+  for(var i in this.notes){
+    if(this.notes[i].isEmpty()){
+      empties.push(this.notes[i])
+    }
+  }
+  //console.log(empties)
+  if(empties.length > 1){
+    console.error("ERROR: More than one empty note in project")
+    return null
+  }
+  return empties
+}
+
+/**
+ * Returns the active graph of this project
+ * 
+ * NOTE: For now just returns the graph variable that is initialised with only one graph
+ *       Later this might become a list with several active graphs similar as projects in sessions.
+ */
+Project.prototype.getActiveGraph = function(){
+  if(this.graphs.length === 0) return null;
+  for(var i in this.graphs){
+    if(this.graphs[i].isActive()) return this.graphs[i]
+  }
+}
+
+/**
+ * TODO
+ */
+Project.prototype.toggleActiveGraph = function(target = null){
+  if(this.graphs.length === 0) return null;
+  for(var i in this.graphs){
+    // Did not work with getActiveProject, probably because the return hands back a value..
+    if(this.graphs[i].isActive()) this.graphs[i].deactivate()
+  }
+  if(target){
+    target.activate()
+    return target
+  } // else no note will be activated
+}
+
+/**
+ * Sets note at index in the notes array active
+ */
+Project.prototype.setActiveGraphAtIndex = function(index){
+  return this.toggleActiveGraph(this.graphs[index])
+}
+
+/**
+ * Resets active notes of project to 'NO ACTIVE NOTE'
+ */
+Project.prototype.resetActiveGraph = function(){
+  this.toggleActiveGraph()
+}
+
+/**
+ * Returns the graph of the project
+ */
+Project.prototype.getGraphMode = function(){
+  return this.graph_mode
+}
+
+/**
+ * Sets the graph of the project
+ */
+Project.prototype.setGraphMode = function(val){
+  if(val){
+    // In case no graph is existing yet insert an empty one.
+    if(this.graphs.length === 0){
+      let nG = new Graph(this)
+      this.graphs.push(nG)
+      this.toggleActiveGraph(this.graphs[0])
+      nG.saveData()
+    }
+      
+  }
+  this.graph_mode = val
+}
+
 
 /**
  * Change project name

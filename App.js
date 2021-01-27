@@ -268,6 +268,50 @@ function App(el){
     m_dt.classList.toggle('hidden')
   })
 
+/* ============================================================================== */
+/*  Graph Event Listeners                                                         */
+/* ============================================================================== */
+  self.on('createNewNoteVertexGraph', function(coords){
+    /**
+     * For now: New empty note is directly inserted into database
+     * Better: Only insert once there is at least one char content.
+     */
+    let active_project = self.session.getActiveProject()
+    let active_graph = active_project.getActiveGraph()
+
+    if( active_project === null || active_graph === null){
+      console.log("createNewNoteVertexGraph -- No active project or graph.")
+      return 
+    }
+
+    let nn = active_project.createNewNote()
+    nn.saveData()
+    
+    let nV = active_graph.createNewVertexForNote( coords, nn )
+    nV.saveData()
+    
+    self.views.graph.updateGraph(active_graph);
+
+    // render()
+  })
+
+  self.on('addNotesToGraph', function(coords){ 
+    // TODO: 
+  })
+
+  self.on('deleteNoteInGraph', function(){
+    // TODO: 
+  })
+
+  self.on('createNewEdgeInGraph', function(){
+    // TODO: 
+  })
+
+  self.on('deleteEdgeInGraph', function(){
+    // TODO: 
+  })
+  
+
   /**
    * Handlers for IPC
    */

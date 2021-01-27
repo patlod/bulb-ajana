@@ -70,21 +70,21 @@ FileDatabase.prototype.read = function(){
 /**
  * Returns the UUID of the project
  */
-FileDatabase.prototype.getUUID = function(){
+FileDatabase.prototype.getProjectUUID = function(){
   return this.db.get('uuid').value()
 }
 
 /**
  * Gets created datetime of DB file
  */
-FileDatabase.prototype.getCreated = function(){
+FileDatabase.prototype.getProjectCreated = function(){
   return this.db.get('created').value()
 }
 
 /**
  * Gets name of the project DB file
  */
-FileDatabase.prototype.getName = function(){
+FileDatabase.prototype.getProjectName = function(){
   return this.db.get('name').value()
 }
 
@@ -406,6 +406,23 @@ FileDatabase.prototype.getNotesFromTag = function(tag_id){
 FileDatabase.prototype.getProjectTags = function(){
   // Read all the data from project's tag list
   return this.db.get('tags').value()
+}
+
+
+/* ================================================================= */
+/* Graph data                                                        */
+/* ================================================================= */
+
+FileDatabase.prototype.insertGraph = function(graph){
+  // TODO
+}
+
+FileDatabase.prototype.insertVertex = function(vertex){
+  // TODO
+}
+
+FileDatabase.prototype.insertEdge = function(edge){
+  // TODO
 }
 
 

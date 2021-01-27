@@ -16,18 +16,20 @@ function Edge(graph, data = FileDatabaseManager.getEmptyEdgeJSON())
 
   this.graph = graph
 
-  // Load data on creation
-  this.loadData()
 }
 
-Edge.prototype.loadData = function(){
-  // this.uuid = this.db.getUUID()
-  // this.datetime = this.db.getCreated()
-  // this.name = this.db.getName()
-  // this.tags = this.db.getProjectTags()
-  // this.notes = this.loadNotes()
-}
 
 Edge.prototype.saveData = function(){
-  
+  this.graph.getDB().insertEdge(this.getEdgeJSON())
+}
+
+Edge.prototype.getEdgeJSON = function(){
+  return { 
+    uuid: this.uuid,
+    created: this.created,
+    //modified: this.modified,
+    source: this.source.getVertexJSON(),
+    target: this.target.getVertexJSON(), 
+    
+  }
 }

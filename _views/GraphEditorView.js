@@ -46,25 +46,11 @@ function GraphEditorView(target) {
 
   this.dirty_bit = false
 
-
-  
-  // var settings = {
-  //   appendElSpec: "#content"
-  // };
-
-// }
-// inherits(GraphEditorView, EventEmitterElement)
-
-/* ============================================================================== */
-/*  From here: GraphCreator code                                                  */
-/* ============================================================================== */
-
-// define graphcreator object
-//function GraphCreator(svg, nodes, edges){
-
+  // Graph related variables
   this.svg = null
-  this.nodes = null
-  this.edges = null
+  this.paths = null
+  this.circles = null
+  
 
   this.consts =  {
     selectedClass: "selected",
@@ -91,10 +77,10 @@ inherits(GraphEditorView, EventEmitterElement)
 
 GraphEditorView.prototype.init = function(svg, nodes, edges){
   var self = this;
-  self.idct = 0;
+  //self.idct = 0;
 
-  self.nodes = nodes || [];
-  self.edges = edges || [];
+  //self.nodes = nodes || [];
+  //self.edges = edges || [];
 
   self.state = {
     selectedNode: null,
@@ -207,10 +193,6 @@ GraphEditorView.prototype.takedown = function(){
   .on("resize", null)
 }
 
-GraphEditorView.prototype.setIdCt = function(idct){
-  this.idct = idct;
-};
-
 // PROTOTYPE FUNCTIONS 
 
 GraphEditorView.prototype.dragmove = function(d) {
@@ -256,17 +238,15 @@ GraphEditorView.prototype.insertTitleLinebreaks = function (gEl, title) {
 
 // Remove edges associated with a node
 
-// TODO: Move into Edges class
-
-GraphEditorView.prototype.spliceLinksForNode = function(node) {
-  var self = this,
-      toSplice = self.edges.filter(function(l) {
-    return (l.source === node || l.target === node);
-  });
-  toSplice.map(function(l) {
-    self.edges.splice(self.edges.indexOf(l), 1);
-  });
-};
+// GraphEditorView.prototype.spliceLinksForNode = function(node) {
+//   var self = this,
+//       toSplice = self.edges.filter(function(l) {
+//     return (l.source === node || l.target === node);
+//   });
+//   toSplice.map(function(l) {
+//     self.edges.splice(self.edges.indexOf(l), 1);
+//   });
+// };
 
 GraphEditorView.prototype.replaceSelectEdge = function(d3Path, edgeData){
   var self = this;
@@ -415,19 +395,14 @@ GraphEditorView.prototype.svgMouseUp = function(){
   } else if (state.graphMouseDown && d3.event.shiftKey){ 
     // clicked not dragged from svg
 
-    // CREATE NEW NOTE/VERTICE
+    // CREATE NEW NOTE/VERTEX
     var xycoords = d3.mouse(self.svgG.node())
     console.log(xycoords)
-    var d = {id: self.idct++, title: consts.defaultTitle, x: xycoords[0], y: xycoords[1]}
-    self.nodes.push(d);
-    self.updateGraph();
-    // make title of text immediently editable
-    // var d3txt = self.changeTextOfNode(self.circles.filter(function(dval){
-    //   return dval.id === d.id;
-    // }), d),
-    //     txtNode = d3txt.node();
-    // self.selectElementContents(txtNode);
-    // txtNode.focus();
+    
+    var coords = {x: xycoords[0], y: xycoords[1]}
+    self.send('createNewNoteVertexGraph', coords)
+    
+   
   } else if (state.shiftNodeDrag){
     // dragged from node
     state.shiftNodeDrag = false;

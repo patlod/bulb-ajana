@@ -2,7 +2,6 @@ module.exports = Note
 
 const FileDatabaseManager = require('../_models/FileDatabaseManager')
 
-
 function Note(project, data = FileDatabaseManager.getEmptyNoteJSON()) 
 {
   var self = this
@@ -22,12 +21,13 @@ function Note(project, data = FileDatabaseManager.getEmptyNoteJSON())
   this.project = project
 }
 
+
 /* ======================================================= */ 
 /*   Operations on note data                               */
 /* ======================================================= */
 Note.prototype.saveData = function(){
   // Either insert
-  this.project.db.insertNote(this.getNoteJSON())
+  this.getDB().insertNote(this.getNoteJSON())
   // Or update existing..
 }
 
@@ -36,9 +36,9 @@ Note.prototype.deleteNote = function(){
 }
 
 Note.prototype.saveText = function(){
-  this.project.db.read()
+  this.getDB().read()
   // Persist to database
-  this.project.db.updateNoteText(this.getNoteJSON())
+  this.getDB().updateNoteText(this.getNoteJSON())
   
 }
 
@@ -53,8 +53,8 @@ Note.prototype.saveText = function(){
 Note.prototype.addTag = function(tag_value){
 
   // Insert to database
-  this.project.db.read()
-  let tag = this.project.db.insertNoteTag(this.uuid, tag_value)
+  this.getDB().read()
+  let tag = this.getDB().insertNoteTag(this.uuid, tag_value)
   // Add tag to tag array 
   this.tags.push(tag)
 
@@ -65,7 +65,7 @@ Note.prototype.addTag = function(tag_value){
 
 Note.prototype.removeTag = function(tag_value){
   
-  this.project.db.read()
+  this.getDB().read()
   // Find tag_id and index in tag list from tag_value
   let index = 0
   let tag_id = ""
@@ -79,7 +79,7 @@ Note.prototype.removeTag = function(tag_value){
   if(tag_id.length == 0){
     console.log("Tag ID can note be found in note object data")
   }
-  this.project.db.removeNoteTag(this.uuid, tag_id)
+  this.getDB().removeNoteTag(this.uuid, tag_id)
   // Remove tag from tag array
   this.tags.splice(index, 1)
   // Reload project's tag list
@@ -94,9 +94,9 @@ Note.prototype.removeTag = function(tag_value){
  */
 Note.prototype.updateTag = function(new_val, pre_val){
 
-  this.project.db.read()
+  this.getDB().read()
   // Insert new tag to database
-  let tag = this.project.db.insertNoteTag(this.uuid, new_val)
+  let tag = this.getDB().insertNoteTag(this.uuid, new_val)
   // Insert tag into tag list
   this.tags.push(tag)
 
@@ -110,7 +110,7 @@ Note.prototype.updateTag = function(new_val, pre_val){
     }
   }
   // Remove new tag to database 
-  this.project.db.removeNoteTag(this.uuid, pre_tag_id)
+  this.getDB().removeNoteTag(this.uuid, pre_tag_id)
   // Remove old tag from tags list
   this.tags.splice(index, 1)
 
@@ -128,6 +128,10 @@ Note.prototype.getTags = function(){
 /* ======================================================= */
 /*  Other                                                  */
 /* ======================================================= */
+
+Note.prototype.getDB = function(){
+  return this.project.db
+}
 
 Note.prototype.isActive = function(){
   return this.active

@@ -138,6 +138,10 @@ Session.prototype.setGraphMode = function(val){
   }
 }
 
+Session.prototype.getActiveGraph = function(){
+  return this.getActiveProject().getActiveGraph()
+}
+
 /**
  * Prepares a target project for being unfocused or closed
  * 
@@ -172,8 +176,9 @@ Session.prototype.transToProject = function(project, callback){
   // trigger a re-render()
   self.toggleActiveProject(project)
   project.setActiveNoteAtIndex(0)
+  
   // Reset the scroll position of NotesListView
-  self.app.views.notes.scrollTop = 0
+  //self.app.views.notes.scrollTop = 0
 
   if(typeof callback === "function"){
     callback()

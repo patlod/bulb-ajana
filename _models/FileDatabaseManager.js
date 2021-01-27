@@ -7,7 +7,8 @@ var FileDatabaseManager = {
       created:    Date.now(),
       name:       "",    
       tags:       [],
-      notes:      []   
+      notes:      [],
+      graphs:     []
     }
     return empty_project
   },
@@ -51,8 +52,8 @@ var FileDatabaseManager = {
     }
     return empty_graph
   },
-  getEmptyVerticeJSON: function(){
-    let empty_vertice = {
+  getEmptyVertexJSON: function(){
+    let empty_vertex = {
       uuid:      uuidv4(),
       created:   Date.now(),
       modified:  Date.now(),
@@ -60,7 +61,7 @@ var FileDatabaseManager = {
       posX:      0,
       posY:      0,
     }
-    return empty_vertice
+    return empty_vertex
   },
   getEmptyEdgeJSON: function(){
     let empty_edge = {
