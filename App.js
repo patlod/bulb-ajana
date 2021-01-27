@@ -129,17 +129,17 @@ function App(el){
 
     if(self.session.getGraphMode()){
       $('#content').droppable({
-        //accept:'.note-thmb-wrap',
+        accept:'.note-thmb-wrap',
         classes: {
           "ui-droppable-active": "graph-droppable-active",
           "ui-droppable-hover": "graph-droppable-hover"
         },
-        /*over: function(event, ui) {
-          ui.draggable.css("cursor", "copy");
+        over: function(event, ui) {
+          $('body').css("cursor", "copy")
         },
         out: function(event, ui) {
-          ui.draggable.css("cursor", "no-drop");
-        },*/
+          $('body').css("cursor", "no-drop")
+        },
         drop: function(event,ui){
             console.log("Dropped note in graph..")
             /**

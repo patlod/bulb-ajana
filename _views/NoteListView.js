@@ -145,25 +145,26 @@ NoteListView.prototype.render = function(project){
   
     // Create the draggable functionality on each note-thumb
     $(note_thumb).draggable({
-    revert: true, 
-    helper: function(e,ui){
-      return $($.parseHTML('<p style="background: pink">Copy!</p>'))
-    }, 
-    cursorAt: { left: 2, top: 2},
-    appendTo: '#layout',
-    start: function(event,ui){
-      $(this).css("cursor", "no-drop");
-     },
-     stop: function(event,ui){
-      $(this).css("cursor", "initial");
-     }
+      start: function(event,ui){
+        $('body').css("cursor", "no-drop")
+       },
+       stop: function(event,ui){
+        $('body').css("cursor", "initial");
+       },
+      revert: true, 
+      helper: function(e,ui){
+        //$($.parseHTML('<p style="background: pink">Copy!</p>'))
+        let clone = $(this).clone()
+        clone.children('.note-thmb').css({"background": "#f7f7f7", "border-bottom": "none"})
+        return clone
+      }, 
+      cursorAt: { left: 2, top: 2},
+      appendTo: '#layout',
     })
 
     return note_thumb
   })
 
-  //console.log("Notes thumbnails..")
-  //console.log(notes_thmbs)
 
   return yo`
     <div>
