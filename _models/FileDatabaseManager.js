@@ -54,12 +54,14 @@ var FileDatabaseManager = {
   },
   getEmptyVertexJSON: function(){
     let empty_vertex = {
-      uuid:      uuidv4(),
-      created:   Date.now(),
-      modified:  Date.now(),
-      note:      null,
-      posX:      0,
-      posY:      0,
+      uuid:       uuidv4(),
+      created:    Date.now(),
+      modified:   Date.now(),
+      note:       null,
+      posX:       0,
+      posY:       0,
+      width_dom:  0,
+      height_dom: 0
     }
     return empty_vertex
   },

@@ -6,7 +6,7 @@ var inherits = require('util').inherits
 var yo = require('yo-yo')
 
 const d3 = require("d3");
-const UIVertexWrapper = require('./UIVertexWrapper')
+
 
 
 
@@ -137,7 +137,7 @@ GraphEditorView.prototype.init = function(svg, nodes, edges){
         .origin(function(d){
           console.log("drag: ")
           console.log(d)
-          return {x: d.vertex.posX, y: d.vertex.posY}; // self.calcNodeCenter(d3.select(this), d)
+          return {x: d.posX, y: d.posY}; // self.calcNodeCenter(d3.select(this), d)
         })
         .on("drag", function(d){
           self.state.justDragged = true;
@@ -205,8 +205,8 @@ GraphEditorView.prototype.dragmove = function(d) {
     self.dragLine.attr('d', 'M' + midCoords.x  + ',' + midCoords.y + 'L' + d3.mouse(self.svgG.node())[0] + ',' + d3.mouse(this.svgG.node())[1]);
   } else{ 
     // or move the node
-    d.vertex.posX += d3.event.dx;
-    d.vertex.posY +=  d3.event.dy;
+    d.posX += d3.event.dx;
+    d.posY +=  d3.event.dy;
     self.updateGraph();
   }
 };
@@ -442,7 +442,6 @@ GraphEditorView.prototype.updateGraph = function(graphController){
   // console.log(self.nodes)
 
   // Associate edges data in the graph controller with the UI elements
-  let wrappedEdges = graphController.edges.map(function(ed){ return new UIEdgeWrapper(ed)})
   self.paths = self.paths.data(graphController.edges, function(d){
     return String(d.source.uuid) + "+" + String(d.target.uuid);
   });
@@ -456,8 +455,8 @@ GraphEditorView.prototype.updateGraph = function(graphController){
     })
     .attr("d", function(d){
       // TODO: Refactor the to use Wrapper
-      let source_midCoords = self.calcNodeCenter(d.source)
-      let target_midCoords = self.calcNodeCenter(d.target)
+      let source_midCoords = d.source.calcNodeCenter()
+      let target_midCoords = d.target.calcNodeCenter()
       return "M" + source_midCoords.x + "," + source_midCoords.y + "L" + target_midCoords.x + "," + target_midCoords.y;
     });
 
@@ -467,8 +466,8 @@ GraphEditorView.prototype.updateGraph = function(graphController){
     .style('marker-end','url(#end-arrow)')
     .classed("link", true)
     .attr("d", function(d){
-      let source_midCoords = d.calcNodeCenter(d.source)
-      let target_midCoords = self.calcNodeCenter(d.target)
+      let source_midCoords = d.source.calcNodeCenter()
+      let target_midCoords = d.target.calcNodeCenter()
       return "M" + source_midCoords.x + "," + source_midCoords.y + "L" + target_midCoords.x + "," + target_midCoords.y;
     })
     .on("mousedown", function(d){
@@ -484,11 +483,11 @@ GraphEditorView.prototype.updateGraph = function(graphController){
 
   // Update existing nodes
   // Prepare vertex wrappers
-  let wrappedVertices = graphController.vertices.map(function(v){return new UIVertexWrapper(v)})
-  // Associate edges data in the graph controller with the UI elements
-  self.circles = self.circles.data(wrappedVertices, function(d){ return d.vertex.uuid;});
   
-  self.circles.attr("transform", function(d){return "translate(" + d.vertex.x + "," + d.vertex.y + ")";});
+  // Associate edges data in the graph controller with the UI elements
+  self.circles = self.circles.data(graphController.vertices, function(d){ return d.uuid;});
+  
+  self.circles.attr("transform", function(d){return "translate(" + d.posX + "," + d.posY + ")";});
 
   let html_str = `
     <div class="graph-note-header">
@@ -519,7 +518,7 @@ GraphEditorView.prototype.updateGraph = function(graphController){
     .attr("width", 427)    // "80%"
     .attr("height", 1)     
     .attr("overflow", "visible")
-    .attr("transform", function(d){return "translate(" + d.vertex.x + "," + d.vertex.y + ")";})
+    .attr("transform", function(d){return "translate(" + d.posX + "," + d.posY + ")";})
     .append("xhtml:div")
       .attr('class', 'graph-note')
       .html(html_str)
@@ -538,8 +537,8 @@ GraphEditorView.prototype.updateGraph = function(graphController){
     console.log(d)
     
     // Associate vertex' UI dimensions with its data
-    d.width = gNote.offsetWidth
-    d.height = gNote.offsetHeight
+    d.width_dom = gNote.offsetWidth
+    d.height_dom = gNote.offsetHeight
   
     console.log("newGs.each")
     console.log(d)
@@ -583,17 +582,6 @@ GraphEditorView.prototype.updateWindow = function(){
 };
 
 
-/**
- * Calculates the center coordinates of a vertex which is a rectangular
- * foreignObject filled with HTML note content.
- * 
- * The default origin of the foreignObject is the corner at North-West
- * 
- * @param {WrappedVertex} wV - The vertex for which the center coordinates shall be returned 
- */
-GraphEditorView.prototype.calcNodeCenter = function(wV){
-  return {x: wV.vertex.posX + wV.width/2, y: wV.y + wV.height/2}
-}
 
 
 
