@@ -421,7 +421,15 @@ FileDatabase.prototype.insertVertex = function(vertex){
   // TODO
 }
 
+FileDatabase.prototype.deleteVertices = function(vertices){
+  // TOOD
+}
+
 FileDatabase.prototype.insertEdge = function(edge){
+  // TODO
+}
+
+FileDatabase.prototype.deleteEdges = function(edges){
   // TODO
 }
 

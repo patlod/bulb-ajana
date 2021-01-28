@@ -264,7 +264,7 @@ Project.prototype.createNewNote = function(){
  * Delete either single note or selection of notes
  * 
  *  @param {Note} note 
- */
+ */ 
 Project.prototype.deleteNote = function(note){
   this.db.read()
   let note_ids = this.notes.map(function(n) { return n.uuid; })

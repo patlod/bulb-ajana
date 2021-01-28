@@ -23,6 +23,16 @@ Vertex.prototype.saveData = function(){
   this.graph.getDB().insertVertex(this.getVertexJSON())
 }
 
+/**
+ * Compares this note to anohter note
+ * 
+ * @param {Note} note
+ */
+Vertex.prototype.compareTo = function(vertex){
+  return ( JSON.stringify(this.getVertexJSON()).localeCompare( JSON.stringify(vertex.getVertexJSON()) ) === 0 )
+}
+
+
 Vertex.prototype.getVertexJSON = function(){
   return { 
     uuid: this.uuid,

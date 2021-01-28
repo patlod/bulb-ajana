@@ -6,16 +6,15 @@ var inherits = require('util').inherits
 var yo = require('yo-yo')
 
 const d3 = require("d3");
-var filesaver = require('file-saver')
-//const GraphCreator = require('../graph-creator.js')
+const UIVertexWrapper = require('./UIVertexWrapper')
 
 
-// TODO add user settings
+
+
+
 var consts = {
   defaultTitle: "random variable"
 };
-
-
 
 /**
  * GraphEditorView class that handles everything considering the 
@@ -136,7 +135,9 @@ GraphEditorView.prototype.init = function(svg, nodes, edges){
 
   self.drag = d3.behavior.drag()
         .origin(function(d){
-          return {x: d.x, y: d.y}; // self.calcNodeCenter(d3.select(this), d)
+          console.log("drag: ")
+          console.log(d)
+          return {x: d.vertex.posX, y: d.vertex.posY}; // self.calcNodeCenter(d3.select(this), d)
         })
         .on("drag", function(d){
           self.state.justDragged = true;
@@ -200,12 +201,12 @@ GraphEditorView.prototype.dragmove = function(d) {
 
   if (self.state.shiftNodeDrag){
     // Create & drag edge
-    let midCoords = self.calcNodeCenter(d)
+    let midCoords = d.calcNodeCenter()
     self.dragLine.attr('d', 'M' + midCoords.x  + ',' + midCoords.y + 'L' + d3.mouse(self.svgG.node())[0] + ',' + d3.mouse(this.svgG.node())[1]);
   } else{ 
     // or move the node
-    d.x += d3.event.dx;
-    d.y +=  d3.event.dy;
+    d.vertex.posX += d3.event.dx;
+    d.vertex.posY +=  d3.event.dy;
     self.updateGraph();
   }
 };
@@ -335,18 +336,8 @@ GraphEditorView.prototype.circleMouseUp = function(d3node, d){
 
   if (mouseDownNode !== d){
     // we're in a different node: create new edge for mousedown edge and add to graph
-    var newEdge = {source: mouseDownNode, target: d};
-    var filtRes = self.paths.filter(function(d){
-      if (d.source === newEdge.target && d.target === newEdge.source){
-        self.edges.splice(self.edges.indexOf(d), 1);
-      }
-      return d.source === newEdge.source && d.target === newEdge.target;
-    });
-
-    if (!filtRes[0].length){
-      self.edges.push(newEdge);
-      self.updateGraph();
-    }
+    var vPair = {source: mouseDownNode, target: d}
+    self.send('createNewEdgeInGraph', vPair)
   } else{
     // we're in the same node
     if (state.justDragged) {
@@ -398,8 +389,8 @@ GraphEditorView.prototype.svgMouseUp = function(){
     // CREATE NEW NOTE/VERTEX
     var xycoords = d3.mouse(self.svgG.node())
     console.log(xycoords)
-    
     var coords = {x: xycoords[0], y: xycoords[1]}
+
     self.send('createNewNoteVertexGraph', coords)
     
    
@@ -427,19 +418,11 @@ GraphEditorView.prototype.svgKeyDown = function() {
   case consts.BACKSPACE_KEY:
   case consts.DELETE_KEY:
 
-    // console.log("backspace pressed..")
-
     d3.event.preventDefault();
     if (selectedNode){
-      self.nodes.splice(self.nodes.indexOf(selectedNode), 1);
-      self.spliceLinksForNode(selectedNode);
-      state.selectedNode = null;
-      self.updateGraph();
+      self.send('deleteVertexInGraph', selectedNode)
     } else if (selectedEdge){
-      console.log("delete edge..")
-      self.edges.splice(self.edges.indexOf(selectedEdge), 1);
-      state.selectedEdge = null;
-      self.updateGraph();
+      self.send('deleteEdgeInGraph', selectedEdge)
     }
     break;
   }
@@ -452,27 +435,27 @@ GraphEditorView.prototype.svgKeyUp = function() {
 // Call to propagate changes to graph
 GraphEditorView.prototype.updateGraph = function(graphController){
   var self = this
-  var consts = self.consts
-  var state = self.state
-
-
+  
   // console.log("====> Edges:")
   // console.log(self.edges)
   // console.log("====> Nodes:")
   // console.log(self.nodes)
 
-
-  self.paths = self.paths.data(self.edges, function(d){
-    return String(d.source.id) + "+" + String(d.target.id);
+  // Associate edges data in the graph controller with the UI elements
+  let wrappedEdges = graphController.edges.map(function(ed){ return new UIEdgeWrapper(ed)})
+  self.paths = self.paths.data(graphController.edges, function(d){
+    return String(d.source.uuid) + "+" + String(d.target.uuid);
   });
   var paths = self.paths;
 
   // Update existing paths
   paths.style('marker-end', 'url(#end-arrow)')
-    .classed(consts.selectedClass, function(d){
-      return d === state.selectedEdge;
+    .classed(self.consts.selectedClass, function(d){
+      // TODO: User proper compare
+      return d === self.state.selectedEdge;
     })
     .attr("d", function(d){
+      // TODO: Refactor the to use Wrapper
       let source_midCoords = self.calcNodeCenter(d.source)
       let target_midCoords = self.calcNodeCenter(d.target)
       return "M" + source_midCoords.x + "," + source_midCoords.y + "L" + target_midCoords.x + "," + target_midCoords.y;
@@ -484,7 +467,7 @@ GraphEditorView.prototype.updateGraph = function(graphController){
     .style('marker-end','url(#end-arrow)')
     .classed("link", true)
     .attr("d", function(d){
-      let source_midCoords = self.calcNodeCenter(d.source)
+      let source_midCoords = d.calcNodeCenter(d.source)
       let target_midCoords = self.calcNodeCenter(d.target)
       return "M" + source_midCoords.x + "," + source_midCoords.y + "L" + target_midCoords.x + "," + target_midCoords.y;
     })
@@ -493,15 +476,19 @@ GraphEditorView.prototype.updateGraph = function(graphController){
       }
     )
     .on("mouseup", function(d){
-      state.mouseDownLink = null;
+      self.state.mouseDownLink = null;
     });
 
   // Remove old links
   paths.exit().remove();
 
   // Update existing nodes
-  self.circles = self.circles.data(self.nodes, function(d){ return d.id;});
-  self.circles.attr("transform", function(d){return "translate(" + d.x + "," + d.y + ")";});
+  // Prepare vertex wrappers
+  let wrappedVertices = graphController.vertices.map(function(v){return new UIVertexWrapper(v)})
+  // Associate edges data in the graph controller with the UI elements
+  self.circles = self.circles.data(wrappedVertices, function(d){ return d.vertex.uuid;});
+  
+  self.circles.attr("transform", function(d){return "translate(" + d.vertex.x + "," + d.vertex.y + ")";});
 
   let html_str = `
     <div class="graph-note-header">
@@ -528,15 +515,14 @@ GraphEditorView.prototype.updateGraph = function(graphController){
         //.append("g");
         .append("foreignObject")
 
-  newGs.classed(consts.nodeClass, true)
+  newGs.classed(self.consts.nodeClass, true)
     .attr("width", 427)    // "80%"
     .attr("height", 1)     
     .attr("overflow", "visible")
-    .attr("transform", function(d){return "translate(" + d.x + "," + d.y + ")";})
+    .attr("transform", function(d){return "translate(" + d.vertex.x + "," + d.vertex.y + ")";})
     .append("xhtml:div")
       .attr('class', 'graph-note')
       .html(html_str)
-
 
   newGs.each(function(d){
     let foreignObj = d3.select(this)
@@ -550,23 +536,23 @@ GraphEditorView.prototype.updateGraph = function(graphController){
 
     console.log("newGs.each")
     console.log(d)
-    // Calculate center coordinates of graph note and add to node object
     
-    d["width"] = gNote.offsetWidth
-    d["height"] = gNote.offsetHeight
-
+    // Associate vertex' UI dimensions with its data
+    d.width = gNote.offsetWidth
+    d.height = gNote.offsetHeight
+  
     console.log("newGs.each")
     console.log(d)
 
     // Adjust the height to content
     foreignObj.attr("height", gNote.offsetHeight)
     .on("mouseover", function(d){
-      if (state.shiftNodeDrag){
-        d3.select(this).classed(consts.connectClass, true);
+      if (self.state.shiftNodeDrag){
+        d3.select(this).classed(self.consts.connectClass, true);
       }
     })
     .on("mouseout", function(d){
-      d3.select(this).classed(consts.connectClass, false);
+      d3.select(this).classed(self.consts.connectClass, false);
     })
     .on("mousedown", function(d){
       self.circleMouseDown.call(self, d3.select(this), d);
@@ -598,15 +584,15 @@ GraphEditorView.prototype.updateWindow = function(){
 
 
 /**
- * Calculates the center coordinates of a node which is a rectangular
+ * Calculates the center coordinates of a vertex which is a rectangular
  * foreignObject filled with HTML note content.
  * 
  * The default origin of the foreignObject is the corner at North-West
  * 
- * @param {DOM} node - The node for which the center coordinates shall be returned 
+ * @param {WrappedVertex} wV - The vertex for which the center coordinates shall be returned 
  */
-GraphEditorView.prototype.calcNodeCenter = function(d){
-  return {x: d.x + d.width/2, y: d.y + d.height/2}
+GraphEditorView.prototype.calcNodeCenter = function(wV){
+  return {x: wV.vertex.posX + wV.width/2, y: wV.y + wV.height/2}
 }
 
 
@@ -683,3 +669,4 @@ GraphEditorView.prototype.render = function(session){
   return graph_view
   
 }
+

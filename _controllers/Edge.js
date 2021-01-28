@@ -23,6 +23,16 @@ Edge.prototype.saveData = function(){
   this.graph.getDB().insertEdge(this.getEdgeJSON())
 }
 
+/**
+ * Compares this note to anohter note
+ * 
+ * @param {Note} note
+ */
+Edge.prototype.compareTo = function(edge){
+  return ( JSON.stringify(this.getEdgeJSON()).localeCompare( JSON.stringify(edge.getEdgeJSON()) ) === 0 )
+}
+
+
 Edge.prototype.getEdgeJSON = function(){
   return { 
     uuid: this.uuid,

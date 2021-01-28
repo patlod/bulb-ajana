@@ -32,6 +32,11 @@ Graph.prototype.saveData = function(){
   this.getDB().insertGraph(this.getGraphJSON())
 }
 
+
+Graph.prototype.getVertices = function(){
+  return this.vertices
+}
+
 /**
  * Creates a new vertex from a note at given coordinates
  * 
@@ -59,8 +64,22 @@ Graph.prototype.createNewVertexForNote = function(coords, note){
  * 
  * @param {Note} note 
  */
-Graph.prototype.deleteVertexForNote = function(note){
+Graph.prototype.deleteVertex = function(selectedVertex){
+  var self = this
 
+  self.vertices.splice(self.vertices.indexOf(selectedVertex), 1);
+  self.spliceEdgesForVertex(selectedVertex);
+
+  // TODO: Delete from database
+  //self.getDB().deleteVertex(selectedVertex.getVertexJSON())
+}
+
+
+/**
+ * 
+ */
+Graph.prototype.getEdges = function(){
+  return this.edges
 }
 
 /**
@@ -88,13 +107,19 @@ Graph.prototype.createNewEdge = function(source, target){
 /**
  * Deletes edge
  */
-Graph.prototype.deleteEdge = function( /* t.b.d */ ){
-  // TODO
+Graph.prototype.deleteEdge = function(selectedEdge){
+  var self = this
+
+  this.edges.splice(this.edges.indexOf(selectedEdge), 1);
+
+  // TODO: Delete from database
+  //self.getDB().deleteEdge(selectedEdge.getEdgeJSON())
 }
 
 
-Graph.prototype.spliceLinksForVertex = function(vertex) {
+Graph.prototype.spliceEdgesForVertex = function(vertex) {
   var self = this
+
   var toSplice = self.edges.filter(function(l) {
     // TODO: Refactor compare here ==> Maybe compare function in the Vertex class
     return (l.source === node || l.target === node);
@@ -102,6 +127,8 @@ Graph.prototype.spliceLinksForVertex = function(vertex) {
   toSplice.map(function(l) {
     self.edges.splice(self.edges.indexOf(l), 1);
   });
+
+  // TODO: Delete from database here
 };
 
 Graph.prototype.isActive = function(){

@@ -221,7 +221,8 @@ function App(el){
       return 
     }
     let nn = self.session.getActiveProject().createNewNote()
-    nn.saveData()
+    nn.saveData() // REFACTOR: Maybe better move this in createNewNote()
+
     render()
   })
 
@@ -285,10 +286,10 @@ function App(el){
     }
 
     let nn = active_project.createNewNote()
-    nn.saveData()
+    nn.saveData() // REFACTOR: Maybe move to createNewNote()
     
     let nV = active_graph.createNewVertexForNote( coords, nn )
-    nV.saveData()
+    nV.saveData() // REFACTOR: Maybe move to createNewVertexForNote()
     
     self.views.graph.updateGraph(active_graph);
 
@@ -299,16 +300,42 @@ function App(el){
     // TODO: 
   })
 
-  self.on('deleteNoteInGraph', function(){
-    // TODO: 
+  self.on('deleteVertexInGraph', function(selectedVertex){
+    console.log("deleteVertexInGraph: ")
+    console.log(selectedVertex)
+    let g = self.session.getActiveGraph()
+    g.deleteVertex(selectedVertex)
+
+    self.views.graph.state.selectedNode = null;
+
+    self.views.graph.updateGraph(g);
   })
 
-  self.on('createNewEdgeInGraph', function(){
-    // TODO: 
+  self.on('createNewEdgeInGraph', function(vPair){
+    let g = self.session.getActiveGraph()
+
+    var filtRes = g.getEdges().filter(function(d){
+      // TODO: Do proper compare here!
+      if (d.source === vPair.target && d.target === vPair.source){
+        g.deleteEdge(d)
+      }
+      return d.source === vPair.source && d.target === vPair.target;
+    });
+
+    if (!filtRes[0].length){
+      g.createNewEdge(vPair.source, vPair.target);
+
+      self.views.graph.updateGraph(g);
+    }
   })
 
-  self.on('deleteEdgeInGraph', function(){
-    // TODO: 
+  self.on('deleteEdgeInGraph', function(selectedEdge){
+    let g = self.session.getActiveGraph()
+    g.deleteEdge(selectedEdge)
+
+    self.views.graph.state.selectedEdge = null;
+
+    self.views.graph.updateGraph();
   })
   
 
