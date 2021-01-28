@@ -337,6 +337,10 @@ function App(el){
 
     self.views.graph.updateGraph();
   })
+
+  self.on('updateVertexPosition', function(){
+    // PROBABLY NOT NEEDED.
+  })
   
 
   /**

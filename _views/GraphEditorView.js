@@ -8,31 +8,9 @@ var yo = require('yo-yo')
 const d3 = require("d3");
 
 
-
-
-
-
-var consts = {
-  defaultTitle: "random variable"
-};
-
 /**
  * GraphEditorView class that handles everything considering the 
  * Graph Creator.
- * 
- * Nodes and edges are represented as object structures here:
- * - Node: 
- *      {
- *        id:      Int,
- *        title:   String,
- *        x:       Double,
- *        y:       Double
- *      }
- * - Edge: 
- *      {
- *        source:   Node,
- *        target:   Node
- *      }
  * 
  * @param {DOMElement} target - The DOM element of the UI for EventEmitter
  */
@@ -78,8 +56,6 @@ GraphEditorView.prototype.init = function(svg, nodes, edges){
   var self = this;
   //self.idct = 0;
 
-  //self.nodes = nodes || [];
-  //self.edges = edges || [];
 
   self.state = {
     selectedNode: null,
@@ -187,6 +163,10 @@ GraphEditorView.prototype.init = function(svg, nodes, edges){
 
 }
 
+/**
+ * Called when GraphEditor is unfocused 
+ *  e.g. switching to note editor
+ */
 GraphEditorView.prototype.takedown = function(){
   d3.select(window)
   .on("keydown", null)
@@ -207,47 +187,9 @@ GraphEditorView.prototype.dragmove = function(d) {
     // or move the node
     d.posX += d3.event.dx;
     d.posY +=  d3.event.dy;
-    self.updateGraph();
+    self.updateGraph(d.getGraph());
   }
 };
-
-// Select all text in element: taken from http://stackoverflow.com/questions/6139107/programatically-select-text-in-a-contenteditable-html-element 
-GraphEditorView.prototype.selectElementContents = function(el) {
-  var range = document.createRange();
-  range.selectNodeContents(el);
-  var sel = window.getSelection();
-  sel.removeAllRanges();
-  sel.addRange(range);
-};
-
-
-// insert svg line breaks: taken from http://stackoverflow.com/questions/13241475/how-do-i-include-newlines-in-labels-in-d3-charts 
-GraphEditorView.prototype.insertTitleLinebreaks = function (gEl, title) {
-  var words = title.split(/\s+/g),
-      nwords = words.length;
-  var el = gEl.append("text")
-        .attr("text-anchor","middle")
-        .attr("dy", "-" + (nwords-1)*7.5);
-
-  for (var i = 0; i < words.length; i++) {
-    var tspan = el.append('tspan').text(words[i]);
-    if (i > 0)
-      tspan.attr('x', 0).attr('dy', '15');
-  }
-};
-
-
-// Remove edges associated with a node
-
-// GraphEditorView.prototype.spliceLinksForNode = function(node) {
-//   var self = this,
-//       toSplice = self.edges.filter(function(l) {
-//     return (l.source === node || l.target === node);
-//   });
-//   toSplice.map(function(l) {
-//     self.edges.splice(self.edges.indexOf(l), 1);
-//   });
-// };
 
 GraphEditorView.prototype.replaceSelectEdge = function(d3Path, edgeData){
   var self = this;
@@ -270,7 +212,7 @@ GraphEditorView.prototype.replaceSelectNode = function(d3Node, nodeData){
 GraphEditorView.prototype.removeSelectFromNode = function(){
   var self = this;
   self.circles.filter(function(cd){
-    return cd.id === self.state.selectedNode.id;
+    return cd.uuid === self.state.selectedNode.uuid;
   }).classed(self.consts.selectedClass, false);
   self.state.selectedNode = null;
 };
@@ -357,7 +299,7 @@ GraphEditorView.prototype.circleMouseUp = function(d3node, d){
         }
         var prevNode = state.selectedNode;
 
-        if (!prevNode || prevNode.id !== d.id){
+        if (!prevNode || prevNode.uuid !== d.uuid){
           self.replaceSelectNode(d3node, d);
         } else{
           self.removeSelectFromNode();

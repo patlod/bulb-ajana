@@ -40,6 +40,10 @@ Vertex.prototype.calcDOMCenterCoords = function(){
   return {x: this.posX + this.width_dom/2, y: this.posY + this.height_dom/2}
 }
 
+Vertex.prototype.getGraph = function(){
+  return this.graph
+}
+
 /**
  * Compares this note to anohter note
  * 
