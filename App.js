@@ -306,7 +306,7 @@ function App(el){
     let g = self.session.getActiveGraph()
     g.deleteVertex(selectedVertex)
 
-    self.views.graph.state.selectedNode = null;
+    self.views.graph.removeSelectFromNode();
 
     self.views.graph.updateGraph(g);
   })
@@ -333,9 +333,9 @@ function App(el){
     let g = self.session.getActiveGraph()
     g.deleteEdge(selectedEdge)
 
-    self.views.graph.state.selectedEdge = null;
+    self.views.graph.removeSelectedFromEdge()
 
-    self.views.graph.updateGraph();
+    self.views.graph.updateGraph(g);
   })
 
   self.on('updateVertexPosition', function(){

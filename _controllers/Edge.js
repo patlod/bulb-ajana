@@ -23,7 +23,7 @@ Edge.prototype.saveData = function(){
   this.graph.getDB().insertEdge(this.getEdgeJSON())
 }
 
-Vertex.prototype.getGraph = function(){
+Edge.prototype.getGraph = function(){
   return this.graph
 }
 

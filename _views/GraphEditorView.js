@@ -181,7 +181,7 @@ GraphEditorView.prototype.dragmove = function(d) {
 
   if (self.state.shiftNodeDrag){
     // Create & drag edge
-    let midCoords = d.calcNodeCenter()
+    let midCoords = d.calcDOMCenterCoords()
     self.dragLine.attr('d', 'M' + midCoords.x  + ',' + midCoords.y + 'L' + d3.mouse(self.svgG.node())[0] + ',' + d3.mouse(this.svgG.node())[1]);
   } else{ 
     // or move the node
@@ -254,7 +254,7 @@ GraphEditorView.prototype.circleMouseDown = function(d3node, d){
   if (d3.event.shiftKey){
     state.shiftNodeDrag = d3.event.shiftKey;
     // reposition dragged directed edge
-    let midCoords = self.calcNodeCenter(d)
+    let midCoords = d.calcDOMCenterCoords(d)
     self.dragLine.classed('hidden', false)
       .attr('d', 'M' + midCoords.x + ',' + midCoords.y + 'L' + midCoords.x + ',' + midCoords.y );
     return;
@@ -397,8 +397,8 @@ GraphEditorView.prototype.updateGraph = function(graphController){
     })
     .attr("d", function(d){
       // TODO: Refactor the to use Wrapper
-      let source_midCoords = d.source.calcNodeCenter()
-      let target_midCoords = d.target.calcNodeCenter()
+      let source_midCoords = d.source.calcDOMCenterCoords()
+      let target_midCoords = d.target.calcDOMCenterCoords()
       return "M" + source_midCoords.x + "," + source_midCoords.y + "L" + target_midCoords.x + "," + target_midCoords.y;
     });
 
@@ -408,8 +408,8 @@ GraphEditorView.prototype.updateGraph = function(graphController){
     .style('marker-end','url(#end-arrow)')
     .classed("link", true)
     .attr("d", function(d){
-      let source_midCoords = d.source.calcNodeCenter()
-      let target_midCoords = d.target.calcNodeCenter()
+      let source_midCoords = d.source.calcDOMCenterCoords()
+      let target_midCoords = d.target.calcDOMCenterCoords()
       return "M" + source_midCoords.x + "," + source_midCoords.y + "L" + target_midCoords.x + "," + target_midCoords.y;
     })
     .on("mousedown", function(d){
