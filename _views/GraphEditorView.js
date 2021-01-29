@@ -586,6 +586,5 @@ GraphEditorView.prototype.render = function(project){
   self.updateGraph(active_graph)
   
   return graph_view
-  
 }
 
