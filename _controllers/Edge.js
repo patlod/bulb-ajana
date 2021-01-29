@@ -41,7 +41,7 @@ Edge.prototype.getEdgeJSON = function(){
   return { 
     uuid: this.uuid,
     created: this.created,
-    source: this.source.getVertexJSON(),
-    target: this.target.getVertexJSON(), 
+    source: (this.source !== null) ? this.source.getVertexJSON() : null,
+    target: (this.target !== null) ? this.target.getVertexJSON() : null,
   }
 }
