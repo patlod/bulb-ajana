@@ -179,38 +179,7 @@ ProjectListView.prototype.createLeftMenuDropdown = function(recents){
     </div>
     
   `
-  // <div class="item" data-value="important">
-  //           <div class="ui red empty circular label"></div>
-  //           Important
-  //         </div>
-  //         <div class="item" data-value="announcement">
-  //           <div class="ui blue empty circular label"></div>
-  //           Announcement
-  //         </div>
-  //         <div class="item" data-value="cannotfix">
-  //           <div class="ui black empty circular label"></div>
-  //             Cannot Fix
-  //         </div>
-  //         <div class="item" data-value="news">
-  //           <div class="ui purple empty circular label"></div>
-  //           News
-  //         </div>
-  //         <div class="item" data-value="enhancement">
-  //           <div class="ui orange empty circular label"></div>
-  //           Enhancement
-  //         </div>
-  //         <div class="item" data-value="off-topic">
-  //           <div class="ui yellow empty circular label"></div>
-  //           Off Topic
-  //         </div>
-  //         <div class="item" data-value="interesting">
-  //           <div class="ui pink empty circular label"></div>
-  //           Interesting
-  //         </div>
-  //         <div class="item" data-value="discussion">
-  //           <div class="ui green empty circular label"></div>
-  //           Discussion
-  //         </div>
+
   return left_menu_dp
 }
 

@@ -115,6 +115,97 @@ Titlebar.prototype.render = function (session) {
         }
     }
 
+    function makeColorPaletteDropdown(project){
+        if(!project){
+            return
+        }else{
+            if(!project.getGraphMode()){
+                return yo`
+                <div id="note-color-dp" class="ui floated dropdown">
+                    <i class="fas fa-palette"></i>
+                    <i class="dropdown icon"></i>
+                    
+                    <div class="menu">
+                        <div class="header">
+                            <i class="fas fa-paint-roller"></i>
+                            Note Color
+                        </div>
+                        <div class="menu scrolling">
+                            <div class="item">
+                                <span class="color-pickr-circle"></span>
+                            </div>
+                            <div class="item">
+                                <span class="color-pickr-circle"></span>
+                            </div>
+                            <div class="item">
+                                <span class="color-pickr-circle"></span>
+                            </div>
+                            <div class="item">
+                                <span class="color-pickr-circle"></span>
+                            </div>
+                            <div class="item">
+                                <span class="color-pickr-circle"></span>
+                            </div>
+
+                            <div class="divider"></div>
+                            <div class="item">
+                                <span class="color-pickr-circle"></span>
+                            </div>
+                            <div class="item">
+                                <span class="color-pickr-circle"></span>
+                            </div>
+                            <div class="item">
+                                <span class="color-pickr-circle"></span>
+                            </div>
+                            <div class="item">
+                                <span class="color-pickr-circle"></span>
+                            </div>
+                            <div class="item">
+                                <span class="color-pickr-circle"></span>
+                            </div>
+
+                            <div class="divider"></div>
+                            <div class="item">
+                                <span class="color-pickr-circle"></span>
+                            </div>
+                            <div class="item">
+                                <span class="color-pickr-circle"></span>
+                            </div>
+                            <div class="item">
+                                <span class="color-pickr-circle"></span>
+                            </div>
+                            <div class="item">
+                                <span class="color-pickr-circle"></span>
+                            </div>
+                            <div class="item">
+                                <span class="color-pickr-circle"></span>
+                            </div>
+
+                            <div class="divider"></div>
+                            <div class="item">
+                                <span class="color-pickr-circle"></span>
+                            </div>
+                            <div class="item">
+                                <span class="color-pickr-circle"></span>
+                            </div>
+                            <div class="item">
+                                <span class="color-pickr-circle"></span>
+                            </div>
+                            <div class="item">
+                                <span class="color-pickr-circle"></span>
+                            </div>
+                            <div class="item">
+                                <span class="color-pickr-circle"></span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                `
+            }
+        }
+    }
+
 
     return yo`
       <header id="titlebar"><div id="drag-region">
@@ -129,7 +220,9 @@ Titlebar.prototype.render = function (session) {
             ${makeCreateNewBtn(session.getActiveProject())}
         </div>
         <div id="tb-content-tools">
+            
             ${makeSearchField(session.getActiveProject())}
+            ${makeColorPaletteDropdown(session.getActiveProject())}
         </div>
         </div> 
     </header>
