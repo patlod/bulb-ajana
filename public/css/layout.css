@@ -51,16 +51,12 @@ body {
   margin: 0 3px;
   outline: none;
 }
-.tb-btn:hover {
+/*.tb-btn:hover {
   background: #999;
   color: #ddd;
   cursor: pointer;
 }
-.tb-toggle-btn .tb-btn:focus {
-  border: none;
-  outline: none;
-  background: #666;
-}
+*/
 .tb-toggle-btn {
   display: flex;
   color: #333333;

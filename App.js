@@ -160,12 +160,15 @@ function App(el){
    */
   self.on('render', render)
 
-  self.on('transitionEditor', function(){
-    // if(!self.session.getGraphMode()){ // Swtich from graph
-    //   self.views.graph.takedown()
-    // }
-    console.log("From transitionEditor")
-    console.log(self.session.getActiveGraph().vertices)
+  self.on('transToGraphEditor', function(){
+    self.session.setGraphMode(true)
+    render()
+  })
+
+  self.on('transToNoteEditor', function(){
+    self.session.setGraphMode(false)
+    self.views.graph.takedown()
+    
     render()
   })
 

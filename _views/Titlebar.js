@@ -46,22 +46,12 @@ Titlebar.prototype.render = function (session) {
      * TODO: Define event handler functions here and embedded them in html string
      */
     function clickGraphEditor(){
-        if(session.getGraphMode()){
-            return
-        }
-
-        session.setGraphMode(true)
-
-        self.send('transitionEditor')
+        if(session.getGraphMode()){ return }
+        self.send('transToGraphEditor')
     }
     function clickDefaultEditor(){
-        if(!session.getGraphMode()){
-            return
-        }
-        
-        session.setGraphMode(false)
-
-        self.send('transitionEditor')
+        if(!session.getGraphMode()){ return }
+        self.send('transToNoteEditor')
     }
 
     function clickCreateNewNote(e){
