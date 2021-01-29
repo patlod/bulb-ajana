@@ -20,7 +20,7 @@ function Edge(graph, data = FileDatabaseManager.getEmptyEdgeJSON())
 
 
 Edge.prototype.saveData = function(){
-  this.graph.getDB().insertEdge(this.getEdgeJSON())
+  this.graph.getDB().insertEdge(this.graph.uuid, this.getEdgeJSON())
 }
 
 Edge.prototype.getGraph = function(){
@@ -41,9 +41,7 @@ Edge.prototype.getEdgeJSON = function(){
   return { 
     uuid: this.uuid,
     created: this.created,
-    //modified: this.modified,
     source: this.source.getVertexJSON(),
     target: this.target.getVertexJSON(), 
-    
   }
 }

@@ -36,7 +36,6 @@ Note.prototype.deleteNote = function(){
 }
 
 Note.prototype.saveText = function(){
-  this.getDB().read()
   // Persist to database
   this.getDB().updateNoteText(this.getNoteJSON())
   
@@ -51,9 +50,7 @@ Note.prototype.saveText = function(){
  * @param {} tag_value 
  */
 Note.prototype.addTag = function(tag_value){
-
   // Insert to database
-  this.getDB().read()
   let tag = this.getDB().insertNoteTag(this.uuid, tag_value)
   // Add tag to tag array 
   this.tags.push(tag)
@@ -64,8 +61,6 @@ Note.prototype.addTag = function(tag_value){
 
 
 Note.prototype.removeTag = function(tag_value){
-  
-  this.getDB().read()
   // Find tag_id and index in tag list from tag_value
   let index = 0
   let tag_id = ""
@@ -93,8 +88,6 @@ Note.prototype.removeTag = function(tag_value){
  * @param {*} pre_val 
  */
 Note.prototype.updateTag = function(new_val, pre_val){
-
-  this.getDB().read()
   // Insert new tag to database
   let tag = this.getDB().insertNoteTag(this.uuid, new_val)
   // Insert tag into tag list

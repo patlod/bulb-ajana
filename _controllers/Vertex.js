@@ -18,15 +18,16 @@ function Vertex(graph, data = FileDatabaseManager.getEmptyVertexJSON())
 
   // Dimensions of the UI elmement in the graph (these will not go to database)
   // NOTE: This is normally rather UI data that belongs in the view
-  this.width = data.width_dom
-  this.height = data.height_dom
+  this.width_dom = data.width_dom
+  this.height_dom = data.height_dom
 
   this.graph = graph
 }
 
 
 Vertex.prototype.saveData = function(){
-  this.graph.getDB().insertVertex(this.getVertexJSON())
+  // this.graph.getDB().read()
+  // this.graph.getDB().insertVertex(this.graph.uuid, this.getVertexJSON())
 }
 
 /**
@@ -58,7 +59,6 @@ Vertex.prototype.getVertexJSON = function(){
   return { 
     uuid:       this.uuid,
     created:    this.created,
-    modified:   this.modified,
     note:       this.note.getNoteJSON(), 
     posX:       this.posX, 
     posY:       this.posY,

@@ -6,6 +6,7 @@ const FileDatabase = require("../_models/FileDatabase");
 const FileDatabaseManager = require('../_models/FileDatabaseManager');
 const Graph = require('./Graph');
 const Note = require('./note');
+const Vertex = require('./Vertex');
 
 
 
@@ -59,21 +60,18 @@ Project.prototype.loadData = function(){
   this.name = this.db.getProjectName()
   this.tags = this.db.getProjectTags()
   this.notes = this.loadNotes()
-  //this.graphs = this.loadGraphs()
+  this.graphs = this.loadGraphs()
 }
 
 /**
  * Fetches global project tags from database
  */
 Project.prototype.loadTags = function(){
-  this.db.read()
+  //this.db.read()
   this.tags = this.db.getProjectTags()
 }
 
-Project.prototype.loadGraphs = function(){
-  // this.db.read()
-  // this.graphs = this.db.getGraphs()
-}
+
 
 /**
  * Method that is called after initialisation to get data from
@@ -204,19 +202,83 @@ Project.prototype.getGraphMode = function(){
  * Sets the graph of the project
  */
 Project.prototype.setGraphMode = function(val){
-  if(val){
-    // In case no graph is existing yet insert an empty one.
-    if(this.graphs.length === 0){
-      let nG = new Graph(this)
-      this.graphs.push(nG)
-      this.toggleActiveGraph(this.graphs[0])
-      nG.saveData()
-    }
-      
-  }
   this.graph_mode = val
 }
 
+/**
+ * Loads all the graphs. 
+ * It is important that notes where loaded before to reference
+ * the same objects!
+ */
+Project.prototype.loadGraphs = function(){
+  var self = this
+
+  // Get notes from database
+  let g_query = this.db.selectAllGraphs()
+  let graphs = []
+  
+  if(g_query.length === 0 && self.graphs.length === 0){ 
+    // As long as multiple graphs is not possible..and graph is not existing
+    // Create new empty graph instance
+    graphs.push(new Graph(this))
+    // Insert into database
+    self.db.insertGraph(graphs[graphs.length - 1].getGraphJSON())
+  }else{
+
+    if(self.notes.length === 0){
+      console.error("loadNotes() has to be called before loadGraphs()")
+      return 
+    }
+
+    for(var i in g_query){
+      // Create graph instance
+      let g = new Graph(this, g_query[i])
+      // Get vertices from graph
+      let v_query = this.db.selectAllVertices(g_query[i].uuid)
+      // Find the right note object that matches reference
+      let vertices = [],
+          n_obj = null,
+          v = null;
+      for(var j in v_query){
+        let n_obj = self.notes.filter(n => n.uuid === v_query[j].note.uuid)
+        if(n_obj !== null && n_obj.length === 1){
+          v_query[j].note = n_obj[0]
+          let v = new Vertex(g, v_query[j])
+          vertices.push(v)
+        }
+      }
+      
+      // Get edges from graph
+      let ed_query = this.db.selectAllEdges(g_query[i].uuid)
+      // Find the right vertices that match references
+      let edges = [],
+        source_obj = null,
+        target_obj = null,
+        ed = null;
+      for(var j in ed_query){
+        // Match source and target vertex objects of the list created above
+        source_obj = vertices.filter(v => v.uuid === ed_query[j].source.uuid)
+        target_obj = vertices.filter(v => v.uuid === ed_query[j].target.uuid)
+        if(source_obj !== null && target_obj !== null && source_obj.length === 1 && target_obj.length === 1){
+          ed_query[j].source = source_obj[0]
+          ed_query[j].target = target_obj[0]
+          ed = new Edge(g, ed_query[j])
+          edges.push(ed)
+        }
+      }
+
+      g.vertices = vertices
+      g.edges = edges
+
+      graphs.push(g)
+    }
+  }
+  graphs.sort(descend_DateCreated)
+  if(graphs.length > 0){
+    graphs[0].activate()
+  }
+  return graphs
+}
 
 /**
  * Change project name
@@ -248,7 +310,6 @@ Project.prototype.renameProject = function(name){
  * Create new note
  */
 Project.prototype.createNewNote = function(){
-  this.db.read()
   // Create empty note instance
   let nn = new Note(this, FileDatabaseManager.getEmptyNoteJSON())
   // Store in fleeting storage
@@ -266,7 +327,6 @@ Project.prototype.createNewNote = function(){
  *  @param {Note} note 
  */ 
 Project.prototype.deleteNote = function(note){
-  this.db.read()
   let note_ids = this.notes.map(function(n) { return n.uuid; })
   let idx = note_ids.indexOf(note.uuid);
   if(idx < 0 ){
@@ -294,6 +354,7 @@ Project.prototype.deleteNote = function(note){
  * Fetch all notes
  */
 Project.prototype.loadNotes = function(){
+  
   // Get notes from database
   let n_query = this.db.selectAllNotes()
   let notes = []
@@ -330,7 +391,7 @@ Project.prototype.getTagByName = function(tag_name){
  * 
  * @param {} note 
  */
-Project.prototype.getTagByID = function(tag_id){
+Project.prototype.getTagByUUID = function(tag_id){
   return null
 }
 

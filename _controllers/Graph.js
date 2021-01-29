@@ -25,7 +25,7 @@ function Graph(project, data = FileDatabaseManager.getEmptyGraphJSON())
 }
 
 Graph.prototype.loadData = function(){
-  this.uuid = this.getDB().getGraph
+  //this.uuid = this.getDB().getGraph
 }
 
 Graph.prototype.saveData = function(){
@@ -46,6 +46,10 @@ Graph.prototype.getVertices = function(){
  */
 Graph.prototype.createNewVertexForNote = function(coords, note){
   var self = this
+
+  // Check whether vertex with note exists already
+  let chks = self.vertices.filter( v => v.note.compareTo(note))
+  if(chks.length > 1){ return }
 
   let data = FileDatabaseManager.getEmptyVertexJSON()
   data.note = note;
@@ -74,9 +78,24 @@ Graph.prototype.deleteVertex = function(selectedVertex){
   //self.getDB().deleteVertex(selectedVertex.getVertexJSON())
 }
 
+Graph.prototype.deleteVertexForNote = function(note){
+  var self = this
+
+  let chks = self.vertices.filter( v => v.note.compareTo(note))
+  if(chks.length === 1){
+    console.log(self.vertices)
+    self.vertices.splice(self.vertices.indexOf(chks[0]), 1)
+    self.spliceEdgesForVertex(chks[0]);
+    console.log(self.vertices)
+  }
+
+  // TODO: Delete from database
+  //self.getDB().deleteVertex(chks[0].getVertexJSON())
+}
+
 
 /**
- * 
+ * Returns all edges of the graph
  */
 Graph.prototype.getEdges = function(){
   return this.edges

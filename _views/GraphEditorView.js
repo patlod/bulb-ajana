@@ -52,10 +52,12 @@ inherits(GraphEditorView, EventEmitterElement)
  * @param {*} edges - Array of edges
  */
 
-GraphEditorView.prototype.init = function(svg, nodes, edges){
+GraphEditorView.prototype.init = function(svg){
   var self = this;
   //self.idct = 0;
 
+  self.paths = null
+  self.circles = null
 
   self.state = {
     selectedNode: null,
@@ -107,7 +109,7 @@ GraphEditorView.prototype.init = function(svg, nodes, edges){
 
   // svg nodes and edges
   self.paths = svgG.append("g").selectAll("g");
-  self.circles = svgG.append("g").selectAll("foreignObject");
+  self.circles = svgG.append("g").selectAll("g");
 
   self.drag = d3.behavior.drag()
         .origin(function(d){
@@ -158,7 +160,6 @@ GraphEditorView.prototype.init = function(svg, nodes, edges){
   svg.call(dragSvg).on("dblclick.zoom", null);
 
   // listen for resize
-  // document.getElementById('#content')
   window.onresize = function(){self.updateWindow();};
 
 }
@@ -378,10 +379,12 @@ GraphEditorView.prototype.svgKeyUp = function() {
 GraphEditorView.prototype.updateGraph = function(graphController){
   var self = this
   
-  // console.log("====> Edges:")
-  // console.log(self.edges)
-  // console.log("====> Nodes:")
-  // console.log(self.nodes)
+  console.log(graphController.getVertices())
+  console.log(graphController.getEdges())
+
+  console.log(self.circles)
+  console.log(self.paths)
+  
 
   // Associate edges data in the graph controller with the UI elements
   self.paths = self.paths.data(graphController.edges, function(d){
@@ -424,13 +427,12 @@ GraphEditorView.prototype.updateGraph = function(graphController){
   paths.exit().remove();
 
   // Update existing nodes
-  // Prepare vertex wrappers
-  
-  // Associate edges data in the graph controller with the UI elements
+  // Associate vertex data in the graph controller with the UI elements
   self.circles = self.circles.data(graphController.vertices, function(d){ return d.uuid;});
-  
-  self.circles.attr("transform", function(d){return "translate(" + d.posX + "," + d.posY + ")";});
+  console.log(self.circles)
 
+  self.circles.attr("transform", function(d){return "translate(" + d.posX + "," + d.posY + ")";})
+    
   let html_str = `
     <div class="graph-note-header">
       <div class="datetime">
@@ -506,6 +508,12 @@ GraphEditorView.prototype.updateGraph = function(graphController){
 
   // Remove old nodes
   self.circles.exit().remove();
+
+  console.log("Graph controller vertices")
+  console.log(graphController.vertices)
+  console.log("Local vertex data self.circles:")
+  console.log(self.circles)
+  console.log(self.paths)
 };
 
 GraphEditorView.prototype.zoomed = function(){
@@ -548,7 +556,7 @@ GraphEditorView.prototype.resetEditorState = function(){
  * Renders the GraphEditorView for a given project
  * @param {Project} project 
  */
-GraphEditorView.prototype.render = function(session){
+GraphEditorView.prototype.render = function(project){
   var self = this
 
   // Reset GraphEditorView state
@@ -556,29 +564,9 @@ GraphEditorView.prototype.render = function(session){
 
   //if(!session){ return }
 
-
-  /* ====================================================================== */
-  /*  Event Handlers                                                        */
-  /* ====================================================================== */
-
-  
-
-  /* ====================================================================== */
-  /* ====================================================================== */
-
-  // var docEl = document.documentElement
-  // var bodyEl = document.getElementsByTagName('body')[0]
-
-  // var width = window.innerWidth || docEl.clientWidth || bodyEl.clientWidth
-  // var height =  window.innerHeight|| docEl.clientHeight|| bodyEl.clientHeight
-
   var style = getComputedStyle(document.getElementById('content'))
   var width = style.width
   var height = style.height
-
-  // TODO: Normally these are fetched from session.getActiveProject().getActiveGraph()
-  var nodes = []
-  var edges = []
 
   var graph_view = yo`
     <div id="graph-editor" >
@@ -593,9 +581,10 @@ GraphEditorView.prototype.render = function(session){
     .attr("height", height);
     console.log(elem)
 
-  this.init(svg, nodes, edges)
+  let active_graph = project.getActiveGraph()
+  self.init(svg)
+  self.updateGraph(active_graph)
   
-
   return graph_view
   
 }

@@ -164,6 +164,8 @@ function App(el){
     if(!self.session.getGraphMode()){ // Swtich from graph
       self.views.graph.takedown()
     }
+    console.log("From transitionEditor")
+    console.log(self.session.getActiveGraph().vertices)
     render()
   })
 
@@ -240,9 +242,17 @@ function App(el){
       console.log("App listener createNewNote -- No active project.")
       return 
     }
-    let p = self.session.getActiveProject()
-    p.deleteNote(p.getActiveNote())
-    render()
+    let active_p = self.session.getActiveProject()
+    let active_g = active_p.getActiveGraph()
+    let active_note = active_p.getActiveNote()
+    console.log(active_g)
+    if(active_g !== null && active_p.getGraphMode()){
+      active_g.deleteVertexForNote(active_note)
+      self.views.graph.updateGraph(active_g)
+    }
+    active_p.deleteNote(active_note)
+
+    render(true)
   })
 
   
@@ -285,15 +295,21 @@ function App(el){
       return 
     }
 
+    // Check whether empty note exists already
+    let empty_notes = active_project.getEmptyNotes()
+    if(empty_notes === null || empty_notes.length === 1){
+      return
+    }
+
     let nn = active_project.createNewNote()
     nn.saveData() // REFACTOR: Maybe move to createNewNote()
     
     let nV = active_graph.createNewVertexForNote( coords, nn )
     nV.saveData() // REFACTOR: Maybe move to createNewVertexForNote()
     
-    self.views.graph.updateGraph(active_graph);
+    self.views.graph.updateGraph(active_graph)
 
-    // render()
+    render(true)
   })
 
   self.on('addNotesToGraph', function(coords){ 
@@ -316,13 +332,14 @@ function App(el){
 
     var filtRes = g.getEdges().filter(function(d){
       // TODO: Do proper compare here!
-      if (d.source === vPair.target && d.target === vPair.source){
+      console.log(d)
+      if (d.source.compareTo(vPair.target) && d.target.compareTo(vPair.source)){
         g.deleteEdge(d)
       }
-      return d.source === vPair.source && d.target === vPair.target;
+      return d.source.compareTo(vPair.source) && d.target.compareTo(vPair.target);
     });
 
-    if (!filtRes[0].length){
+    if (!filtRes.length){
       g.createNewEdge(vPair.source, vPair.target);
 
       self.views.graph.updateGraph(g);
@@ -333,7 +350,7 @@ function App(el){
     let g = self.session.getActiveGraph()
     g.deleteEdge(selectedEdge)
 
-    self.views.graph.removeSelectedFromEdge()
+    self.views.graph.removeSelectFromEdge()
 
     self.views.graph.updateGraph(g);
   })
