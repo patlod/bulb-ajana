@@ -227,7 +227,7 @@ function App(el){
     let nn = self.session.getActiveProject().createNewNote()
     nn.saveData() // REFACTOR: Maybe better move this in createNewNote()
 
-    render()
+    render(true)
   })
 
   self.on('deleteSelectedNotes', function(){
