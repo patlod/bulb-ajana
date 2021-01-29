@@ -26,6 +26,7 @@ function Vertex(graph, data = FileDatabaseManager.getEmptyVertexJSON())
 
 
 Vertex.prototype.saveData = function(){
+  console.log("Vertex - saveData()")
   // this.graph.getDB().read()
   // this.graph.getDB().insertVertex(this.graph.uuid, this.getVertexJSON())
 }
@@ -59,7 +60,7 @@ Vertex.prototype.getVertexJSON = function(){
   return { 
     uuid:       this.uuid,
     created:    this.created,
-    note:       this.note.getNoteJSON(), 
+    note:       (this.note !== null) ? this.note.getNoteJSON() : null, 
     posX:       this.posX, 
     posY:       this.posY,
     width_dom:  this.width_dom,

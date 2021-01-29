@@ -18,7 +18,7 @@ function NoteEditorView(target) {
   this.selectionEnd = 0;
 
   this.globalTimeout = null
-  this.SAVE_INTERVAL = 3000   // Save text content every 4s
+  this.SAVE_INTERVAL = 3000   // Save text content every 3s
 
   this.tagify = null
 

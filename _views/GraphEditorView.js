@@ -19,9 +19,10 @@ function GraphEditorView(target) {
   EventEmitterElement.call(this, target)
 
   this.globalTimeout = null
-  this.SAVE_INTERVAL = 3000   // Save text content every 4s
+  this.POSITION_SAVE_INTERVAL = 3000   // Save repositioning the vertices every 3s
 
-  this.dirty_bit = false
+  // this.dirty_bit = false
+  this.dirty_vertices = []
 
   // Graph related variables
   this.svg = null
@@ -54,7 +55,10 @@ inherits(GraphEditorView, EventEmitterElement)
 
 GraphEditorView.prototype.init = function(svg){
   var self = this;
-  //self.idct = 0;
+  
+  if (self.globalTimeout !== null) {
+    clearTimeout(self.globalTimeout);
+  }
 
   self.paths = null
   self.circles = null
@@ -121,8 +125,27 @@ GraphEditorView.prototype.init = function(svg){
           self.state.justDragged = true;
           self.dragmove.call(self, d);
         })
-        .on("dragend", function() {
+        .on("dragend", function(d) {
+          console.log("DRAGEND:")
+          console.log(d)
           // todo check if edge-mode is selected
+          self.dirty_vertices.push(d)
+
+          // Set/Reset timer for writing to database
+          if (self.globalTimeout !== null) {
+            clearTimeout(self.globalTimeout);
+          }
+          self.globalTimeout = setTimeout(function() {
+            self.globalTimeout = null;  
+
+            console.log("TIMEOUT: Writing dirty vertices to database.")
+            for(var i in self.dirty_vertices){
+              self.dirty_vertices[i].saveData()
+            }
+            
+            self.dirty_vertices = []
+            
+          }, self.POSITION_SAVE_INTERVAL);  
         });
 
   // listen for key events
@@ -187,6 +210,7 @@ GraphEditorView.prototype.dragmove = function(d) {
     // or move the node
     d.posX += d3.event.dx;
     d.posY +=  d3.event.dy;
+
     self.updateGraph(d.getGraph());
   }
 };
@@ -537,10 +561,26 @@ GraphEditorView.prototype.updateWindow = function(){
 /**
  * Resets the editor before new content is loaded.
  */
-GraphEditorView.prototype.resetEditorState = function(){
+GraphEditorView.prototype.resetEditorState = function(svg){
   var self = this
 
-  self.active_note = null
+  self.svg = svg
+  self.paths = null
+  self.circles = null
+
+  self.state = {
+    selectedNode: null,
+    selectedEdge: null,
+    mouseDownNode: null,
+    //mouseDownD3Node: null,
+    mouseDownLink: null,
+    //mouseDownD3Link: null,
+    justDragged: false,
+    justScaleTransGraph: false,
+    lastKeyDown: -1,
+    shiftNodeDrag: false,
+    selectedText: null
+  };
 
   if (self.globalTimeout !== null) {
     clearTimeout(self.globalTimeout);
@@ -588,10 +628,8 @@ GraphEditorView.prototype.render = function(project){
   
   self.init(svg)
   setTimeout(function() {
-
     self.updateGraph(active_graph)
-
- }, 50);
+ }, 10);
   
   
   return graph_view

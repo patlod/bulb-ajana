@@ -81,7 +81,7 @@ Graph.prototype.deleteVertex = function(selectedVertex){
 Graph.prototype.deleteVertexForNote = function(note){
   var self = this
 
-  let chks = self.vertices.filter( v => v.note.compareTo(note))
+  let chks = self.vertices.filter( v => v.note !== null && v.note.compareTo(note))
   if(chks.length === 1){
     console.log(self.vertices)
     self.vertices.splice(self.vertices.indexOf(chks[0]), 1)
