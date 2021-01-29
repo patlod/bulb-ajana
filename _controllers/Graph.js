@@ -48,7 +48,7 @@ Graph.prototype.createNewVertexForNote = function(coords, note){
   var self = this
 
   // Check whether vertex with note exists already
-  let chks = self.vertices.filter( v => v.note.compareTo(note))
+  let chks = self.vertices.filter( v => v.note !== null && v.note.compareTo(note))
   if(chks.length > 1){ return }
 
   let data = FileDatabaseManager.getEmptyVertexJSON()
@@ -75,7 +75,7 @@ Graph.prototype.deleteVertex = function(selectedVertex){
   self.spliceEdgesForVertex(selectedVertex);
 
   // TODO: Delete from database
-  //self.getDB().deleteVertex(selectedVertex.getVertexJSON())
+  //self.getDB().deleteVertex(self.uuid, selectedVertex.getVertexJSON())
 }
 
 Graph.prototype.deleteVertexForNote = function(note){
@@ -87,10 +87,12 @@ Graph.prototype.deleteVertexForNote = function(note){
     self.vertices.splice(self.vertices.indexOf(chks[0]), 1)
     self.spliceEdgesForVertex(chks[0]);
     console.log(self.vertices)
+    // TODO: Delete from database
+    console.log("Delete Vertex from database..")
+    self.getDB().deleteVertices(self.uuid, [chks[0].getVertexJSON()])
   }
 
-  // TODO: Delete from database
-  //self.getDB().deleteVertex(chks[0].getVertexJSON())
+  
 }
 
 

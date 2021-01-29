@@ -27,8 +27,7 @@ function Vertex(graph, data = FileDatabaseManager.getEmptyVertexJSON())
 
 Vertex.prototype.saveData = function(){
   console.log("Vertex - saveData()")
-  // this.graph.getDB().read()
-  // this.graph.getDB().insertVertex(this.graph.uuid, this.getVertexJSON())
+  this.graph.getDB().insertVertex(this.graph.uuid, this.getVertexJSON())
 }
 
 /**

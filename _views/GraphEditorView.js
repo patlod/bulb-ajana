@@ -402,13 +402,13 @@ GraphEditorView.prototype.svgKeyUp = function() {
 GraphEditorView.prototype.updateGraph = function(graphController){
   var self = this
   
-  console.log("upateGraph -- graph_controller")
-  console.log(graphController.getVertices())
-  console.log(graphController.getEdges())
+  // console.log("upateGraph -- graph_controller")
+  // console.log(graphController.getVertices())
+  // console.log(graphController.getEdges())
 
-  console.log("upateGraph -- self.circles/paths")
-  console.log(self.circles)
-  console.log(self.paths)
+  // console.log("upateGraph -- self.circles/paths")
+  // console.log(self.circles)
+  // console.log(self.paths)
   
 
   // Associate edges data in the graph controller with the UI elements
@@ -495,9 +495,9 @@ GraphEditorView.prototype.updateGraph = function(graphController){
     console.log(foreignObj)
     console.log(d)
     let gNote = foreignObj.select('.graph-note').node()
-    console.log("offsetSizes:")
-    console.log(gNote.offsetWidth)
-    console.log(gNote.offsetHeight)
+    // console.log("offsetSizes:")
+    // console.log(gNote.offsetWidth)
+    // console.log(gNote.offsetHeight)
     // console.log("clientSizes:")
     // console.log(gNote.clientWidth)
     // console.log(gNote.clientHeight)
@@ -528,11 +528,11 @@ GraphEditorView.prototype.updateGraph = function(graphController){
   // Remove old nodes
   self.circles.exit().remove();
 
-  console.log("Graph controller vertices")
-  console.log(graphController.vertices)
-  console.log("Local vertex data self.circles:")
-  console.log(self.circles)
-  console.log(self.paths)
+  // console.log("Graph controller vertices")
+  // console.log(graphController.vertices)
+  // console.log("Local vertex data self.circles:")
+  // console.log(self.circles)
+  // console.log(self.paths)
 };
 
 GraphEditorView.prototype.zoomed = function(){
@@ -620,10 +620,10 @@ GraphEditorView.prototype.render = function(project){
   console.log("updateGraph graph.vertices:")
   console.log(active_graph.vertices)
   
-  const Vertex = require("../_controllers/Vertex")
-  for(var i=0; i < 5; i++){
-    active_graph.vertices.push(new Vertex(active_graph))
-  }
+  // const Vertex = require("../_controllers/Vertex")
+  // for(var i=0; i < 5; i++){
+  //   active_graph.vertices.push(new Vertex(active_graph))
+  // }
   
   
   self.init(svg)

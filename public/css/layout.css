@@ -282,6 +282,10 @@ body {
 #left-menu-dropdown .scrolling.menu {
   max-height: 200px !important;
 }
+#left-menu-dropdown .header {
+  margin-top: 0.3em !important;
+  margin-bottom: 0.3em !important;
+}
 .dropdown .item {
   font-size: 11px !important;
 }

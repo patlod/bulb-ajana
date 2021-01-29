@@ -168,7 +168,6 @@ function App(el){
   self.on('transToNoteEditor', function(){
     self.session.setGraphMode(false)
     self.views.graph.takedown()
-    
     render()
   })
 
@@ -249,9 +248,11 @@ function App(el){
     let active_g = active_p.getActiveGraph()
     let active_note = active_p.getActiveNote()
     console.log(active_g)
-    if(active_g !== null && active_p.getGraphMode()){
+    if(active_g !== null ){
       active_g.deleteVertexForNote(active_note)
-      self.views.graph.updateGraph(active_g)
+      if(active_p.getGraphMode()){
+        self.views.graph.updateGraph(active_g)
+      }
     }
     active_p.deleteNote(active_note)
 
@@ -286,6 +287,7 @@ function App(el){
 /*  Graph Event Listeners                                                         */
 /* ============================================================================== */
   self.on('createNewNoteVertexGraph', function(coords){
+    console.log('createNewNoteVertexGraph triggered')
     /**
      * For now: New empty note is directly inserted into database
      * Better: Only insert once there is at least one char content.
@@ -301,6 +303,7 @@ function App(el){
     // Check whether empty note exists already
     let empty_notes = active_project.getEmptyNotes()
     if(empty_notes === null || empty_notes.length === 1){
+      console.log("Still empty note found...")
       return
     }
 
