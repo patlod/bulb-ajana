@@ -125,9 +125,9 @@ function App(el){
     });
 
     // Adjust height of the textarea in NoteEditorView to fit content
-    self.views.editor.resizeElementByContent($('#notepad')[0])
-
-    if(self.session.getGraphMode()){
+    if(!self.session.getGraphMode()){
+      self.views.editor.resizeElementByContent($('#notepad')[0])
+    }else{
       // Make the #content container of the graph a droppable element for the notes
       $('#content').droppable({
         accept:'.note-thmb-wrap',
@@ -161,9 +161,9 @@ function App(el){
   self.on('render', render)
 
   self.on('transitionEditor', function(){
-    if(!self.session.getGraphMode()){ // Swtich from graph
-      self.views.graph.takedown()
-    }
+    // if(!self.session.getGraphMode()){ // Swtich from graph
+    //   self.views.graph.takedown()
+    // }
     console.log("From transitionEditor")
     console.log(self.session.getActiveGraph().vertices)
     render()

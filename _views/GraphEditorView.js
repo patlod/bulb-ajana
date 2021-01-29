@@ -113,7 +113,7 @@ GraphEditorView.prototype.init = function(svg){
 
   self.drag = d3.behavior.drag()
         .origin(function(d){
-          console.log("drag: ")
+          console.log("drag origin: ")
           console.log(d)
           return {x: d.posX, y: d.posY}; // self.calcNodeCenter(d3.select(this), d)
         })
@@ -161,7 +161,6 @@ GraphEditorView.prototype.init = function(svg){
 
   // listen for resize
   window.onresize = function(){self.updateWindow();};
-
 }
 
 /**
@@ -331,12 +330,12 @@ GraphEditorView.prototype.svgMouseUp = function(){
 
     // CREATE NEW NOTE/VERTEX
     var xycoords = d3.mouse(self.svgG.node())
+    console.log("Create new vertex: ")
     console.log(xycoords)
     var coords = {x: xycoords[0], y: xycoords[1]}
 
     self.send('createNewNoteVertexGraph', coords)
-    
-   
+
   } else if (state.shiftNodeDrag){
     // dragged from node
     state.shiftNodeDrag = false;
@@ -379,9 +378,11 @@ GraphEditorView.prototype.svgKeyUp = function() {
 GraphEditorView.prototype.updateGraph = function(graphController){
   var self = this
   
+  console.log("upateGraph -- graph_controller")
   console.log(graphController.getVertices())
   console.log(graphController.getEdges())
 
+  console.log("upateGraph -- self.circles/paths")
   console.log(self.circles)
   console.log(self.paths)
   
@@ -429,7 +430,6 @@ GraphEditorView.prototype.updateGraph = function(graphController){
   // Update existing nodes
   // Associate vertex data in the graph controller with the UI elements
   self.circles = self.circles.data(graphController.vertices, function(d){ return d.uuid;});
-  console.log(self.circles)
 
   self.circles.attr("transform", function(d){return "translate(" + d.posX + "," + d.posY + ")";})
     
@@ -455,7 +455,6 @@ GraphEditorView.prototype.updateGraph = function(graphController){
 
   // Add new nodes
   var newGs = self.circles.enter()
-        //.append("g");
         .append("foreignObject")
 
   newGs.classed(self.consts.nodeClass, true)
@@ -469,23 +468,19 @@ GraphEditorView.prototype.updateGraph = function(graphController){
 
   newGs.each(function(d){
     let foreignObj = d3.select(this)
+    console.log(foreignObj)
+    console.log(d)
     let gNote = foreignObj.select('.graph-note').node()
-    // console.log("offsetSizes:")
-    // console.log(gNote.offsetWidth)
-    // console.log(gNote.offsetHeight)
+    console.log("offsetSizes:")
+    console.log(gNote.offsetWidth)
+    console.log(gNote.offsetHeight)
     // console.log("clientSizes:")
     // console.log(gNote.clientWidth)
     // console.log(gNote.clientHeight)
-
-    console.log("newGs.each")
-    console.log(d)
     
     // Associate vertex' UI dimensions with its data
     d.width_dom = gNote.offsetWidth
     d.height_dom = gNote.offsetHeight
-  
-    console.log("newGs.each")
-    console.log(d)
 
     // Adjust the height to content
     foreignObj.attr("height", gNote.offsetHeight)
@@ -582,8 +577,22 @@ GraphEditorView.prototype.render = function(project){
     console.log(elem)
 
   let active_graph = project.getActiveGraph()
+  console.log("updateGraph graph.vertices:")
+  console.log(active_graph.vertices)
+  
+  const Vertex = require("../_controllers/Vertex")
+  for(var i=0; i < 5; i++){
+    active_graph.vertices.push(new Vertex(active_graph))
+  }
+  
+  
   self.init(svg)
-  self.updateGraph(active_graph)
+  setTimeout(function() {
+
+    self.updateGraph(active_graph)
+
+ }, 50);
+  
   
   return graph_view
 }
