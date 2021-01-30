@@ -4,3 +4,554 @@
  * - Include all the other stylesheets here..
  * - Include this one and only stylesheet in index.html
  */
+ @import "notes-color-scheme.less";
+
+
+body{
+  font-size: 12px !important; /* Overwrites Semantic-Ui*/
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+
+/* Variables */
+@titlebar-height: 35px;
+@left-menu-1-width: 150px;
+@left-menu-2-width: 150px;
+@prjct-list-header: 26.38px;
+@prjct-list-ctrls: 31px;
+
+#layout{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+/* ===== Title bar ===== */
+#titlebar {
+    display: block;
+    position: fixed;
+    top: 0px;
+    height: @titlebar-height;
+    width: calc(100% - 2px); /*Compensate for body 1px border*/
+    background: #f7f7f7; /*f7f7f7;*/
+    padding-top: 1px;
+    text-align: center;
+    font-size: 13px;
+    z-index: 7;
+  }
+#titlebar-right-elem{
+    display: inline;
+    float: right;
+}
+#titlebar-right-elem span{
+  display: inline-block;
+  padding-left: 7px;
+  padding-right: 7px
+}
+#titlebar-right-elem span:hover{
+  color: #666666;
+}
+
+#titlebar #drag-region {
+width: 100%;
+height: 100%;
+-webkit-app-region: drag;
+}
+
+.tb-btn {
+  display: inline-block;
+  height: 25px;
+  border: none;
+  background: #DDD;
+  border-radius: 4px;
+  color: #333333;
+  margin: 0 3px;
+  outline: none;
+}
+/*.tb-btn:hover {
+  background: #999;
+  color: #ddd;
+  cursor: pointer;
+}
+*/
+
+.tb-toggle-btn{
+  display: flex;
+  color: #333333;
+}
+.tb-toggle-btn > button {
+  display: inline-block;
+  height: 25px;
+  border: none;
+  background: #DDD;
+  margin: 0px 0px !important;
+}
+#tb-list-btn { 
+  border-right: 1px solid #333;
+  border-radius: 0px;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+#tb-graph-btn {
+  border-radius: 0px;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+
+#tb-prjct-tools {
+  float:left;
+  position: relative;
+  padding-left: 72px;
+  padding-top: 4px;
+  
+}
+#tb-prjct-tools > * {
+  float: left;
+}
+#tb-notes-tools {
+  float:left;
+  position: relative;
+  padding-top: 4px;
+}
+#tb-notes-tools > * {
+  float: left;
+}
+#tb-content-tools{
+  float:left;
+  position: relative;
+  padding-top: 4px;
+  padding-left: 10px;
+  padding-right: 8px;
+}
+
+#tb-content-tools > #search {
+  float: right;
+}
+#note-color-dp {
+  font-size: 11px !important;
+  float: left;
+  color: #333333;
+  padding-top: 4px;
+  
+}
+#note-color-dp > i:nth-child(2) {
+  margin-left: 0em !important;
+}
+#note-color-dp .item {
+  display: inline-block !important;
+  /*padding: 2px 4px !important;*/
+  padding: 0.5em 0.8em !important;
+  &.active{
+    box-shadow: 0 0 0 1px #ddd;
+  }
+}
+#note-color-dp .header {
+  margin-top: 0.5em !important;
+  margin-bottom: 0.5em !important;
+  /*padding: 2px 4px !important;*/
+}
+#note-color-dp .divider {
+  margin: 0px !important;
+  /*padding: 2px 4px !important;*/
+}
+#note-color-dp .menu.scrolling{
+  max-height: 200px;
+}
+.color-pickr-circle {
+  display: block;
+  width: 16px;
+  height: 16px; 
+  border-radius: 8px;
+}
+
+
+#main {
+  height: calc(100% - @titlebar-height);
+  width: 100%;
+  margin-top: @titlebar-height;  
+}
+
+/* ======== The Split.js Gutter ========= */
+.gutter {
+  float:left;
+  cursor: col-resize;
+  height:100%;
+  background: #f7f7f7; /*red;*/
+}
+
+/* ===== Leftside menu ===== */
+#left-menu-1{
+  float: left;
+  /* Combine float and position: relative (to its flow) */
+  position: relative;
+  width: @left-menu-1-width; 
+  height: 100%; /* calc(100% - @titlebar-height);*/ 
+  background: #f7f7f7; 
+  /*z-index: 5;*/
+  border-right: 1px solid #666666;
+  min-width: 100px;
+}
+#left-menu-1 > div {
+  position: relative; 
+  height: 100%;
+}
+#prjct-list-scroll {
+  /*position: relative; */
+  display: block;
+  width: 100%;
+  height: calc(100% - @prjct-list-header - @prjct-list-ctrls);
+  overflow-y: auto; /* REASON for semantic-ui dropdown not to exceed container.*/
+}
+
+/* Makes semantic-ui dropdown work with overflow-y: auto on 
+  the parent #prjct-list-scroll container */
+#prjct-list-scroll:after{ 
+  clear:both;                 
+  content:" ";
+  display:block;
+  font-size:0;
+  height:0;
+  line-height:0;
+  visibility:hidden;
+  width:0;
+}
+
+#prjct-list-head {
+  padding: .35em .5em;
+  border-bottom: 1px solid #DDD;
+  width: 100%;
+  display: block;
+  text-align: center;
+  font-weight: bolder;
+}
+
+.prjct-thmb {
+  display: flex;
+  padding: .35em .5em;
+  border-bottom: 1px solid #DDD;
+  width: 100%;
+  cursor: pointer;
+}
+.prjct-thmb:hover {
+  background: #E4E4E4;
+}
+.prjct-thmb.active {
+  background: #E4E4E4;
+}
+
+.prjct-thmb-name {
+  min-width: 0px;
+  text-overflow: ellipsis;
+  overflow: hidden; 
+  white-space: nowrap;
+}
+.prjct-thmb-name.hidden {
+  display: none;
+}
+.prjct-thmb-ctrls{
+  /* position: absolute -- Makes dropdown function correctly on expense of 
+     name truncating. "Relative" makes truncating work but dropdown not.. */
+  position: absolute; 
+  right: 5px;
+  display: block;
+  margin-left: auto;
+  float: right;
+  white-space: nowrap;
+}
+.prjct-thmb-digit{  
+  color: #666;
+  padding: 0 .35em;
+}
+.prjct-thmb-dropdown{
+  padding: 0 .5em;
+}
+
+
+.prjct-name-input {
+  width: 100%;
+  border: 1px solid #666666;
+  border-radius: 5px;
+  height: 22px;
+}
+.prjct-name-input.hidden {
+  display: none
+}
+.prjct-name-input.alert {
+  border: 3px solid #be0000;
+  outline: none;
+}
+.prjct-name-input:focus {
+  border: 2px solid #0094E3;
+  outline: none;
+}
+.prjct-name-input.alert:focus {
+  border: 3px solid #be0000;
+  outline: none;
+}
+
+#left-menu-1-ctrls{
+  position: absolute; /* Only works because parent is 'relative' */
+  bottom: 1px;
+  width: 100%;
+  background: #f7f7f7;
+}
+#left-menu-1-ctrls span {
+  display: inline-block;
+  padding: 7px 10px;
+}
+/*#left-menu-1-ctrls .btn-add {
+  float: right;
+}*/
+#left-menu-1-ctrls span:hover {
+  cursor: pointer;
+  color: #666666
+}
+
+#left-menu-dropdown{
+  display: inline-block;
+  padding-left: 10px;
+}
+#left-menu-dropdown .scrolling.menu {
+  max-height: 200px !important;
+}
+#left-menu-dropdown .header{
+  margin-top: 0.3em !important;
+  margin-bottom: 0.3em !important;
+}
+.dropdown .item{
+  font-size: 11px !important;
+}
+
+/* Overwriting the padding defined by semantic.min.css
+   for dropdown items */
+.ui.dropdown .menu>.item {
+  padding: 0.6em 1.1em !important;
+}
+
+#dummy-dropdown {
+  position: absolute !important;
+  display: block;
+  top: 100%;
+  left: 100px;
+  width: 120px;
+  height: 100px;
+  background: yellow;
+  z-index: 40;
+}
+
+
+#left-menu-2{
+  float: left;
+  /* Combine float and position: relative (to its flow) */
+  position: relative;
+  width: @left-menu-2-width; 
+  height: 100%; /*calc(100% - @titlebar-height);*/
+  background: #f7f7f7; 
+  /*z-index: 5; */
+  border-right: 1px solid #666666;
+  overflow-y: auto;
+}
+/*
+.gutter-horizontal:nth-child(1) {
+  background: red !important;
+}*/
+
+#content{
+  float: left;
+  /* Combine float and position: relative (to its flow) */
+  position: relative;
+  height: 100%;/*calc(100% - @titlebar-height);*/
+  /*background-color: #E4E4E4;*/
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  /* border-left: 1px solid #666666; */
+}
+#content.graph-active {
+  overflow: hidden !important;
+}
+
+/* ===== Note list thumbnail ===== */
+.note-thmb{
+  font-size: 10px;
+  float: right;
+  width: 90%;
+  padding: 5px 10px;
+  border-bottom: 1px solid #DDD;
+}
+.note-thmb.active{
+  background: #E4E4E4;
+}
+.note-thmb:hover {
+  background: #E4E4E4;
+  cursor: pointer;
+}
+
+
+.flex-wrap {
+  display: flex;
+  width: 100%;
+}
+.note-thmb-head {
+  display: block;
+  font-weight: bolder;
+  min-width: 0px;
+  text-overflow: ellipsis;
+  overflow: hidden; 
+  white-space: nowrap;
+}
+.note-thmb-mid {
+  min-width: 0px;
+  text-overflow: ellipsis;
+  overflow: hidden; 
+  white-space: nowrap;
+}
+.note-thmb-datetime {
+  padding-right: 7px;
+  font-weight: 500;
+}
+.note-thmb-content {
+  min-width: 0px;
+  text-overflow: ellipsis;
+  overflow: hidden; 
+  white-space: nowrap;
+}
+.note-thmb-tags {
+  min-width: 0px;
+  text-overflow: ellipsis;
+  overflow: hidden; 
+  white-space: nowrap;
+}
+.note-thmb-tags > span {
+  padding: 2px 4px;
+  background: #D6D7F1;
+  /*opacity: 0.3;*/
+  margin-left: 2px;
+  margin-right: 2px;
+  color: black;
+  border-radius: 4px;
+}
+
+
+/* =========== Note Editor =========== */
+.note-header .datetime{
+  font-size: 11px;
+  text-align: center;
+  padding: 3px 3px;
+}
+.note-header .datetime > i:hover {
+  cursor: pointer;
+}
+
+#dt-created.hidden,
+#dt-modified.hidden{
+  display: none !important;
+}
+
+.note-header textarea{
+  font-size: 11px !important;
+}
+.note-content {
+  border-style: none;
+  resize: none;
+  outline: none;
+  overflow: auto;
+  font-size: 11px !important;
+  display: block;
+  position: relative;
+  bottom: 0px;
+  width: 100%;
+  height: 26px;
+  padding: 7px 11px;
+  background-color: #e8e8e8; /*#E4E4E4;*/
+  -webkit-box-shadow: 1px 6px 12px -8px #000000; 
+  box-shadow: 1px 6px 12px -8px #000000;
+}
+
+.graph-droppable-active{
+  border: 3px solid #DDD3DB;
+  border-radius: 6px;
+}
+/*.graph-droppable-hover{
+  background: red
+}*/
+
+.graph-note {
+  border: 1px solid #ddd;
+  background: #F3D4C2;
+  -webkit-box-shadow: -3px 6px 12px -8px #000000;
+  box-shadow: -3px 6px 12px -8px #000000;
+  display: inline-block;
+}
+
+.graph-note-header .datetime{
+  font-size: 11px;
+  text-align: center;
+  padding: 3px 3px;
+}
+
+.graph-note-content{
+  border-style: none;
+  resize: none;
+  outline: none;
+  overflow: hidden;
+  max-height: 500px;
+  font-size: 11px;
+  display: block;
+  width: 100%;
+  height: auto;
+  padding: 7px 11px;
+  background:  #F3D4C2;
+}
+.graph-note-tags {
+  display: block;
+  width: 100%;
+  padding: 4px 4px;
+  border-top:1px solid #3595f6;
+  border-bottom: 1px solid #3595f6;
+  background:  #F3D4C2;
+}
+.graph-note-tags > span {
+  display: inline-block;
+  padding: 2px 4px;
+  background: #D6D7F1;
+  /*opacity: 0.3;*/
+  margin-left: 2px;
+  margin-right: 2px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  color: black;
+  border-radius: 4px;
+}
+
+foreignObject.selected {
+  box-shadow: 0 0 0 3px #97C3E1;
+}
+
+
+
+
+#search {
+  display: block;
+  position: relative;
+}
+#search > input {
+  border: 1px solid #666666;
+  border-radius: 5px;
+  height: 25px;
+  width: 200px;
+  padding-left: 23px;
+}
+#search > input:focus{
+  border: 3px solid #0094E3;
+  outline: none;
+}
+
+#search > i {
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  color: #666666;
+}
+
+

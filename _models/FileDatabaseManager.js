@@ -18,7 +18,8 @@ var FileDatabaseManager = {
       created:      Date.now(),
       modified:     Date.now(),
       tags:         [], 
-      text:         "", 
+      text:         "",
+      color:        "#E4E4E4",
       associations: []
     }
     return empty_note
