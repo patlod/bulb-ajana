@@ -14,7 +14,8 @@ const TEST_PRJCT_JSON = {
   created: Date.now(),
   name: "test__FileDatabase.json",    
   tags: [],
-  notes: []   
+  notes: [],
+  graphs: []
 }
 
 var ADAPTER = null
@@ -31,6 +32,7 @@ function cleanUpDBFile(){
   DB.set('name', 'test.json')
   .set('tags', [])
   .set('notes', [])
+  .set('graphs', [])
   .write()
 }
 
@@ -827,16 +829,85 @@ test('weirdBugInsertNote', () => {
 
 })*/
 
-test('Dynamically push attributes to JSON', () => {
+test('selectAllVertices', () => {
   let fdb = new FileDatabase(TEST_DB_PATH)
 
-  fdb.db.set('MOESE', ['feucht']).write()
-  console.log("BLÖÖÖÖÖÖD")
-
-  //fdb.db.get("tags").push(...dummy_tags).write()
-  expect(1).toEqual(1)
   
+  const dummy_notes = [
+    { 
+      uuid: uuidv4(),
+      created: Date.now(),
+      modified: Date.now(),
+      tags: [], 
+      text: "Dummy note 1", 
+      associations: []
+    },
+    { 
+      uuid: uuidv4(),
+      created: Date.now(),
+      modified: Date.now(),
+      tags: [], 
+      text: "Dummy note 2", 
+      associations: []
+    }
+  ]
+  const dummy_vertices = [
+    { 
+      uuid:       uuidv4(), 
+      created:    Date.now(),
+      note:       dummy_notes[0].uuid, 
+      posX:       0, 
+      poxY:       0
+    },
+    { 
+      uuid:       uuidv4(), 
+      created:    Date.now(),
+      note:       dummy_notes[1].uuid, 
+      posX:       0, 
+      poxY:       0
+    }
+  ]
+
+  const dummy_edges = [
+    {
+      uuid:       uuidv4(),
+      created:    Date.now(),
+      source:     dummy_vertices[0].uuid,
+      target:     dummy_vertices[1].uuid,
+    }
+  ]
+
+  const dummy_graph = {
+    uuid:       uuidv4(),
+    created:    Date.now(),
+    vertices:   [dummy_vertices[0], dummy_vertices[1]],
+    edges:      [dummy_edges[0]]
+  }
+
+
+  // Prep DB with dummies
+  fdb.db.get('graphs').push(dummy_graph).write()
+  
+  let v_query = fdb.selectAllVertices(dummy_graph.uuid)
+  console.log(v_query)
+
+  let ed_query = fdb.selectAllEdges(dummy_graph.uuid)
+  console.log(ed_query)
+
 })
+
+
+
+// test('Dynamically push attributes to JSON', () => {
+//   let fdb = new FileDatabase(TEST_DB_PATH)
+
+//   fdb.db.set('MOESE', ['feucht']).write()
+//   console.log("BLÖÖÖÖÖÖD")
+
+//   //fdb.db.get("tags").push(...dummy_tags).write()
+//   expect(1).toEqual(1)
+  
+// })
 
 // test('createDummyDBFile', () => {
 //   let fdb = new FileDatabase(TEST_DB_PATH)

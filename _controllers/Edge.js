@@ -10,7 +10,6 @@ function Edge(graph, data = FileDatabaseManager.getEmptyEdgeJSON())
   // Edge data
   this.uuid = data.uuid
   this.created = data.created
-  // this.modified = 0
   this.source = data.source
   this.target = data.target
 

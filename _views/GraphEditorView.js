@@ -424,49 +424,9 @@ GraphEditorView.prototype.updateGraph = function(graphController){
   // console.log("upateGraph -- self.circles/paths")
   // console.log(self.circles)
   // console.log(self.paths)
-  
 
-  // Associate edges data in the graph controller with the UI elements
-  self.paths = self.paths.data(graphController.edges, function(d){
-    return String(d.source.uuid) + "+" + String(d.target.uuid);
-  });
-  var paths = self.paths;
-
-  // Update existing paths
-  paths.style('marker-end', 'url(#end-arrow)')
-    .classed(self.consts.selectedClass, function(d){
-      // TODO: User proper compare
-      return d === self.state.selectedEdge;
-    })
-    .attr("d", function(d){
-      // TODO: Refactor the to use Wrapper
-      let source_midCoords = d.source.calcDOMCenterCoords()
-      let target_midCoords = d.target.calcDOMCenterCoords()
-      return "M" + source_midCoords.x + "," + source_midCoords.y + "L" + target_midCoords.x + "," + target_midCoords.y;
-    });
-
-  // Add new paths
-  paths.enter()
-    .append("path")
-    .style('marker-end','url(#end-arrow)')
-    .classed("link", true)
-    .attr("d", function(d){
-      let source_midCoords = d.source.calcDOMCenterCoords()
-      let target_midCoords = d.target.calcDOMCenterCoords()
-      return "M" + source_midCoords.x + "," + source_midCoords.y + "L" + target_midCoords.x + "," + target_midCoords.y;
-    })
-    .on("mousedown", function(d){
-      self.pathMouseDown.call(self, d3.select(this), d);
-      }
-    )
-    .on("mouseup", function(d){
-      self.state.mouseDownLink = null;
-    });
-
-  // Remove old links
-  paths.exit().remove();
-
-  // Update existing nodes
+  // Update existing nodes 
+  // Should happen before edges as the width and height attributes are set dynamically on depending on the content.
   // Associate vertex data in the graph controller with the UI elements
   self.circles = self.circles.data(graphController.vertices, function(d){ return d.uuid;});
 
@@ -518,9 +478,13 @@ GraphEditorView.prototype.updateGraph = function(graphController){
     // console.log(gNote.clientHeight)
     
     // Associate vertex' UI dimensions with its data
-    d.width_dom = gNote.offsetWidth
-    d.height_dom = gNote.offsetHeight
-
+    if(!d.width_dom || d.width_dom === 0){
+      d.width_dom = gNote.offsetWidth
+    }
+    if(!d.height_dom || d.height_dom === 0){
+      d.height_dom = gNote.offsetHeight
+    }
+    
     // Adjust the height to content
     foreignObj.attr("height", gNote.offsetHeight)
     .on("mouseover", function(d){
@@ -542,6 +506,51 @@ GraphEditorView.prototype.updateGraph = function(graphController){
 
   // Remove old nodes
   self.circles.exit().remove();
+  
+
+  // Associate edges data in the graph controller with the UI elements
+  self.paths = self.paths.data(graphController.edges, function(d){
+    return String(d.source.uuid) + "+" + String(d.target.uuid);
+  });
+  var paths = self.paths;
+
+  // Update existing paths
+  paths.style('marker-end', 'url(#end-arrow)')
+    .classed(self.consts.selectedClass, function(d){
+      // TODO: User proper compare
+      return d === self.state.selectedEdge;
+    })
+    .attr("d", function(d){
+      // TODO: Refactor the to use Wrapper
+      let source_midCoords = d.source.calcDOMCenterCoords()
+      let target_midCoords = d.target.calcDOMCenterCoords()
+      return "M" + source_midCoords.x + "," + source_midCoords.y + "L" + target_midCoords.x + "," + target_midCoords.y;
+    });
+
+  // Add new paths
+  paths.enter()
+    .append("path")
+    .style('marker-end','url(#end-arrow)')
+    .classed("link", true)
+    .attr("d", function(d){
+      console.log(d)
+      let source_midCoords = d.source.calcDOMCenterCoords()
+      let target_midCoords = d.target.calcDOMCenterCoords()
+      
+      return "M" + source_midCoords.x + "," + source_midCoords.y + "L" + target_midCoords.x + "," + target_midCoords.y;
+    })
+    .on("mousedown", function(d){
+      self.pathMouseDown.call(self, d3.select(this), d);
+      }
+    )
+    .on("mouseup", function(d){
+      self.state.mouseDownLink = null;
+    });
+
+  // Remove old links
+  paths.exit().remove();
+
+  
 
   // console.log("Graph controller vertices")
   // console.log(graphController.vertices)
@@ -632,8 +641,8 @@ GraphEditorView.prototype.render = function(project){
     console.log(elem)
 
   let active_graph = project.getActiveGraph()
-  console.log("updateGraph graph.vertices:")
-  console.log(active_graph.vertices)
+  console.log("updateGraph graph:")
+  console.log(active_graph)
   
   // const Vertex = require("../_controllers/Vertex")
   // for(var i=0; i < 5; i++){

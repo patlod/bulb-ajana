@@ -10,7 +10,6 @@ function Vertex(graph, data = FileDatabaseManager.getEmptyVertexJSON())
   // Vertice data
   this.uuid = data.uuid
   this.created = data.created
-  this.modified = data.modified
   this.note = data.note
   // Positional coordinates of the vertex (North-West corner of DOMElement)
   this.posX = data.posX
@@ -38,7 +37,11 @@ Vertex.prototype.saveData = function(){
  *
  */
 Vertex.prototype.calcDOMCenterCoords = function(){
-  return {x: this.posX + this.width_dom/2, y: this.posY + this.height_dom/2}
+  if(!this.width_dom || !this.height_dom){
+    console.error("Vertex dimensions have not been set yet.")
+    return
+  }
+  return {x: (this.posX + this.width_dom/2), y: (this.posY + this.height_dom/2)}
 }
 
 Vertex.prototype.getGraph = function(){

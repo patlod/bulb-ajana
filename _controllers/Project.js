@@ -7,6 +7,7 @@ const FileDatabaseManager = require('../_models/FileDatabaseManager');
 const Graph = require('./Graph');
 const Note = require('./note');
 const Vertex = require('./Vertex');
+const Edge = require('./Edge')
 
 
 
@@ -61,6 +62,8 @@ Project.prototype.loadData = function(){
   this.tags = this.db.getProjectTags()
   this.notes = this.loadNotes()
   this.graphs = this.loadGraphs()
+  console.log("Project grahps")
+  console.log(this.graphs)
 }
 
 /**
@@ -224,11 +227,9 @@ Project.prototype.loadGraphs = function(){
     // Insert into database
     self.db.insertGraph(graphs[graphs.length - 1].getGraphJSON())
   }else{
-
-    if(self.notes.length === 0){
-      console.error("loadNotes() has to be called before loadGraphs()")
-      return 
-    }
+    
+    // TODO: Maybe check here whether loadNotes has been called already
+    //       (algorithm works with references to existing Note objects)
 
     for(var i in g_query){
       // Create graph instance
@@ -240,9 +241,11 @@ Project.prototype.loadGraphs = function(){
           n_obj = null,
           v = null;
       for(var j in v_query){
-        n_obj = self.notes.filter(n => n.uuid === v_query[j].note.uuid)
+        n_obj = self.notes.filter(n => n.uuid === v_query[j].note)
         if(n_obj !== null && n_obj.length === 1){
+          // Set references to Note instance
           v_query[j].note = n_obj[0]
+          // Add to vertices
           v = new Vertex(g, v_query[j])
           vertices.push(v)
         }
@@ -257,19 +260,22 @@ Project.prototype.loadGraphs = function(){
         ed = null;
       for(var j in ed_query){
         // Match source and target vertex objects of the list created above
-        source_obj = vertices.filter(v => v.uuid === ed_query[j].source.uuid)
-        target_obj = vertices.filter(v => v.uuid === ed_query[j].target.uuid)
-        if(source_obj !== null && target_obj !== null && source_obj.length === 1 && target_obj.length === 1){
+        source_obj = vertices.filter(v => v.uuid === ed_query[j].source)
+        target_obj = vertices.filter(v => v.uuid === ed_query[j].target)
+        if(source_obj !== null && target_obj !== null 
+          && source_obj.length === 1 && target_obj.length === 1){
+          // Set references to Note instances
           ed_query[j].source = source_obj[0]
           ed_query[j].target = target_obj[0]
+          // Add to edges
           ed = new Edge(g, ed_query[j])
           edges.push(ed)
         }
       }
 
+      // Update graph object and save in graphs list
       g.vertices = vertices
       g.edges = edges
-
       graphs.push(g)
     }
   }
