@@ -5,7 +5,7 @@ var inherits = require('util').inherits
 
 var yo = require('yo-yo')
 var Tagify = require('@yaireo/tagify')
-var moment = require('moment')
+var DateFormatter = require('../_util/DateFormatter')
 
 
 function NoteEditorView(target) {
@@ -27,28 +27,9 @@ function NoteEditorView(target) {
 inherits(NoteEditorView, EventEmitterElement)
 
 /**
- * TODO:
- *  - Input the tags 
- *      - Should be saved to database
- *  - When clicking on text field the dummy text should be deleted
- *  - Text input should go directly to the database i.e. writing directly to JSON file.
+ * Returns a (white)list of key-value pairs of global project tags
+ * @param {Project} project 
  */
-
-/**
- * Formats the string of the date of a note for the note thumbnail
- * 
- * Takes a raw date string e.g. created by Date.now()
- * 
- * @param {Date()} date
- */
-NoteEditorView.prototype.formatDate = function(date){
-  // Always show date in format as such 8. January 2021 at 14:56
-  let m = moment(new Date(date))
-  let d_str = m.format("DD. MMMM YYYY")
-  let t_str = m.format("HH:MM")
-  return d_str + " at " + t_str
-}
-
 NoteEditorView.prototype.fetchWhitelist = function(project){
   let p_tag_objs = project.getAllTags()
   let wL = p_tag_objs.map(function(t) { return {value: t.name } })
@@ -251,8 +232,8 @@ NoteEditorView.prototype.render = function(project){
     <div id="note-editor" >
       <div class="note-header">
         <div class="datetime">
-          <span id="dt-created">Created: ${self.formatDate(self.active_note.getCreated())}</span>
-          <span id="dt-modified" class="hidden">Modified: ${self.formatDate(self.active_note.getModified())}</span>
+          <span id="dt-created">Created: ${DateFormatter.formatDateEditor(self.active_note.getCreated())}</span>
+          <span id="dt-modified" class="hidden">Modified: ${DateFormatter.formatDateEditor(self.active_note.getModified())}</span>
           <i class="fas fa-chevron-down" onclick=${clickHandlerDate}></i>
         </div>
         <textarea style="background: white" name='note-tags' placeholder='Tags...'>

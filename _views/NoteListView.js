@@ -4,7 +4,7 @@ const EventEmitterElement = require('../_app/EventEmitterElement')
 var inherits = require('util').inherits
 
 var yo = require('yo-yo')
-var moment = require('moment')
+var DateFormatter = require('../_util/DateFormatter')
 
 function NoteListView(target) {
   var self = this
@@ -14,39 +14,6 @@ function NoteListView(target) {
   this.scrollTop = 0;
 }
 inherits(NoteListView, EventEmitterElement)
-
-
-/**
- * Formats the string of the date of a note for the note thumbnail
- * 
- * Takes a raw date string e.g. created by Date.now()
- * 
- * @param {Date()} date
- */
-NoteListView.prototype.formatDate = function(date){
-  let now = moment(new Date())
-  let today = moment(now.format("DD-MM-YYYY"), "DD-MM-YYYY")
-  let n_date = moment(new Date(date))
-  let diff = today.diff(n_date, 'days', true)
-  
-  if(diff <= 0){
-    return n_date.format("HH:MM")
-  }else if(diff <= 1){
-    return "Yesterday"
-  }else if(diff <= 2){
-    return n_date.format("dddd")
-  }else if(diff <= 3){
-    return n_date.format("dddd")
-  }else if(diff <= 4){
-    return n_date.format("dddd")
-  }else if(diff <= 5){
-    return n_date.format("dddd")
-  }else if(diff <= 6){
-    return n_date.format("dddd")
-  }else{
-    return n_date.format("DD.MM.YY")
-  }
-}
 
 
 NoteListView.prototype.tagsHTML = function(note, pureHTML = false){
@@ -134,7 +101,7 @@ NoteListView.prototype.render = function(project){
             <span class="note-thmb-head">${note.getHeader()}</span>
           </div>
           <div class="flex-wrap">
-            <span class="note-thmb-datetime">${self.formatDate(note.getCreated())}:</span> <span class="note-thmb-content">${note.getContentPreview()}</span>
+            <span class="note-thmb-datetime">${DateFormatter.formatDateNoteThmb(note.getCreated())}:</span> <span class="note-thmb-content">${note.getContentPreview()}</span>
           </div>
           <div class="flex-wrap">
             ${self.tagsHTML(note)}
