@@ -386,6 +386,21 @@ Project.prototype.getAllNotes = function(){
 }
 
 /**
+ * Returns note that matches the given UUID string
+ * 
+ * @param {String} note_id 
+ */
+Project.prototype.getNoteByUUID = function(note_id){
+  var self = this
+  
+  let chks = self.notes.filter(function(n){ return n.uuid.localeCompare(note_id) === 0})
+  if(chks.length === 1){
+    return chks[0]
+  }
+  return null
+}
+
+/**
  * 
  * @param {} note 
  */
@@ -394,10 +409,15 @@ Project.prototype.getTagByName = function(tag_name){
 }
 
 /**
- * 
- * @param {} note 
+ * Returns tag that matches the given UUID string
+ * @param {} tag_id 
  */
 Project.prototype.getTagByUUID = function(tag_id){
+  var self = this
+  let chks = self.tags.filter(function(t){ t => t.uuid === note_id})
+  if(chks.length === 1){
+    return chks[0]
+  }
   return null
 }
 

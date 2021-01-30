@@ -142,13 +142,24 @@ function App(el){
           $('body').css("cursor", "no-drop")
         },
         drop: function(event,ui){
-            console.log("Dropped note in graph..")
-            /**
-             * TODO: Add node to graph here..
-             * 
-             * - At this point it becomes necessary to create a Graph controller which
-             *   accesses database etc.
-             */
+          console.log("Dropped note in graph..")
+
+          let active_project = self.session.getActiveProject()
+          let active_graph = active_project.getActiveGraph()
+
+          let note_id = ui.draggable.find('.note-thmb').attr('data-id')
+          // Get note from project
+          let note = active_project.getNoteByUUID(note_id)
+          console.log(note)
+          let coords = {x: 0, y: 0}
+          if(note !== null){
+            console.log("..it exists, so add it...")
+            let nV = active_graph.createNewVertexForNote(coords, note)
+            nV.saveData()
+
+            self.views.graph.updateGraph(active_graph)
+            render(true)
+          }
         }
       });
     }
@@ -320,6 +331,7 @@ function App(el){
 
   self.on('addNotesToGraph', function(coords){ 
     // TODO: 
+    console.log("Call addNotesToGraph..")
   })
 
   self.on('deleteVertexInGraph', function(selectedVertex){
