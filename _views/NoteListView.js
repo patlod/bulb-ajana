@@ -3,8 +3,8 @@ module.exports = NoteListView
 const EventEmitterElement = require('../_app/EventEmitterElement')
 var inherits = require('util').inherits
 
-var yo = require('yo-yo')
-var DateFormatter = require('../_util/DateFormatter')
+const yo = require('yo-yo')
+const DateFormatter = require('../_util/DateFormatter')
 
 function NoteListView(target) {
   var self = this
@@ -22,7 +22,7 @@ NoteListView.prototype.tagsHTML = function(note, pureHTML = false){
   if(pureHTML){
     let div =  document.createElement("div")
     div.classList = "note-thmb-tags"
-    let tags = note.getTags().map(function(tag){
+    note.getTags().map(function(tag){
       let span = document.createElement("span")
       span.textContent = tag.name
       div.appendChild(span)
@@ -41,7 +41,6 @@ NoteListView.prototype.tagsHTML = function(note, pureHTML = false){
       </div>
     `
   }
-  
 }
 
 
