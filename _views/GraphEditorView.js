@@ -129,8 +129,11 @@ GraphEditorView.prototype.init = function(svg){
           console.log("DRAGEND:")
           console.log(d)
           // todo check if edge-mode is selected
-          self.dirty_vertices.push(d)
 
+          if(self.dirty_vertices.indexOf(d) < 0){
+            self.dirty_vertices.push(d)
+          }
+          
           // Set/Reset timer for writing to database
           if (self.globalTimeout !== null) {
             clearTimeout(self.globalTimeout);
@@ -140,6 +143,7 @@ GraphEditorView.prototype.init = function(svg){
 
             console.log("TIMEOUT: Writing dirty vertices to database.")
             for(var i in self.dirty_vertices){
+              console.log(self.dirty_vertices[i])
               self.dirty_vertices[i].saveData()
             }
             
@@ -386,6 +390,17 @@ GraphEditorView.prototype.svgKeyDown = function() {
 
     d3.event.preventDefault();
     if (selectedNode){
+      // Remove from dirty vertices to not get written to database again.
+      let v_ids = self.dirty_vertices.map(function(v) { return v.uuid; })
+      let idx = v_ids.indexOf(selectedNode.uuid);
+      console.log(v_ids)
+      console.log(idx)
+      if(idx >= 0){
+        console.log("Remove deleted vertex from dirty vertices list")
+        self.dirty_vertices.splice(idx, 1)
+      }
+      console.log("After removing from dirty vertices")
+      console.log(self.dirty_vertices)
       self.send('deleteVertexInGraph', selectedNode)
     } else if (selectedEdge){
       self.send('deleteEdgeInGraph', selectedEdge)

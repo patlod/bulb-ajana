@@ -556,7 +556,7 @@ FileDatabase.prototype.deleteEdges = function(graph_id, edges){
   // Empty database buffer
   this.db.read()
 
-  let ed_ids = vertices.map(function(ed){ return { uuid: ed.uuid } } )
+  let ed_ids = edges.map(function(ed){ return { uuid: ed.uuid } } )
   for(var i in ed_ids){
     this.db.get('graphs').find({uuid: graph_id}).get('edges').remove(ed_ids[i]).write()
   }

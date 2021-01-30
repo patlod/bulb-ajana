@@ -151,10 +151,17 @@ Session.prototype.prepProjectForTrans = function(targetProject){
   var self = this 
 
   if(targetProject){
+    let active_graph = targetProject.getActiveGraph()
     let active_note = targetProject.getActiveNote()
     let empty_notes = targetProject.getEmptyNotes()
     if(empty_notes.length === 1 && active_note.compareTo(empty_notes[0])){
       targetProject.deleteNote(active_note)
+      if(active_graph !== null){
+        active_graph.deleteVertexForNote(active_note)
+        if(targetProject.getGraphMode()){
+          self.app.views.graph.updateGraph(active_graph)
+        }
+      }
     }else{
       if(active_note && active_note.isDirty()){
         active_note.saveText()
@@ -176,7 +183,7 @@ Session.prototype.transToProject = function(project, callback){
   // trigger a re-render()
   self.toggleActiveProject(project)
   project.setActiveNoteAtIndex(0)
-  
+
   // Reset the scroll position of NotesListView
   //self.app.views.notes.scrollTop = 0
 

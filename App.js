@@ -324,7 +324,7 @@ function App(el){
 
   self.on('deleteVertexInGraph', function(selectedVertex){
     console.log("deleteVertexInGraph: ")
-    console.log(selectedVertex)
+
     let g = self.session.getActiveGraph()
     g.deleteVertex(selectedVertex)
 
@@ -334,10 +334,10 @@ function App(el){
   })
 
   self.on('createNewEdgeInGraph', function(vPair){
+    console.log("createNewEdgeInGraph: ")
     let g = self.session.getActiveGraph()
 
     var filtRes = g.getEdges().filter(function(d){
-      // TODO: Do proper compare here!
       console.log(d)
       if (d.source.compareTo(vPair.target) && d.target.compareTo(vPair.source)){
         g.deleteEdge(d)
@@ -346,13 +346,15 @@ function App(el){
     });
 
     if (!filtRes.length){
-      g.createNewEdge(vPair.source, vPair.target);
+      let nE = g.createNewEdge(vPair.source, vPair.target);
+      nE.saveData()
 
       self.views.graph.updateGraph(g);
     }
   })
 
   self.on('deleteEdgeInGraph', function(selectedEdge){
+    console.log("deleteEdgeInGraph: ")
     let g = self.session.getActiveGraph()
     g.deleteEdge(selectedEdge)
 

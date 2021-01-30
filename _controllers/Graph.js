@@ -71,11 +71,19 @@ Graph.prototype.createNewVertexForNote = function(coords, note){
 Graph.prototype.deleteVertex = function(selectedVertex){
   var self = this
 
-  self.vertices.splice(self.vertices.indexOf(selectedVertex), 1);
-  self.spliceEdgesForVertex(selectedVertex);
-
-  // TODO: Delete from database
-  //self.getDB().deleteVertex(self.uuid, selectedVertex.getVertexJSON())
+  console.log("graph.deleteVertex..")
+  
+  let v_ids = self.vertices.map(function(v) { return v.uuid; })
+  let idx = v_ids.indexOf(selectedVertex.uuid);
+  if(idx >= 0){ 
+    // false can only happen when inconsistencies exsist.
+    self.vertices.splice(idx, 1);
+    self.spliceEdgesForVertex(selectedVertex);
+    
+    // TODO: Delete from database
+    console.log("Deleting vertex from database")
+    self.getDB().deleteVertices(self.uuid, [selectedVertex.getVertexJSON()])
+  }
 }
 
 Graph.prototype.deleteVertexForNote = function(note){
@@ -84,17 +92,19 @@ Graph.prototype.deleteVertexForNote = function(note){
   let chks = self.vertices.filter( v => v.note !== null && v.note.compareTo(note))
   if(chks.length === 1){
     console.log(self.vertices)
-    self.vertices.splice(self.vertices.indexOf(chks[0]), 1)
-    self.spliceEdgesForVertex(chks[0]);
-    console.log(self.vertices)
-    // TODO: Delete from database
-    console.log("Delete Vertex from database..")
-    self.getDB().deleteVertices(self.uuid, [chks[0].getVertexJSON()])
+
+    let v_ids = self.vertices.map(function(v) { return v.uuid; })
+    let idx = v_ids.indexOf(chks[0].uuid);
+    if(idx >= 0 ){
+      self.vertices.splice(idx, 1)
+      self.spliceEdgesForVertex(chks[0]);
+      console.log(self.vertices)
+      // TODO: Delete from database
+      console.log("Delete Vertex from database..")
+      self.getDB().deleteVertices(self.uuid, [chks[0].getVertexJSON()])
+    }
   }
-
-  
 }
-
 
 /**
  * Returns all edges of the graph
@@ -130,26 +140,37 @@ Graph.prototype.createNewEdge = function(source, target){
  */
 Graph.prototype.deleteEdge = function(selectedEdge){
   var self = this
+  
+  let ed_ids = self.edges.map(function(ed) { return ed.uuid; })
+  let idx = ed_ids.indexOf(selectedEdge.uuid)
+  if(idx >= 0){
+    this.edges.splice(idx, 1);
 
-  this.edges.splice(this.edges.indexOf(selectedEdge), 1);
-
-  // TODO: Delete from database
-  //self.getDB().deleteEdge(selectedEdge.getEdgeJSON())
+    // Delete from database
+    console.log("Delete edge from database")
+    self.getDB().deleteEdges(self.uuid, [selectedEdge.getEdgeJSON()])
+  }
 }
 
-
+/**
+ * Deltes all edges connected to a given vertex.
+ * @param {Vertex} vertex 
+ */
 Graph.prototype.spliceEdgesForVertex = function(vertex) {
   var self = this
 
   var toSplice = self.edges.filter(function(l) {
-    // TODO: Refactor compare here ==> Maybe compare function in the Vertex class
-    return (l.source === node || l.target === node);
+    return ( l.source.compareTo(vertex) || l.target.compareTo(vertex) );
   });
   toSplice.map(function(l) {
     self.edges.splice(self.edges.indexOf(l), 1);
   });
 
-  // TODO: Delete from database here
+  toSplice = toSplice.map(function(ed){ return ed.getEdgeJSON()})
+
+  // Delete from database here
+  console.log("Delete edges spliced for deleted vertex")
+  self.getDB().deleteEdges(self.uuid, toSplice)
 };
 
 Graph.prototype.isActive = function(){

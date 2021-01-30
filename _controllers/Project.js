@@ -240,10 +240,10 @@ Project.prototype.loadGraphs = function(){
           n_obj = null,
           v = null;
       for(var j in v_query){
-        let n_obj = self.notes.filter(n => n.uuid === v_query[j].note.uuid)
+        n_obj = self.notes.filter(n => n.uuid === v_query[j].note.uuid)
         if(n_obj !== null && n_obj.length === 1){
           v_query[j].note = n_obj[0]
-          let v = new Vertex(g, v_query[j])
+          v = new Vertex(g, v_query[j])
           vertices.push(v)
         }
       }

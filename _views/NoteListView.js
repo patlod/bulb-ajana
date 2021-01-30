@@ -160,6 +160,7 @@ NoteListView.prototype.render = function(project){
       }, 
       cursorAt: { left: 2, top: 2},
       appendTo: '#layout',
+      distance: 20
     })
 
     return note_thumb
