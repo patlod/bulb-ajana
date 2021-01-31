@@ -20,11 +20,11 @@ const Session = require('./_controllers/Session.js')
 const SplitManager = require('./scripts/split-screen.js')
 
 // Views
-const Titlebar = require('./_views/Titlebar.js')
-const ProjectListView = require('./_views/ProjectListView.js')
-const NoteListView = require('./_views/NoteListView.js')
-const NoteEditorView = require('./_views/NoteEditorView.js')
-const GraphEditorView = require('./_views/GraphEditorView.js')
+const TitlebarView = require('./_views/TitlebarView')
+const ProjectListView = require('./_views/ProjectListView')
+const NoteListView = require('./_views/NoteListView')
+const NoteEditorView = require('./_views/NoteEditorView')
+const GraphEditorView = require('./_views/GraphEditorView')
 
 //const GraphCreator = require('./graph-creator')
 
@@ -59,7 +59,8 @@ function App(el){
   
   // All view instance for different parts of the app's UI
   self.views = {
-    titlebar: new Titlebar(self),
+    
+    titlebar: new TitlebarView(self),
     projects: new ProjectListView(self),
     notes: new NoteListView(self),
     editor: new NoteEditorView(self),

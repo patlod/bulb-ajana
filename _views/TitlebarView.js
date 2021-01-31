@@ -1,16 +1,16 @@
-module.exports = Titlebar
+module.exports = TitlebarView
 
 const EventEmitterElement = require('../_app/EventEmitterElement')
 var inherits = require('util').inherits
 
 var yo = require('yo-yo')
 
-function Titlebar(target){
+function TitlebarView(target){
     var self = this
 
     EventEmitterElement.call(this, target)
 }
-inherits(Titlebar, EventEmitterElement)
+inherits(TitlebarView, EventEmitterElement)
 
 /**
  * TODO:
@@ -24,7 +24,7 @@ inherits(Titlebar, EventEmitterElement)
  */
 
 
-Titlebar.prototype.updateCreateNewBtn = function(dom_el, active_note){
+TitlebarView.prototype.updateCreateNewBtn = function(dom_el, active_note){
     // let create_new_btn = dom_el.getElementsByClassName('')[0]
     let btn = document.getElementById('new-note-btn')
     if(active_note.getContent().length === 0){
@@ -40,7 +40,7 @@ Titlebar.prototype.updateCreateNewBtn = function(dom_el, active_note){
     }
 }
 
-Titlebar.prototype.render = function (session) {
+TitlebarView.prototype.render = function (session) {
     var self = this
     /**
      * TODO: Define event handler functions here and embedded them in html string

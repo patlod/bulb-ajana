@@ -482,6 +482,10 @@ FileDatabase.prototype.getProjectTags = function(){
   *    }
   */
 
+FileDatabase.prototype.makeGraphTable = function(){
+  this.db.read()
+  this.db.set('graphs', []).write()
+}
 
 FileDatabase.prototype.insertGraph = function(graph){
   this.db.read()
