@@ -392,6 +392,7 @@ function App(el){
     
     ipcRenderer.send('closed')
   })
+
 }
 
 /**
