@@ -132,6 +132,7 @@ function App(el){
       // Make the #content container of the graph a droppable element for the notes
       $('#content').droppable({
         accept:'.note-thmb-wrap',
+        tolerance: 'pointer',
         classes: {
           "ui-droppable-active": "graph-droppable-active",
           "ui-droppable-hover": "graph-droppable-hover"

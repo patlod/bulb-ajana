@@ -141,13 +141,6 @@ FileDatabase.prototype.insertNote = function(note){
   // Write note to database if not existing yet..
   if(!s){
     this.db.get('notes').push(note).write()
-  }else{
-    this.db.get('notes')
-    .find({uuid: note.uuid})
-    .assign({
-      
-    })
-    .write()
   }
 }
 /**
