@@ -227,6 +227,71 @@ NoteEditorView.prototype.render = function(project){
   /* ====================================================================== */
   /* ====================================================================== */
 
+  function makeColorPaletteDropdown(project){
+    if(!project){
+        return
+    }else{
+        if(!project.getGraphMode()){
+
+            let rules, rule, i, j, key;
+            let lessRules = [],
+                targetSheet = null;
+
+            for(i = 0; i < document.styleSheets.length; i++){ 
+                let sHref = document.styleSheets[i].href.split("/")
+                if(sHref[sHref.length - 1] === "main.css"){
+                    targetSheet = document.styleSheets[i]
+                }
+            }
+            if(targetSheet !== null){
+                rules = targetSheet.cssRules;
+                for (j = 0; j < rules.length; j++) {
+                    rule = rules[j];
+                    if (rules[j].selectorText.indexOf('postit-bg-') !== -1) {
+                        key = rules[j].selectorText// /postit-bg-(.*)/.exec(rules[j].selectorText)[1];
+                        //lessRules[key] = rule.style['background'];
+                        lessRules.push(key)
+                    }
+                }
+            }
+
+            let items_html = []
+            let el = null
+            lessRules.map(function(x, idx){
+                el = yo` 
+                    <div class="item">
+                        <span class="color-pickr-circle ${x.substring(1)}"></span>
+                    </div>
+                `
+                items_html.push(el)
+                if((idx + 1) % 5 === 0){
+                    items_html.push(yo`<div class="divider"></div>`)
+                }
+                
+            })
+            
+             
+            return yo`
+            <div id="note-color-dp" class="ui floated dropdown">
+                <i class="fas fa-palette"></i>
+                <i class="dropdown icon"></i>
+                
+                <div class="menu">
+                    <div class="header">
+                        <i class="fas fa-paint-roller"></i>
+                        Note Color
+                    </div>
+                    <div class="menu scrolling">
+                        ${items_html}
+                    </div>
+                </div>
+            </div>
+            `
+        }
+    }
+}
+
+
   
   var editor_view = yo`
     <div id="note-editor" >
@@ -240,6 +305,10 @@ NoteEditorView.prototype.render = function(project){
           ${self.makeTagifyValues(self.active_note.getTags())}
         </textarea>
       </div>
+      <div class="note-content-wrap">
+        <div class="note-content-ctrls">
+          ${makeColorPaletteDropdown(project)}
+        </div>
       <!-- <div id="notepad" class="note-content" contenteditable="true" onkeyup=${keyupHandlerNotepad}> -->
         <!-- Alternative HTML: <textarea id="notepad">Note text here</textarea> -->
         <textarea id="notepad" class="note-content" wrap="soft" 
@@ -247,6 +316,7 @@ NoteEditorView.prototype.render = function(project){
         onkeyup=${keyupHandlerNotepad}
         onclick=${clickHandlerNotepad}>${self.active_note.getContent()}</textarea>
       <!-- </div> -->
+      </div>
     </div>
   `
 

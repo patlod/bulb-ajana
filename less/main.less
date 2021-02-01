@@ -128,42 +128,31 @@ height: 100%;
 #tb-content-tools > #search {
   float: right;
 }
-#note-color-dp {
-  font-size: 11px !important;
-  float: left;
-  color: #333333;
-  padding-top: 4px;
-  
-}
-#note-color-dp > i:nth-child(2) {
-  margin-left: 0em !important;
-}
-#note-color-dp .item {
-  display: inline-block !important;
-  /*padding: 2px 4px !important;*/
-  padding: 0.5em 0.8em !important;
-  &.active{
-    box-shadow: 0 0 0 1px #ddd;
-  }
-}
-#note-color-dp .header {
-  margin-top: 0.5em !important;
-  margin-bottom: 0.5em !important;
-  /*padding: 2px 4px !important;*/
-}
-#note-color-dp .divider {
-  margin: 0px !important;
-  /*padding: 2px 4px !important;*/
-}
-#note-color-dp .menu.scrolling{
-  max-height: 200px;
-}
-.color-pickr-circle {
+
+#search {
   display: block;
-  width: 16px;
-  height: 16px; 
-  border-radius: 8px;
+  position: relative;
 }
+#search > input {
+  border: 1px solid #666666;
+  border-radius: 5px;
+  height: 25px;
+  width: 200px;
+  padding-left: 23px;
+}
+#search > input:focus{
+  border: 3px solid #0094E3;
+  outline: none;
+}
+
+#search > i {
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  color: #666666;
+}
+
+
 
 
 #main {
@@ -393,6 +382,7 @@ height: 100%;
   width: 100%;
 }
 .note-thmb-head {
+  flex: 1;
   display: block;
   font-weight: bolder;
   min-width: 0px;
@@ -431,6 +421,15 @@ height: 100%;
   color: black;
   border-radius: 4px;
 }
+.color-pickr-circle-thmb {
+  display: inline-block !important;
+  width: 10px;
+  height: 10px; 
+  border-radius: 5px;
+  margin-top: 0.25em;
+  margin-left: 0.1em;
+  margin-right: 0.2em;
+}
 
 
 /* =========== Note Editor =========== */
@@ -451,21 +450,49 @@ height: 100%;
 .note-header textarea{
   font-size: 11px !important;
 }
-.note-content {
-  border-style: none;
-  resize: none;
-  outline: none;
-  overflow: auto;
-  font-size: 11px !important;
+.note-content-ctrls{
   display: block;
-  position: relative;
-  bottom: 0px;
   width: 100%;
-  height: 26px;
-  padding: 7px 11px;
+  height: 2.0em;
+}
+.note-content-wrap{
   background-color: #e8e8e8; /*#E4E4E4;*/
-  -webkit-box-shadow: 1px 6px 12px -8px #000000; 
-  box-shadow: 1px 6px 12px -8px #000000;
+}
+#note-color-dp {
+  font-size: 11px !important;
+  float: right;
+  color: #666;
+  padding-top: 4px;
+  margin-right: 0.5em
+}
+#note-color-dp > i:nth-child(2) {
+  margin-left: 0em !important;
+}
+#note-color-dp .item {
+  display: inline-block !important;
+  /*padding: 2px 4px !important;*/
+  padding: 0.5em 0.8em !important;
+  &.active{
+    box-shadow: 0 0 0 1px #ddd;
+  }
+}
+#note-color-dp .header {
+  margin-top: 0.5em !important;
+  margin-bottom: 0.5em !important;
+  /*padding: 2px 4px !important;*/
+}
+#note-color-dp .divider {
+  margin: 0px !important;
+  /*padding: 2px 4px !important;*/
+}
+#note-color-dp .menu.scrolling{
+  max-height: 200px;
+}
+.color-pickr-circle {
+  display: block;
+  width: 16px;
+  height: 16px; 
+  border-radius: 8px;
 }
 
 .graph-droppable-active{
@@ -524,6 +551,26 @@ height: 100%;
   border-radius: 4px;
 }
 
+.note-content {
+  border-style: none;
+  resize: none;
+  outline: none;
+  overflow: auto;
+  font-size: 11px !important;
+  display: block;
+  position: relative;
+  bottom: 0px;
+  width: 100%;
+  height: 26px;
+  padding: 7px 11px;
+  background-color: inherit;
+  -webkit-box-shadow: 1px 6px 12px -8px #000000; 
+  box-shadow: 1px 6px 12px -8px #000000;
+}
+
+
+
+
 foreignObject.selected {
   box-shadow: 0 0 0 3px #97C3E1;
 }
@@ -531,27 +578,5 @@ foreignObject.selected {
 
 
 
-#search {
-  display: block;
-  position: relative;
-}
-#search > input {
-  border: 1px solid #666666;
-  border-radius: 5px;
-  height: 25px;
-  width: 200px;
-  padding-left: 23px;
-}
-#search > input:focus{
-  border: 3px solid #0094E3;
-  outline: none;
-}
-
-#search > i {
-  position: absolute;
-  left: 5px;
-  top: 6px;
-  color: #666666;
-}
 
 

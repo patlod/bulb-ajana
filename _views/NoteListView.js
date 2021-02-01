@@ -97,7 +97,7 @@ NoteListView.prototype.render = function(project){
       <div class="note-thmb-wrap">
         <div class="note-thmb ${className}" data-id=${note.uuid} onclick=${clickNoteThmb}>
           <div class="flex-wrap">
-            <span class="note-thmb-head">${note.getHeader()}</span>
+          <span class="color-pickr-circle-thmb postit-bg-miami-1"></span><span class="note-thmb-head">${note.getHeader()}</span>
           </div>
           <div class="flex-wrap">
             <span class="note-thmb-datetime">${DateFormatter.formatDateNoteThmb(note.getCreated())}:</span> <span class="note-thmb-content">${note.getContentPreview()}</span>

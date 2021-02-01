@@ -115,71 +115,6 @@ TitlebarView.prototype.render = function (session) {
         }
     }
 
-    function makeColorPaletteDropdown(project){
-        if(!project){
-            return
-        }else{
-            if(!project.getGraphMode()){
-
-                let rules, rule, i, j, key;
-                let lessRules = [],
-                    targetSheet = null;
-
-                for(i = 0; i < document.styleSheets.length; i++){ 
-                    let sHref = document.styleSheets[i].href.split("/")
-                    if(sHref[sHref.length - 1] === "main.css"){
-                        targetSheet = document.styleSheets[i]
-                    }
-                }
-                if(targetSheet !== null){
-                    rules = targetSheet.cssRules;
-                    for (j = 0; j < rules.length; j++) {
-                        rule = rules[j];
-                        if (rules[j].selectorText.indexOf('postit-bg-') !== -1) {
-                            key = rules[j].selectorText// /postit-bg-(.*)/.exec(rules[j].selectorText)[1];
-                            //lessRules[key] = rule.style['background'];
-                            lessRules.push(key)
-                        }
-                    }
-                }
-
-                let items_html = []
-                let el = null
-                lessRules.map(function(x, idx){
-                    el = yo` 
-                        <div class="item">
-                            <span class="color-pickr-circle ${x.substring(1)}"></span>
-                        </div>
-                    `
-                    items_html.push(el)
-                    if((idx + 1) % 5 === 0){
-                        items_html.push(yo`<div class="divider"></div>`)
-                    }
-                    
-                })
-                
-                 
-                return yo`
-                <div id="note-color-dp" class="ui floated dropdown">
-                    <i class="fas fa-palette"></i>
-                    <i class="dropdown icon"></i>
-                    
-                    <div class="menu">
-                        <div class="header">
-                            <i class="fas fa-paint-roller"></i>
-                            Note Color
-                        </div>
-                        <div class="menu scrolling">
-                            ${items_html}
-                        </div>
-                    </div>
-                </div>
-                `
-            }
-        }
-    }
-
-
     return yo`
       <header id="titlebar"><div id="drag-region">
         <div id="tb-prjct-tools">
@@ -195,7 +130,7 @@ TitlebarView.prototype.render = function (session) {
         <div id="tb-content-tools">
             
             ${makeSearchField(session.getActiveProject())}
-            ${makeColorPaletteDropdown(session.getActiveProject())}
+            
         </div>
         </div> 
     </header>
