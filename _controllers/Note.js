@@ -11,7 +11,7 @@ function Note(project, data = FileDatabaseManager.getEmptyNoteJSON())
   this.modified = data.modified
   this.tags = data.tags
   this.text = data.text
-  this.color = data.color
+  this.bg_color = data.bg_color
   this.associations = data.associations
 
   this.active = false
@@ -327,7 +327,7 @@ Note.prototype.getNoteJSON = function(){
     modified: this.modified,
     tags: this.tags.map(function(t){ return t.uuid}), 
     text: this.text,
-    color: this.color,
+    bg_color: this.bg_color,
     associations: this.associations
   }
 }
