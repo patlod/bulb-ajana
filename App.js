@@ -59,7 +59,6 @@ function App(el){
   
   // All view instance for different parts of the app's UI
   self.views = {
-    
     titlebar: new TitlebarView(self),
     projects: new ProjectListView(self),
     notes: new NoteListView(self),
@@ -71,6 +70,7 @@ function App(el){
 
   /* === Initial DOM tree render ================= */
   var tree = self.render()
+  console.log(tree)
   el.appendChild(tree)
   /* ============================================= */
 
@@ -111,7 +111,10 @@ function App(el){
 
   function render (lazy_load = false) {
     var newTree = self.render(lazy_load)
-    //console.log(newTree)
+    console.log("Tree old:")
+    console.log(tree)
+    console.log("Tree new")
+    console.log(newTree)
     yo.update(tree, newTree)
     // Recreate split screen on new dom tree with sizes from old one
     self.split_manager.recreateFromBuffer()
@@ -410,15 +413,19 @@ App.prototype.renderContentArea = function(lazy_load = false){
       return document.getElementById('content')
     }
 
-    let content = yo `
+    
+    
+    let content = yo`
       <div id="content" class="graph-active">
       ${self.views.graph.render(self.session.getActiveProject())}
       </div>
     `
+    console.log("======== renderContentArea: ===========")
+    console.log(content)
     return content
 
   }else{
-    return yo `
+    return yo`
     <div id="content">
     ${self.views.editor.render(self.session.getActiveProject())}
     </div>
@@ -475,7 +482,7 @@ App.prototype.render = function (lazy_load = false) {
       </div>
     `
   }else{
-    return  yo`
+    return yo`
       <div id="layout">
         ${views.titlebar.render(self.session)}
 
@@ -494,14 +501,11 @@ App.prototype.render = function (lazy_load = false) {
 
           <!-- Content Area -->
           ${self.renderContentArea()}
-          
 
         </div>
 
       </div>
     `
-
-    // 
   }
   
 }

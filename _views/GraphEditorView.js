@@ -56,6 +56,8 @@ inherits(GraphEditorView, EventEmitterElement)
 
 GraphEditorView.prototype.init = function(svg){
   var self = this;
+
+  console.log("GraphEditorView init()...")
   
   if (self.globalTimeout !== null) {
     clearTimeout(self.globalTimeout);
@@ -484,7 +486,7 @@ GraphEditorView.prototype.updateGraph = function(graphController){
     }
     
     // Adjust the height to content
-    foreignObj.attr("width", gnNode.offsetWidth).attr("height", gnNode.offsetHeight)
+    foreignObj.attr("width", d.width_dom).attr("height", d.height_dom)
     .on("mouseover", function(d){
       if (self.state.shiftNodeDrag){
         d3.select(this).classed(self.consts.connectClass, true);
@@ -646,16 +648,11 @@ GraphEditorView.prototype.render = function(project){
   console.log("updateGraph graph:")
   console.log(active_graph)
   
-  // const Vertex = require("../_controllers/Vertex")
-  // for(var i=0; i < 5; i++){
-  //   active_graph.vertices.push(new Vertex(active_graph))
-  // }
-  
-  
   self.init(svg)
+
   setTimeout(function() {
     self.updateGraph(active_graph)
- }, 10);
+  }, 500);
   
   
   return graph_view

@@ -178,16 +178,24 @@ Session.prototype.transToProject = function(project, callback){
   // Prepare currently active project for transition
   let active_project = self.getActiveProject()
   self.prepProjectForTrans(active_project)
+  let prior_project_gm = active_project.getGraphMode()
 
   // Due to my design it is enough to just toggle the active projects and 
   // trigger a re-render()
   self.toggleActiveProject(project)
   project.setActiveNoteAtIndex(0)
+  let cur_active_project = self.getActiveProject()
 
   // Reset the scroll position of NotesListView
   //self.app.views.notes.scrollTop = 0
+
   if(typeof callback === "function"){
-    callback()
+    if(prior_project_gm && cur_active_project.getGraphMode()){
+      self.app.views.graph.updateGraph(cur_active_project.getActiveGraph())
+      callback(true)
+    }else{
+      callback()
+    }
   }
 }
 

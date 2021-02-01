@@ -164,17 +164,6 @@ ProjectListView.prototype.createLeftMenuDropdown = function(recents){
           ${mapRecentProjects(recents)}
           
         </div>
-        <!-- 
-        <div class="item">
-          <i class="dropdown icon"></i>
-          Recent Projects
-          <div class="menu">
-            <div class="item">Project A</div>
-            <div class="item">Project B</div>
-            <div class="item">Project C</div>
-          </div>
-        </div>
-        --> 
       </div>          
     </div>
     
