@@ -141,6 +141,13 @@ FileDatabase.prototype.insertNote = function(note){
   // Write note to database if not existing yet..
   if(!s){
     this.db.get('notes').push(note).write()
+  }else{
+    this.db.get('notes')
+    .find({uuid: note.uuid})
+    .assign({
+      
+    })
+    .write()
   }
 }
 /**
@@ -509,7 +516,7 @@ FileDatabase.prototype.insertVertex = function(graph_id, vertex){
   this.db.read()
 
   let s = this.db.get('graphs').find({uuid: graph_id}).get('vertices').find({uuid: vertex.uuid}).value()
-  if(!s){
+  if(!s){ // Not existing, so create..
     this.db.get('graphs')
     .find({uuid: graph_id})
     .get('vertices')
@@ -517,6 +524,15 @@ FileDatabase.prototype.insertVertex = function(graph_id, vertex){
       uuid:     vertex.uuid,
       created:  vertex.created,
       note:     vertex.note.uuid,
+      posX:     vertex.posX,
+      posY:     vertex.posY
+    }).write()
+  }else{  // Exists, so update its position..
+    this.db.get('graphs')
+    .find({uuid: graph_id})
+    .get('vertices')
+    .find({uuid: vertex.uuid})
+    .assign({
       posX:     vertex.posX,
       posY:     vertex.posY
     }).write()

@@ -186,7 +186,6 @@ Session.prototype.transToProject = function(project, callback){
 
   // Reset the scroll position of NotesListView
   //self.app.views.notes.scrollTop = 0
-
   if(typeof callback === "function"){
     callback()
   }
