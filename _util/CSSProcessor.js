@@ -1,5 +1,9 @@
 const UnitConverter = require('./UnitConverter')
 
+/**
+ * Static class object handling anything that revolves around fetching data
+ * dynamically from CSS.
+ */
 var CSSProcessor = {
   
   /**
