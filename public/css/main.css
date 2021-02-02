@@ -315,6 +315,10 @@ body {
   width: 100%;
   margin-top: 35px;
 }
+#main > .gutter {
+  /*border-right: 1px solid #666666;*/
+  background: #e8e8e8;
+}
 /* ======== The Split.js Gutter ========= */
 .gutter {
   float: left;
@@ -333,7 +337,7 @@ body {
   /* calc(100% - @titlebar-height);*/
   background: #f7f7f7;
   /*z-index: 5;*/
-  border-right: 1px solid #666666;
+  /*border-right: 1px solid #666666;*/
   min-width: 100px;
 }
 #left-menu-1 > div {
@@ -483,8 +487,7 @@ body {
   height: 100%;
   /*calc(100% - @titlebar-height);*/
   background: #f7f7f7;
-  /*z-index: 5; */
-  border-right: 1px solid #666666;
+  /*border-right: 1px solid #666666;*/
   overflow-y: auto;
 }
 /*
