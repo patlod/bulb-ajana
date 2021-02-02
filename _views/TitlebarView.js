@@ -42,15 +42,30 @@ TitlebarView.prototype.updateCreateNewBtn = function(dom_el, active_note){
 
 TitlebarView.prototype.render = function (session) {
     var self = this
-    /**
-     * TODO: Define event handler functions here and embedded them in html string
-     */
+    
+   /* function updateEditorToggle(el){
+        console.log(el)
+        let btns = el.parentElement.children
+        console.log(btns[0])
+        console.log(btns[1])
+        if(el.classList.contains("active")){
+            console.log("blubb")
+            el.classList.remove("active")
+            console.log(el.classList)
+            //btns[1].classList.add("active")
+        }else{
+            el.classList.add("active")
+            btns[1].classList.remove("active")
+        }
+    }*/
     function clickGraphEditor(){
         if(session.getGraphMode()){ return }
+        //updateEditorToggle(this)
         self.send('transToGraphEditor')
     }
     function clickDefaultEditor(){
         if(!session.getGraphMode()){ return }
+        //updateEditorToggle(this)
         self.send('transToNoteEditor')
     }
 
@@ -115,20 +130,37 @@ TitlebarView.prototype.render = function (session) {
         }
     }
 
+    function makeEditorToggle(project){
+        if(!project) { return null }
+        else if(project.getGraphMode()){
+            return yo`<div class="tb-toggle-btn">
+                <button id="tb-list-btn" class="tb-btn" onclick=${clickDefaultEditor}><i class="fas fa-list"></i></button>
+                <button id="tb-graph-btn" class="tb-btn active" onclick=${clickGraphEditor}><i class="fas fa-project-diagram"></i></button>
+            </div>
+            `
+        }else{
+            return yo`<div class="tb-toggle-btn">
+                <button id="tb-list-btn" class="tb-btn active" onclick=${clickDefaultEditor}><i class="fas fa-list"></i></button>
+                <button id="tb-graph-btn" class="tb-btn" onclick=${clickGraphEditor}><i class="fas fa-project-diagram"></i></button>
+            </div>
+            `
+        }
+    }
+
     return yo`
       <header id="titlebar"><div id="drag-region">
         <div id="tb-prjct-tools">
-            <div class="tb-toggle-btn">
-            <button id="tb-list-btn" class="tb-btn" onclick=${clickDefaultEditor}><i class="fas fa-list"></i></button>
-            <button id="tb-graph-btn" class="tb-btn" onclick=${clickGraphEditor}><i class="fas fa-project-diagram"></i></button>
-            </div>
+            
         </div>
         <div id="tb-notes-tools">
             ${makeDeleteButton(session.getActiveProject())}
             ${makeCreateNewBtn(session.getActiveProject())}
         </div>
         <div id="tb-content-tools">
-            
+            <div class="toggle-btn-wrap">
+                ${makeEditorToggle(session.getActiveProject())}
+            </div> 
+
             ${makeSearchField(session.getActiveProject())}
             
         </div>

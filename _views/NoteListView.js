@@ -99,6 +99,12 @@ NoteListView.prototype.render = function(project){
     function dblclickNoteThmb(e){
       console.log("Double click on..")
       console.log(this)
+      if(project.getGraphMode()){
+        // Project in graph mode so switch to NoteEditor and then focus on note
+        
+      }else{  // Same as single click
+        self.send('transitionNote', project, note)
+      }
     }
     /* ====================================================================== */
     /* ====================================================================== */

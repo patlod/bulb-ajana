@@ -460,8 +460,8 @@ GraphEditorView.prototype.updateGraph = function(graphController){
       
   newGs.each(function(d){
     let foreignObj = d3.select(this)
-    console.log(foreignObj)
-    console.log(d)
+    // console.log(foreignObj)
+    // console.log(d)
     let graph_note = foreignObj.select('.graph-note')
     // console.log("offsetSizes:")
     // console.log(gNote.offsetWidth)
