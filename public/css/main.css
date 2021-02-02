@@ -234,13 +234,13 @@ body {
   margin: 0 3px;
   outline: none;
 }
-.tb-btn.active {
-  background: #999;
-  color: #ddd;
-}
 .tb-btn:hover {
   background: #c5c5c5;
   cursor: pointer;
+}
+.tb-btn.active {
+  background: #999;
+  color: #ddd;
 }
 .toggle-btn-wrap {
   float: left;
@@ -300,7 +300,7 @@ body {
   position: relative;
 }
 #search > input {
-  border: 1px solid #666666;
+  border: 1px solid #c5c5c5;
   border-radius: 5px;
   height: 25px;
   width: 200px;
@@ -495,6 +495,7 @@ body {
   background: #f7f7f7;
   /*border-right: 1px solid #666666;*/
   overflow-y: auto;
+  scrollbar-width: thin;
 }
 /*
 .gutter-horizontal:nth-child(1) {
@@ -598,14 +599,14 @@ body {
 .note-header textarea {
   font-size: 11px !important;
 }
-.note-content-ctrls {
-  display: block;
-  width: 100%;
-  height: 2em;
-}
 .note-content-wrap {
   background-color: #e8e8e8;
   /*#E4E4E4;*/
+}
+.note-content-ctrls {
+  display: inline-block;
+  width: 100%;
+  height: 2em;
 }
 #note-color-dp {
   font-size: 11px !important;
@@ -643,13 +644,28 @@ body {
   height: 16px;
   border-radius: 8px;
 }
+.note-content {
+  border-style: none;
+  resize: none;
+  outline: none;
+  overflow: auto;
+  font-size: 11px !important;
+  display: block;
+  position: relative;
+  bottom: 0px;
+  width: 100%;
+  height: 26px;
+  padding-left: 1em;
+  padding-right: 1em;
+  padding-bottom: 0.63em;
+  background-color: inherit;
+  -webkit-box-shadow: 1px 6px 12px -8px #000000;
+  box-shadow: 1px 6px 12px -8px #000000;
+}
 .graph-droppable-active {
   border: 3px solid #DDD3DB;
   border-radius: 6px;
 }
-/*.graph-droppable-hover{
-  background: red
-}*/
 .graph-note {
   border: 1px solid #ddd;
   -webkit-box-shadow: -3px 6px 12px -8px #000000;
@@ -697,22 +713,6 @@ body {
   margin-bottom: 2px;
   color: black;
   border-radius: 4px;
-}
-.note-content {
-  border-style: none;
-  resize: none;
-  outline: none;
-  overflow: auto;
-  font-size: 11px !important;
-  display: block;
-  position: relative;
-  bottom: 0px;
-  width: 100%;
-  height: 26px;
-  padding: 7px 11px;
-  background-color: inherit;
-  -webkit-box-shadow: 1px 6px 12px -8px #000000;
-  box-shadow: 1px 6px 12px -8px #000000;
 }
 foreignObject.selected {
   box-shadow: 0 0 0 3px #97C3E1;

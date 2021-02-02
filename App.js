@@ -2,13 +2,11 @@
 
 var EventEmitter = require('events').EventEmitter
 
-var inherits = require('util').inherits
+const inherits = require('util').inherits
 const { ipcRenderer } = require('electron')
+const app = require('electron').remote.app
 
-var yo = require('yo-yo')
-var Split = require('split.js')
-
-const d3 = require('d3')
+const yo = require('yo-yo')
 
 // App Peripherals
 const ConfigManager = require('./_app/ConfigurationManager')
@@ -25,8 +23,7 @@ const ProjectListView = require('./_views/ProjectListView')
 const NoteListView = require('./_views/NoteListView')
 const NoteEditorView = require('./_views/NoteEditorView')
 const GraphEditorView = require('./_views/GraphEditorView')
-
-//const GraphCreator = require('./graph-creator')
+const AppControls = require('./_controllers/AppControls')
 
 
 inherits(App, EventEmitter)
@@ -41,22 +38,23 @@ function App(el){
   var self = this;
   if (!(self instanceof App)) return new App(el)
 
-  self.session = new Session(self)     // The session stores all the open projects with notes
-
+  /* ===== Controllers ===== */
   self.appConfigManager = new ConfigManager()
-  const APP_DATA_DIR = self.appConfigManager.getAppDataDir()
-  const USER_PREFS_PATH = self.appConfigManager.getUserPreferencesPath()
+  // const APP_DATA_DIR = self.appConfigManager.getAppDataDir()
+  // const USER_PREFS_PATH = self.appConfigManager.getUserPreferencesPath()
   const GLOBAL_DATA_PATH = self.appConfigManager.getGlobalDataPath()
-  // console.log("App: ")
-  // console.log(APP_DATA_DIR)
-  // console.log(USER_PREFS_PATH)
-  // console.log(GLOBAL_DATA_PATH)
-
-
   // self.appUserPreferences = new UserPreferences(USER_PREFS_PATH)
   self.appGlobalData = new GlobalData(GLOBAL_DATA_PATH)
 
+
+  self.session = new Session(self)     // The session stores all the open projects with notes
+  self.appControls = new AppControls()
+
+
+
   
+
+  /* ====== Views ====== */
   // All view instance for different parts of the app's UI
   self.views = {
     titlebar: new TitlebarView(self),
@@ -65,6 +63,98 @@ function App(el){
     editor: new NoteEditorView(self),
     graph: new GraphEditorView(self)
   }
+
+
+  // --- Menu ---
+  // App
+  self.appControls.add('default', '*', 'About', () => { console.log("About") }, '')
+  self.appControls.addSpacer('default', '*', 'preffers')
+  self.appControls.add('default', '*', 'Preferences', () => { console.log("Preferences") }, '')
+  self.appControls.addSpacer('default', '*', 'hidders')
+  self.appControls.add('default', '*', 'Hide', () => { console.log("Hide") }, 'CmdOrCtrl+H')
+  self.appControls.add('default', '*', 'Hide Others', () => { console.log("Hide Others") }, 'Alt+CmdOrCtrl+H')
+  self.appControls.add('default', '*', 'Show All', () => { console.log("Show All") }, '')
+  self.appControls.addSpacer('default', '*', 'Developers')
+  self.appControls.addRole('default', '*', 'reload')
+  self.appControls.addRole('default', '*', 'forcereload')
+  self.appControls.addRole('default', '*', 'toggledevtools')
+  self.appControls.addSpacer('default', '*', 'quitters')
+  // self.appControls.add('default', '*', 'Reset', () => { console.log("Reset") }, 'CmdOrCtrl+Backspace')
+  self.appControls.add('default', '*', 'Quit', () => { console.log("Quit") }, 'CmdOrCtrl+Q')
+  
+  // File
+  self.appControls.add('default', 'File', 'New Project', () => { console.log("New Project") }, 'CmdOrCtrl+P')
+  self.appControls.add('default', 'File', 'New Note', () => { console.log("New Note") }, 'CmdOrCtrl+N')
+  self.appControls.addSpacer('default', 'File', 'Open')
+  self.appControls.add('default', 'File', 'Open Project...', () => { console.log("Open Project...") }, 'CmdOrCtrl+O')
+  self.appControls.add('default', 'File', 'Open Recent...', () => { console.log("Open Recent...") }, '')
+  self.appControls.addSpacer('default', 'File', 'Close')
+  self.appControls.add('default', 'File', 'Close Project...', () => { console.log("Close Project") }, 'Shift+CmdOrCtrl+P')
+  self.appControls.add('default', 'File', 'Close Window...', () => { console.log("Close") }, 'CmdOrCtrl+W')
+
+  // Edit
+  self.appControls.addRole('default', 'Edit', 'undo')       // REFACTOR: Requries Custom implementation
+  self.appControls.addRole('default', 'Edit', 'redo')       // REFACTOR: Requries Custom implementation
+  self.appControls.addSpacer('default', 'Edit', 'Copy&Paste')
+  self.appControls.addRole('default', 'Edit', 'cut')
+  self.appControls.addRole('default', 'Edit', 'copy')
+  self.appControls.addRole('default', 'Edit', 'paste')
+  self.appControls.addSpacer('default', 'Edit', 'deleter')
+  self.appControls.add('default', 'Edit', 'Delete Selection', () => { console.log("Delete Selected Objects") }, 'CmdOrCtrl+Backspace')
+  // self.appControls.addRole('default', 'Edit', 'delete')
+  // self.appControls.addRole('default', 'Edit', 'selectall')
+  self.appControls.addSpacer('default', 'Edit', 'Find')
+  self.appControls.add('default', 'Edit', 'Find in Editor', () => { console.log("Find in Editor") }, 'CmdOrCtrl+F')
+  self.appControls.add('default', 'Edit', 'Find in Notes', () => { console.log("Find in Notes") }, 'CmdOrCtrl+Shift+F')
+  self.appControls.add('default', 'Edit', 'Find in Graphs', () => { console.log("Find in Graphs") }, 'CmdOrCtrl+Shift+G')
+
+  // View
+  self.appControls.add('default', 'View', 'as Note Editor', () => { 
+    console.log("View as Note Editor") 
+    transToNoteEditor()
+  }, 'CmdOrCtrl+Shift+G', 'checkbox') 
+  self.appControls.add('default', 'View', 'as Graph Editor', () => { 
+    console.log("View as Graph Editor")
+    transToGraphEditor()
+  }, 'CmdOrCtrl+G', 'checkbox') 
+  self.appControls.addSpacer('default', 'View', 'Sorting')
+  self.appControls.add('default', 'View', 'Sort Projects By', () => { console.log("Sort Projects By") }, '') 
+  // Submenu necessary here
+  self.appControls.add('default', 'View', 'Sort Notes By', () => { console.log("Sort Notes By") }, '')
+  // Submenu necessary here
+  self.appControls.add('default', 'View', 'Sort Graphs By', () => { console.log("Sort Graphs By") }, '')
+  // Submenu necessary here
+  self.appControls.addSpacer('default', 'View', 'Zoom')
+  self.appControls.add('default', 'View', 'Zoom In', () => { console.log("Zoom In") }, '')
+  self.appControls.add('default', 'View', 'Zoom Out', () => { console.log("Zoom Out") }, '')
+  self.appControls.add('default', 'View', 'Actual Size', () => { console.log("Actual Size") }, '')
+  self.appControls.addSpacer('default', 'View', 'Screen')
+  self.appControls.add('default', 'View', 'Full Screen', () => { console.log("Full Screen") }, '')
+
+  // Window
+  self.appControls.add('default', 'Window', 'Minimise', () => { console.log("Minimise Window") }, '')
+  self.appControls.addSpacer('default', 'Window', 'New Window')
+  self.appControls.add('default', 'Window', 'New Window', () => { console.log("New Window") }, '')
+
+  // Graph
+  self.appControls.add('default', 'Graph', 'New Graph', () => { console.log("New Graph") }, '')
+  self.appControls.add('default', 'Graph', 'Add Selected Notes', () => { console.log("Add Selected Notes...") }, '')
+  self.appControls.addSpacer('default', 'Graph', 'orient')
+  self.appControls.add('default', 'Graph', 'Refresh Orientation', () => { console.log("Refresh Orientation") }, '')
+  self.appControls.addSpacer('default', 'Graph', 'zoomers')
+  self.appControls.add('default', 'Graph', 'Zoom In', () => { console.log("Zoom In") }, '')
+  self.appControls.add('default', 'Graph', 'Zoom Out', () => { console.log("Zoom Out") }, '')
+  self.appControls.addSpacer('default', 'Graph', 'scrollers')
+  self.appControls.add('default', 'Graph', 'Scroll North', () => { console.log("Scroll North") }, '')
+  self.appControls.add('default', 'Graph', 'Scroll South', () => { console.log("Scroll South") }, '')
+  self.appControls.add('default', 'Graph', 'Scroll West', () => { console.log("Scroll West") }, '')
+  self.appControls.add('default', 'Graph', 'Scroll East', () => { console.log("Scroll East") }, '')
+
+  self.appControls.commit()
+  
+
+
+ 
 
   
 
@@ -168,21 +258,25 @@ function App(el){
     
   }
 
+  
+
   /**
    * == Listeners EventEmitter =====================================
    */
   self.on('render', render)
 
-  self.on('transToGraphEditor', function(){
+  function transToGraphEditor(){
     self.session.setGraphMode(true)
     render()
-  })
+  }
+  self.on('transToGraphEditor', transToGraphEditor)
 
-  self.on('transToNoteEditor', function(){
+  function transToNoteEditor(){
     self.session.setGraphMode(false)
     self.views.graph.takedown()
     render()
-  })
+  }
+  self.on('transToNoteEditor', transToNoteEditor)
 
   self.on('switchProject', function(project){
     // For currently active project save the content of active note
@@ -250,10 +344,6 @@ function App(el){
 
   self.on('createNewNote', function(){
     console.log("App received: CREATE NEW NOTE");
-    /**
-     * For now: New empty note is directly inserted into database
-     * Better: Only insert once there is at least one char content.
-     */
     if(self.session.getActiveProject() === null){
       console.log("App listener createNewNote -- No active project.")
       return 
@@ -299,14 +389,6 @@ function App(el){
     
     self.views.titlebar.updateCreateNewBtn(el, active_note)
     self.views.notes.updateActiveNoteThumb(el, active_note)
-    //render()
-    // Set scroll height of left-menu-2
-    //$("#left-menu-2")[0].scrollTop = self.views.notes.scrollTop
-    // Set scroll height of project menu
-    //$("#prjct-list-scroll")[0].scrollTop = self.views.projects.scrollTop
-    // Set cursor of #notepad
-    //$("#notepad")[0].selectionStart = self.views.editor.selectionStart
-    //$("#notepad")[0].selectionEnd = self.views.editor.selectionEnd
   })
 
   self.on('toggleEditorDate', function(){

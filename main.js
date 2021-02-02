@@ -1,4 +1,4 @@
-const { app, remote, ipcMain, BrowserWindow } = require('electron')
+const { app, ipcMain, BrowserWindow, Menu } = require('electron')
 const electronConnect = require('electron-connect');
 const path = require('path');
 
@@ -105,5 +105,11 @@ app.on('activate', () => {
   }
 })
 
-
+app.injectMenu = function (menu) {
+  try {
+    Menu.setApplicationMenu(Menu.buildFromTemplate(menu))
+  } catch (err) {
+    console.warn('Cannot inject menu.')
+  }
+}
 
