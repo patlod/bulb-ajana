@@ -655,7 +655,7 @@ GraphEditorView.prototype.render = function(project){
 
   setTimeout(function() {
     self.updateGraph(active_graph)
-  }, 500);
+  }, 50);
   
   
   return graph_view
