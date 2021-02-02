@@ -112,9 +112,9 @@ function App(el){
   self.appControls.add('default', 'View', 'as Note Editor', () => { 
     console.log("View as Note Editor") 
     transToNoteEditor()
-  }, 'CmdOrCtrl+Shift+G', 'checkbox') 
+  }, 'CmdOrCtrl+Shift+G', 'checkbox', true) 
   self.appControls.add('default', 'View', 'as Graph Editor', () => { 
-    console.log("View as Graph Editor")
+    console.log("View as Graph Editor", false)
     transToGraphEditor()
   }, 'CmdOrCtrl+G', 'checkbox') 
   self.appControls.addSpacer('default', 'View', 'Sorting')

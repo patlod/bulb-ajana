@@ -12,10 +12,15 @@ function AppControls () {
   this.start = function () {
   }
 
-  this.add = function (mode, cat, label, fn, accelerator, type="normal") {
+  this.add = function (mode, cat, label, fn, accelerator, type="normal", checked=false) {
     if (!this.menu[mode]) { this.menu[mode] = {} }
     if (!this.menu[mode][cat]) { this.menu[mode][cat] = {} }
-    this.menu[mode][cat][label] = { fn: fn, accelerator: accelerator, type: type }
+    if(type.localeCompare('checkbox') === 0){
+      this.menu[mode][cat][label] = { fn: fn, accelerator: accelerator, type: type, checked: checked }
+    }else{
+      this.menu[mode][cat][label] = { fn: fn, accelerator: accelerator, type: type }
+    }
+    
   }
 
   this.addRole = function (mode, cat, label) {
@@ -47,7 +52,11 @@ function AppControls () {
       for (const name in m[cat]) {
         const option = m[cat][name]
         if(option.fn){
-          submenu.push({ label: name, accelerator: option.accelerator, click: option.fn, type: option.type})
+          if(option.type.localeCompare('checkbox') === 0){
+            submenu.push({ label: name, accelerator: option.accelerator, click: option.fn, type: option.type, checked: option.checked})
+          }else{
+            submenu.push({ label: name, accelerator: option.accelerator, click: option.fn, type: option.type})
+          }
         }else if (option.role){
           submenu.push({ role: option.role })
         }else{
