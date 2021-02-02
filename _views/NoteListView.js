@@ -93,7 +93,10 @@ NoteListView.prototype.render = function(project){
     /* ====================================================================== */
 
     function clickNoteThmb(e){
-      self.send('transitionNote', project, note)
+      if(!project.getGraphMode()){
+        self.send('transitionNote', project, note)
+      }
+      
     }
 
     function dblclickNoteThmb(e){
@@ -101,7 +104,7 @@ NoteListView.prototype.render = function(project){
       console.log(this)
       if(project.getGraphMode()){
         // Project in graph mode so switch to NoteEditor and then focus on note
-        
+        self.send('transitionNoteAndEditor', project, note)
       }else{  // Same as single click
         self.send('transitionNote', project, note)
       }
@@ -109,7 +112,7 @@ NoteListView.prototype.render = function(project){
     /* ====================================================================== */
     /* ====================================================================== */
 
-    var className = note.isActive() ? 'active' : ''
+    var className = (note.isActive() && !project.getGraphMode()) ? 'active' : ''
     
     let note_thumb = yo`
       <div class="note-thmb-wrap">

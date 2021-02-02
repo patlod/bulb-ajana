@@ -147,18 +147,18 @@ Session.prototype.getActiveGraph = function(){
  * 
  * @param {Project} targetProject - The project to be prepared
  */
-Session.prototype.prepProjectForTrans = function(targetProject){
+Session.prototype.prepProjectForTrans = function(project){
   var self = this 
 
-  if(targetProject){
-    let active_graph = targetProject.getActiveGraph()
-    let active_note = targetProject.getActiveNote()
-    let empty_notes = targetProject.getEmptyNotes()
+  if(project){
+    let active_graph = project.getActiveGraph()
+    let active_note = project.getActiveNote()
+    let empty_notes = project.getEmptyNotes()
     if(empty_notes.length === 1 && active_note.compareTo(empty_notes[0])){
-      targetProject.deleteNote(active_note)
+      project.deleteNote(active_note)
       if(active_graph !== null){
         active_graph.deleteVertexForNote(active_note)
-        if(targetProject.getGraphMode()){
+        if(project.getGraphMode()){
           self.app.views.graph.updateGraph(active_graph)
         }
       }

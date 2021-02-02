@@ -143,7 +143,8 @@ function App(el){
           $('body').css("cursor", "no-drop")
         },
         drop: function(event,ui){
-          console.log("Dropped note in graph..")
+          console.log("Dropped note in graph at position...")
+          console.log(ui.position)
 
           let active_project = self.session.getActiveProject()
           let active_graph = active_project.getActiveGraph()
@@ -223,6 +224,27 @@ function App(el){
     project.toggleActiveNote(note)
     
     render(true)
+    
+  })
+  self.on('transitionNoteAndEditor', function(project, note){
+    console.log("transitionNoteAndEditor")
+    let active_note = project.getActiveNote()
+    if(active_note.uuid.localeCompare(note.uuid) === 0){
+      return
+    }
+
+    self.session.prepProjectForTrans(project)
+
+    project.toggleActiveNote(note)
+    console.log(project.getGraphMode())
+    if(project.getGraphMode()){
+      console.log("reset graph mode")
+      project.setGraphMode(false)
+      self.views.graph.takedown()
+      render()
+    }else{
+      render(true)
+    }
     
   })
 
