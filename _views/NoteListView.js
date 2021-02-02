@@ -96,6 +96,10 @@ NoteListView.prototype.render = function(project){
       self.send('transitionNote', project, note)
     }
 
+    function dblclickNoteThmb(e){
+      console.log("Double click on..")
+      console.log(this)
+    }
     /* ====================================================================== */
     /* ====================================================================== */
 
@@ -103,7 +107,7 @@ NoteListView.prototype.render = function(project){
     
     let note_thumb = yo`
       <div class="note-thmb-wrap">
-        <div class="note-thmb ${className}" data-id=${note.uuid} onclick=${clickNoteThmb}>
+        <div class="note-thmb ${className}" data-id=${note.uuid} onclick=${clickNoteThmb} ondblclick=${dblclickNoteThmb}>
           <div class="flex-wrap">
           <span class="color-pickr-circle-thmb" style="background-color: ${note.bg_color}"></span><span class="note-thmb-head">${note.getHeader()}</span>
           </div>
