@@ -20,11 +20,11 @@ const Session = require('./_controllers/Session.js')
 const SplitManager = require('./scripts/split-screen.js')
 
 // Views
-const Titlebar = require('./_views/Titlebar.js')
-const ProjectListView = require('./_views/ProjectListView.js')
-const NoteListView = require('./_views/NoteListView.js')
-const NoteEditorView = require('./_views/NoteEditorView.js')
-const GraphEditorView = require('./_views/GraphEditorView.js')
+const TitlebarView = require('./_views/TitlebarView')
+const ProjectListView = require('./_views/ProjectListView')
+const NoteListView = require('./_views/NoteListView')
+const NoteEditorView = require('./_views/NoteEditorView')
+const GraphEditorView = require('./_views/GraphEditorView')
 
 //const GraphCreator = require('./graph-creator')
 
@@ -59,7 +59,7 @@ function App(el){
   
   // All view instance for different parts of the app's UI
   self.views = {
-    titlebar: new Titlebar(self),
+    titlebar: new TitlebarView(self),
     projects: new ProjectListView(self),
     notes: new NoteListView(self),
     editor: new NoteEditorView(self),
@@ -70,6 +70,7 @@ function App(el){
 
   /* === Initial DOM tree render ================= */
   var tree = self.render()
+  console.log(tree)
   el.appendChild(tree)
   /* ============================================= */
 
@@ -110,7 +111,6 @@ function App(el){
 
   function render (lazy_load = false) {
     var newTree = self.render(lazy_load)
-    //console.log(newTree)
     yo.update(tree, newTree)
     // Recreate split screen on new dom tree with sizes from old one
     self.split_manager.recreateFromBuffer()
@@ -131,6 +131,7 @@ function App(el){
       // Make the #content container of the graph a droppable element for the notes
       $('#content').droppable({
         accept:'.note-thmb-wrap',
+        tolerance: 'pointer',
         classes: {
           "ui-droppable-active": "graph-droppable-active",
           "ui-droppable-hover": "graph-droppable-hover"
@@ -294,6 +295,14 @@ function App(el){
     m_dt.classList.toggle('hidden')
   })
 
+  self.on('updateNoteColor', function(note, targetColor){
+    // Update note thumbnail and write note color to database
+    note.bg_color = targetColor
+    note.saveData()
+
+    self.views.notes.updateNoteThmbColor(note)
+  })
+
 /* ============================================================================== */
 /*  Graph Event Listeners                                                         */
 /* ============================================================================== */
@@ -409,15 +418,17 @@ App.prototype.renderContentArea = function(lazy_load = false){
       return document.getElementById('content')
     }
 
-    let content = yo `
+    let content = yo`
       <div id="content" class="graph-active">
       ${self.views.graph.render(self.session.getActiveProject())}
       </div>
     `
+    console.log("======== renderContentArea: ===========")
+    console.log(content)
     return content
 
   }else{
-    return yo `
+    return yo`
     <div id="content">
     ${self.views.editor.render(self.session.getActiveProject())}
     </div>
@@ -474,7 +485,7 @@ App.prototype.render = function (lazy_load = false) {
       </div>
     `
   }else{
-    return  yo`
+    return yo`
       <div id="layout">
         ${views.titlebar.render(self.session)}
 
@@ -493,14 +504,11 @@ App.prototype.render = function (lazy_load = false) {
 
           <!-- Content Area -->
           ${self.renderContentArea()}
-          
 
         </div>
 
       </div>
     `
-
-    // 
   }
   
 }

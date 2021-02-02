@@ -5,14 +5,173 @@
  */
 /* Standard */
 /* Post-It */
-/*@rio-de-janeiro:  ;
-@miami:           ;
-@marrakesh:       ;
-@bora-bora:       ;
-@bali:            ;
-@new-york:        ;
-@jaipur:          ;
-@cape-town:       ;
-@marseille:       ;
-@helsinki:        ;
-*/
+.postit-bg-std-1 {
+  background: #FFF;
+  box-shadow: 0px 0px 0px 1px #E4E4E4;
+}
+.postit-bg-std-2 {
+  background: #f7f7f7;
+  box-shadow: 0px 0px 0px 1px #E4E4E4;
+}
+.postit-bg-std-3 {
+  background: #e8e8e8;
+  box-shadow: 0px 0px 0px 1px #E4E4E4;
+}
+.postit-bg-std-4 {
+  background: #d9d9d9;
+  box-shadow: 0px 0px 0px 1px #E4E4E4;
+}
+.postit-bg-std-5 {
+  background: #c9c9c9;
+  box-shadow: 0px 0px 0px 1px #E4E4E4;
+}
+.postit-bg-janeiro-1 {
+  background: #FF9739;
+}
+.postit-bg-janeiro-2 {
+  background: #FF67B7;
+}
+.postit-bg-janeiro-3 {
+  background: #009CFB;
+}
+.postit-bg-janeiro-4 {
+  background: #69DA74;
+}
+.postit-bg-janeiro-5 {
+  background: #FFD243;
+}
+.postit-bg-miami-1 {
+  background: #63D3D0;
+}
+.postit-bg-miami-2 {
+  background: #E2F25F;
+}
+.postit-bg-miami-3 {
+  background: #FF6A82;
+}
+.postit-bg-miami-4 {
+  background: #FF2F99;
+}
+.postit-bg-miami-5 {
+  background: #FF9739;
+}
+.postit-bg-marrakesh-1 {
+  background: #F64E5D;
+}
+.postit-bg-marrakesh-2 {
+  background: #FFD243;
+}
+.postit-bg-marrakesh-3 {
+  background: #59C08D;
+}
+.postit-bg-marrakesh-4 {
+  background: #009CFB;
+}
+.postit-bg-marrakesh-5 {
+  background: #C492C0;
+}
+.postit-bg-bora-1 {
+  background: #59C08D;
+}
+.postit-bg-bora-2 {
+  background: #69DA74;
+}
+.postit-bg-bora-3 {
+  background: #CDE9E0;
+}
+.postit-bg-bora-4 {
+  background: #B1CAE5;
+}
+.postit-bg-bora-5 {
+  background: #93B1DA;
+}
+.postit-bg-bali-1 {
+  background: #DECCE3;
+}
+.postit-bg-bali-2 {
+  background: #FFBAA8;
+}
+.postit-bg-bali-3 {
+  background: #B1CAE5;
+}
+.postit-bg-bali-4 {
+  background: #FACDDF;
+}
+.postit-bg-bali-5 {
+  background: #CDE9E0;
+}
+.postit-bg-nyc-1 {
+  background: #FFD243;
+}
+.postit-bg-nyc-2 {
+  background: #93B1DA;
+}
+.postit-bg-nyc-3 {
+  background: #B1CAE5;
+}
+.postit-bg-nyc-4 {
+  background: #C7C6C4;
+}
+.postit-bg-nyc-5 {
+  background: #FFD243;
+}
+.postit-bg-jaipur-1 {
+  background: #69DA74;
+}
+.postit-bg-jaipur-2 {
+  background: #FFD243;
+}
+.postit-bg-jaipur-3 {
+  background: #FF9739;
+}
+.postit-bg-jaipur-4 {
+  background: #C492C0;
+}
+.postit-bg-jaipur-5 {
+  background: #009CFB;
+}
+.postit-bg-capetown-1 {
+  background: #FF6A82;
+}
+.postit-bg-capetown-2 {
+  background: #FF9739;
+}
+.postit-bg-capetown-3 {
+  background: #63D3D0;
+}
+.postit-bg-capetown-4 {
+  background: #FF67B7;
+}
+.postit-bg-capetown-5 {
+  background: #E2F25F;
+}
+.postit-bg-marseille-1 {
+  background: #CDE9E0;
+}
+.postit-bg-marseille-2 {
+  background: #63D3D0;
+}
+.postit-bg-marseille-3 {
+  background: #FCF2AB;
+}
+.postit-bg-marseille-4 {
+  background: #FACDDF;
+}
+.postit-bg-marseille-5 {
+  background: #B1CAE5;
+}
+.postit-bg-helsinki-1 {
+  background: #FACDDF;
+}
+.postit-bg-helsinki-2 {
+  background: #FCF2AB;
+}
+.postit-bg-helsinki-3 {
+  background: #CDE9E0;
+}
+.postit-bg-helsinki-4 {
+  background: #B1CAE5;
+}
+.postit-bg-helsinki-5 {
+  background: #DECCE3;
+}

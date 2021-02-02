@@ -6,6 +6,8 @@ var inherits = require('util').inherits
 const yo = require('yo-yo')
 const Tagify = require('@yaireo/tagify')
 const DateFormatter = require('../_util/DateFormatter')
+const UnitConverter = require('../_util/UnitConverter')
+const CSSProcessor = require('../_util/CSSProcessor')
 
 
 function NoteEditorView(target) {
@@ -227,6 +229,78 @@ NoteEditorView.prototype.render = function(project){
   /* ====================================================================== */
   /* ====================================================================== */
 
+
+  function makeColorPaletteDropdown(active_note){
+    if(!project){
+        return
+    }else{
+        if(!project.getGraphMode()){
+
+            let colorCollection = CSSProcessor.getNoteBackgroundColors()
+
+            console.log(colorCollection)
+
+            function clickColorDPItem(e){
+              let style = window.getComputedStyle(this.getElementsByTagName('span')[0])
+              let color_str = UnitConverter.rgbToHex( style.getPropertyValue('background-color') )
+              
+              // let targetColor = colorCollection.filter(function(x){
+              //   return x.color.localeCompare(color_str) === 0
+              // })
+
+              // Set background of the note-editor
+              document.getElementsByClassName('note-content-wrap')[0].style.backgroundColor = color_str
+
+              
+              self.send('updateNoteColor', active_note, color_str)
+            }
+
+            let items_html = []
+            let el = null
+            colorCollection.map(function(x, idx){
+              if(active_note.bg_color.localeCompare(x.color) === 0){
+                el = yo` 
+                <div class="item active" onclick=${clickColorDPItem}>
+                    <span class="color-pickr-circle ${x.selector.substring(1)}"></span>
+                </div>
+              ` 
+              }else{
+                el = yo` 
+                <div class="item" onclick=${clickColorDPItem}>
+                    <span class="color-pickr-circle ${x.selector.substring(1)}"></span>
+                </div>
+              ` 
+              }
+              
+                items_html.push(el)
+                if((idx + 1) % 5 === 0){
+                    items_html.push(yo`<div class="divider"></div>`)
+                }
+                
+            })
+            
+             
+            return yo`
+            <div id="note-color-dp" class="ui floated dropdown">
+                <i class="fas fa-palette"></i>
+                <i class="dropdown icon"></i>
+                
+                <div class="menu">
+                    <div class="header">
+                        <i class="fas fa-paint-roller"></i>
+                        Note Color
+                    </div>
+                    <div class="menu scrolling">
+                        ${items_html}
+                    </div>
+                </div>
+            </div>
+            `
+        }
+    }
+}
+
+
   
   var editor_view = yo`
     <div id="note-editor" >
@@ -240,6 +314,10 @@ NoteEditorView.prototype.render = function(project){
           ${self.makeTagifyValues(self.active_note.getTags())}
         </textarea>
       </div>
+      <div class="note-content-wrap" style="background-color: ${project.getActiveNote().bg_color}">
+        <div class="note-content-ctrls">
+          ${makeColorPaletteDropdown(project.getActiveNote())}
+        </div>
       <!-- <div id="notepad" class="note-content" contenteditable="true" onkeyup=${keyupHandlerNotepad}> -->
         <!-- Alternative HTML: <textarea id="notepad">Note text here</textarea> -->
         <textarea id="notepad" class="note-content" wrap="soft" 
@@ -247,6 +325,7 @@ NoteEditorView.prototype.render = function(project){
         onkeyup=${keyupHandlerNotepad}
         onclick=${clickHandlerNotepad}>${self.active_note.getContent()}</textarea>
       <!-- </div> -->
+      </div>
     </div>
   `
 

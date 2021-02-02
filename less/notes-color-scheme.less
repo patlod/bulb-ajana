@@ -5,19 +5,86 @@
  */
 
 /* Standard */
-@standard:        std;   
+@standard:        #FFF, #f7f7f7, #e8e8e8, #d9d9d9, #c9c9c9;   
  
 /* Post-It */
 // TODO add lists of hex color codes!!
-/*@rio-de-janeiro:  ;
-@miami:           ;
-@marrakesh:       ;
-@bora-bora:       ;
-@bali:            ;
-@new-york:        ;
-@jaipur:          ;
-@cape-town:       ;
-@marseille:       ;
-@helsinki:        ;
-*/
+@rio-de-janeiro:  #FF9739, #FF67B7,#009CFB, #69DA74, #FFD243;
+@miami:           #63D3D0, #E2F25F, #FF6A82, #FF2F99, #FF9739;
+@marrakesh:       #F64E5D, #FFD243, #59C08D, #009CFB, #C492C0;
+@bora-bora:       #59C08D, #69DA74, #CDE9E0, #B1CAE5, #93B1DA;
+@bali:            #DECCE3, #FFBAA8, #B1CAE5, #FACDDF, #CDE9E0;
+@new-york:        #FFD243, #93B1DA, #B1CAE5, #C7C6C4, #FFD243;
+@jaipur:          #69DA74, #FFD243, #FF9739, #C492C0, #009CFB;
+@cape-town:       #FF6A82, #FF9739, #63D3D0, #FF67B7, #E2F25F;
+@marseille:       #CDE9E0, #63D3D0, #FCF2AB, #FACDDF, #B1CAE5;
+@helsinki:        #FACDDF, #FCF2AB, #CDE9E0, #B1CAE5, #DECCE3;
 
+
+
+each(@standard, {
+  .postit-bg-std-@{index} {
+    background: @value;
+    box-shadow: 0px 0px 0px 1px #E4E4E4;
+  }
+});
+
+each(@rio-de-janeiro, {
+  .postit-bg-janeiro-@{index} {
+    background: @value;
+  }
+});
+
+each(@miami, {
+  .postit-bg-miami-@{index} {
+    background: @value;
+  }
+});
+
+each(@marrakesh, {
+  .postit-bg-marrakesh-@{index} {
+    background: @value;
+  }
+});
+
+each(@bora-bora, {
+  .postit-bg-bora-@{index} {
+    background: @value;
+  }
+});
+
+each(@bali, {
+  .postit-bg-bali-@{index} {
+    background: @value;
+  }
+});
+
+each(@new-york, {
+  .postit-bg-nyc-@{index} {
+    background: @value;
+  }
+});
+
+each(@jaipur, {
+  .postit-bg-jaipur-@{index} {
+    background: @value;
+  }
+});
+
+each(@cape-town, {
+  .postit-bg-capetown-@{index} {
+    background: @value;
+  }
+});
+
+each(@marseille, {
+  .postit-bg-marseille-@{index} {
+    background: @value;
+  }
+});
+
+each(@helsinki, {
+  .postit-bg-helsinki-@{index} {
+    background: @value;
+  }
+});

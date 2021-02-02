@@ -56,6 +56,8 @@ inherits(GraphEditorView, EventEmitterElement)
 
 GraphEditorView.prototype.init = function(svg){
   var self = this;
+
+  console.log("GraphEditorView init()...")
   
   if (self.globalTimeout !== null) {
     clearTimeout(self.globalTimeout);
@@ -414,6 +416,16 @@ GraphEditorView.prototype.svgKeyUp = function() {
   this.state.lastKeyDown = -1;
 };
 
+GraphEditorView.prototype.makeTagsHTMLString = function(tags){
+  if(tags.length === 0){ return '' }
+  let tags_html_str = `<div class="graph-note-tags">`
+  tags.map(function(tag){
+    tags_html_str += `<span>${tag.name}</span>`
+  })
+  tags_html_str += `</div>`
+  return tags_html_str
+}
+
 // Call to propagate changes to graph
 GraphEditorView.prototype.updateGraph = function(graphController){
   var self = this
@@ -457,16 +469,17 @@ GraphEditorView.prototype.updateGraph = function(graphController){
     // console.log("clientSizes:")
     // console.log(gNote.clientWidth)
     // console.log(gNote.clientHeight)
+
+    // Set background color of graph-note
+    graph_note.style("background", d.note.bg_color)
     
-    // ATTENTION: This is not a 
+    // Create content and insert..
     let html_str = `
       <div class="graph-note-header">
         <div class="datetime">
           <span id="dt-created">Created: ${DateFormatter.formatDateEditor(d.note.created)}</span>
         </div>
-        <div class="graph-note-tags">
           ${self.makeTagsHTMLString(d.note.getTags())}
-        </div>
       </div>
       <div class="graph-note-content" >
         ${d.note.getContent()}
@@ -484,7 +497,7 @@ GraphEditorView.prototype.updateGraph = function(graphController){
     }
     
     // Adjust the height to content
-    foreignObj.attr("width", gnNode.offsetWidth).attr("height", gnNode.offsetHeight)
+    foreignObj.attr("width", d.width_dom).attr("height", d.height_dom)
     .on("mouseover", function(d){
       if (self.state.shiftNodeDrag){
         d3.select(this).classed(self.consts.connectClass, true);
@@ -575,14 +588,6 @@ GraphEditorView.prototype.updateWindow = function(){
 /* ============================================================================== */
 /* ============================================================================== */
 
-GraphEditorView.prototype.makeTagsHTMLString = function(tags){
-  let tags_html_str = ``
-  tags.map(function(tag){
-    tags_html_str += `<span>${tag.name}</span>`
-  })
-  return tags_html_str
-}
-
 
 /**
  * Resets the editor before new content is loaded.
@@ -646,16 +651,11 @@ GraphEditorView.prototype.render = function(project){
   console.log("updateGraph graph:")
   console.log(active_graph)
   
-  // const Vertex = require("../_controllers/Vertex")
-  // for(var i=0; i < 5; i++){
-  //   active_graph.vertices.push(new Vertex(active_graph))
-  // }
-  
-  
   self.init(svg)
+
   setTimeout(function() {
     self.updateGraph(active_graph)
- }, 10);
+  }, 500);
   
   
   return graph_view

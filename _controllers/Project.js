@@ -220,7 +220,12 @@ Project.prototype.loadGraphs = function(){
   let g_query = this.db.selectAllGraphs()
   let graphs = []
   
-  if(g_query.length === 0 && self.graphs.length === 0){ 
+  if(typeof g_query === "undefined"){
+    // Graph table does not exist yet...
+    self.db.makeGraphTable()
+    graphs.push(new Graph(this))
+    self.db.insertGraph(graphs[graphs.length - 1].getGraphJSON())
+  }else if(g_query !== null && g_query.length === 0 && self.graphs.length === 0){ 
     // As long as multiple graphs is not possible..and graph is not existing
     // Create new empty graph instance
     graphs.push(new Graph(this))

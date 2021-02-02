@@ -80,8 +80,8 @@ function SplitManager(app, aInit = 20, bInit = 22, cInit = 58,
   }
 
   console.log("Created SplitManager...")
-  console.log(self.split_main)
-  console.log(self.split_tb)
+  // console.log(self.split_main)
+  // console.log(self.split_tb)
 
   /**
    * Create or overwrites the splitscreen instances. 
