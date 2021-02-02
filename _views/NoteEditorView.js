@@ -258,11 +258,20 @@ NoteEditorView.prototype.render = function(project){
             let items_html = []
             let el = null
             colorCollection.map(function(x, idx){
+              if(active_note.bg_color.localeCompare(x.color) === 0){
                 el = yo` 
-                    <div class="item" onclick=${clickColorDPItem}>
-                        <span class="color-pickr-circle ${x.selector.substring(1)}"></span>
-                    </div>
-                `
+                <div class="item active" onclick=${clickColorDPItem}>
+                    <span class="color-pickr-circle ${x.selector.substring(1)}"></span>
+                </div>
+              ` 
+              }else{
+                el = yo` 
+                <div class="item" onclick=${clickColorDPItem}>
+                    <span class="color-pickr-circle ${x.selector.substring(1)}"></span>
+                </div>
+              ` 
+              }
+              
                 items_html.push(el)
                 if((idx + 1) % 5 === 0){
                     items_html.push(yo`<div class="divider"></div>`)
