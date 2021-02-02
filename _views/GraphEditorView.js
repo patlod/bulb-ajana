@@ -416,6 +416,16 @@ GraphEditorView.prototype.svgKeyUp = function() {
   this.state.lastKeyDown = -1;
 };
 
+GraphEditorView.prototype.makeTagsHTMLString = function(tags){
+  if(tags.length === 0){ return '' }
+  let tags_html_str = `<div class="graph-note-tags">`
+  tags.map(function(tag){
+    tags_html_str += `<span>${tag.name}</span>`
+  })
+  tags_html_str += `</div>`
+  return tags_html_str
+}
+
 // Call to propagate changes to graph
 GraphEditorView.prototype.updateGraph = function(graphController){
   var self = this
@@ -459,16 +469,17 @@ GraphEditorView.prototype.updateGraph = function(graphController){
     // console.log("clientSizes:")
     // console.log(gNote.clientWidth)
     // console.log(gNote.clientHeight)
+
+    // Set background color of graph-note
+    graph_note.style("background", d.note.bg_color)
     
-    // ATTENTION: This is not a 
+    // Create content and insert..
     let html_str = `
       <div class="graph-note-header">
         <div class="datetime">
           <span id="dt-created">Created: ${DateFormatter.formatDateEditor(d.note.created)}</span>
         </div>
-        <div class="graph-note-tags">
           ${self.makeTagsHTMLString(d.note.getTags())}
-        </div>
       </div>
       <div class="graph-note-content" >
         ${d.note.getContent()}
@@ -576,14 +587,6 @@ GraphEditorView.prototype.updateWindow = function(){
 
 /* ============================================================================== */
 /* ============================================================================== */
-
-GraphEditorView.prototype.makeTagsHTMLString = function(tags){
-  let tags_html_str = ``
-  tags.map(function(tag){
-    tags_html_str += `<span>${tag.name}</span>`
-  })
-  return tags_html_str
-}
 
 
 /**

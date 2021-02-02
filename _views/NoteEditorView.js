@@ -6,6 +6,8 @@ var inherits = require('util').inherits
 const yo = require('yo-yo')
 const Tagify = require('@yaireo/tagify')
 const DateFormatter = require('../_util/DateFormatter')
+const UnitConverter = require('../_util/UnitConverter')
+const CSSProcessor = require('../_util/CSSProcessor')
 
 
 function NoteEditorView(target) {
@@ -227,40 +229,38 @@ NoteEditorView.prototype.render = function(project){
   /* ====================================================================== */
   /* ====================================================================== */
 
-  function makeColorPaletteDropdown(project){
+
+  function makeColorPaletteDropdown(active_note){
     if(!project){
         return
     }else{
         if(!project.getGraphMode()){
 
-            let rules, rule, i, j, key;
-            let lessRules = [],
-                targetSheet = null;
+            let colorCollection = CSSProcessor.getNoteBackgroundColors()
 
-            for(i = 0; i < document.styleSheets.length; i++){ 
-                let sHref = document.styleSheets[i].href.split("/")
-                if(sHref[sHref.length - 1] === "main.css"){
-                    targetSheet = document.styleSheets[i]
-                }
-            }
-            if(targetSheet !== null){
-                rules = targetSheet.cssRules;
-                for (j = 0; j < rules.length; j++) {
-                    rule = rules[j];
-                    if (rules[j].selectorText.indexOf('postit-bg-') !== -1) {
-                        key = rules[j].selectorText// /postit-bg-(.*)/.exec(rules[j].selectorText)[1];
-                        //lessRules[key] = rule.style['background'];
-                        lessRules.push(key)
-                    }
-                }
+            console.log(colorCollection)
+
+            function clickColorDPItem(e){
+              let style = window.getComputedStyle(this.getElementsByTagName('span')[0])
+              let color_str = UnitConverter.rgbToHex( style.getPropertyValue('background-color') )
+              
+              // let targetColor = colorCollection.filter(function(x){
+              //   return x.color.localeCompare(color_str) === 0
+              // })
+
+              // Set background of the note-editor
+              document.getElementsByClassName('note-content-wrap')[0].style.backgroundColor = color_str
+
+              
+              self.send('updateNoteColor', active_note, color_str)
             }
 
             let items_html = []
             let el = null
-            lessRules.map(function(x, idx){
+            colorCollection.map(function(x, idx){
                 el = yo` 
-                    <div class="item">
-                        <span class="color-pickr-circle ${x.substring(1)}"></span>
+                    <div class="item" onclick=${clickColorDPItem}>
+                        <span class="color-pickr-circle ${x.selector.substring(1)}"></span>
                     </div>
                 `
                 items_html.push(el)
@@ -305,9 +305,9 @@ NoteEditorView.prototype.render = function(project){
           ${self.makeTagifyValues(self.active_note.getTags())}
         </textarea>
       </div>
-      <div class="note-content-wrap">
+      <div class="note-content-wrap" style="background-color: ${project.getActiveNote().bg_color}">
         <div class="note-content-ctrls">
-          ${makeColorPaletteDropdown(project)}
+          ${makeColorPaletteDropdown(project.getActiveNote())}
         </div>
       <!-- <div id="notepad" class="note-content" contenteditable="true" onkeyup=${keyupHandlerNotepad}> -->
         <!-- Alternative HTML: <textarea id="notepad">Note text here</textarea> -->

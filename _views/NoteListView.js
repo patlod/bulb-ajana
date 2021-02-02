@@ -55,6 +55,14 @@ NoteListView.prototype.updateActiveNoteThumb = function(dom_el, active_note){
   active_note_thmb.getElementsByClassName('note-thmb-content')[0].textContent = active_note.getContentPreview()
   active_note_thmb.getElementsByClassName('note-thmb-tags')[0].replaceWith(self.tagsHTML(active_note, true))
 }
+
+NoteListView.prototype.updateNoteThmbColor = function(note){
+  let target = document.getElementsByClassName('note-thmb active')[0]
+  let c = target.getElementsByClassName('color-pickr-circle-thmb')[0]
+
+  c.style.backgroundColor = note.bg_color
+}
+
 /**
  * TODO:
  *  - Click on a note thumb should mark the thumb and open the note
@@ -97,7 +105,7 @@ NoteListView.prototype.render = function(project){
       <div class="note-thmb-wrap">
         <div class="note-thmb ${className}" data-id=${note.uuid} onclick=${clickNoteThmb}>
           <div class="flex-wrap">
-          <span class="color-pickr-circle-thmb postit-bg-miami-1"></span><span class="note-thmb-head">${note.getHeader()}</span>
+          <span class="color-pickr-circle-thmb" style="background-color: ${note.bg_color}"></span><span class="note-thmb-head">${note.getHeader()}</span>
           </div>
           <div class="flex-wrap">
             <span class="note-thmb-datetime">${DateFormatter.formatDateNoteThmb(note.getCreated())}:</span> <span class="note-thmb-content">${note.getContentPreview()}</span>

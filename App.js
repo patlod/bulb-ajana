@@ -111,10 +111,6 @@ function App(el){
 
   function render (lazy_load = false) {
     var newTree = self.render(lazy_load)
-    console.log("Tree old:")
-    console.log(tree)
-    console.log("Tree new")
-    console.log(newTree)
     yo.update(tree, newTree)
     // Recreate split screen on new dom tree with sizes from old one
     self.split_manager.recreateFromBuffer()
@@ -299,6 +295,14 @@ function App(el){
     m_dt.classList.toggle('hidden')
   })
 
+  self.on('updateNoteColor', function(note, targetColor){
+    // Update note thumbnail and write note color to database
+    note.bg_color = targetColor
+    note.saveData()
+
+    self.views.notes.updateNoteThmbColor(note)
+  })
+
 /* ============================================================================== */
 /*  Graph Event Listeners                                                         */
 /* ============================================================================== */
@@ -413,8 +417,6 @@ App.prototype.renderContentArea = function(lazy_load = false){
       return document.getElementById('content')
     }
 
-    
-    
     let content = yo`
       <div id="content" class="graph-active">
       ${self.views.graph.render(self.session.getActiveProject())}
