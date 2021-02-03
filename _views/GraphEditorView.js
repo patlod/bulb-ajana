@@ -636,7 +636,13 @@ GraphEditorView.prototype.render = function(project){
 
   var graph_view = yo`
     <div id="graph-editor" >
-    <svg xmlns="http://www.w3.org/2000/svg" ></svg> 
+    <svg xmlns="http://www.w3.org/2000/svg" ></svg>
+    
+    <div id="toolbox">
+        <span>
+          <i class="fas fa-compress-arrows-alt"></i>
+        </span>
+      </div>
     </div>
   `
   // <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"></svg>
