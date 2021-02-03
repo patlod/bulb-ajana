@@ -226,6 +226,8 @@ Note.prototype.getParagraphIndices = function(arr){
 Note.prototype.needThumbUpdate = function(selectionStart, selectionEnd){
   let arr = this.splitTextAtNewline()
   console.log(arr)
+  console.log("selectionStart: " + selectionStart)
+  console.log("selectionEnd: " + selectionEnd)
   if( selectionStart === selectionEnd ){
     if( arr.length === 1 && selectionStart <= 300 ){
       /**
@@ -234,24 +236,26 @@ Note.prototype.needThumbUpdate = function(selectionStart, selectionEnd){
        *  Maybe create an instance method in NotesListView which can be
        *  called from App to write into the element
        */ 
-      return [0]
+      return true // [0]
     }else{
       if(arr.length >= 2){
         let indices = this.getParagraphIndices(arr)
-        if(indices.length == 1){
-          if(selectionStart <= arr[indices[0]].length){
-            return [indices[0]]
+        console.log(indices)
+        if(indices.length === 1){
+          if(selectionStart >= indices[0] && selectionStart <= indices[0] + 300/*arr[indices[0]].length*/){
+            return true // [indices[0]]
           }
         }else if( indices.length >= 2 ){
-          let distance = indices[1] - indices[0] - 1
-          if( selectionStart <= (arr[indices[0]].length + arr[indices[1]].length + distance + 1)
-            && selectionStart <= 300 ){
-              return [indices[0], indices[1]]
+          //let distance = indices[1] - indices[0]
+          if( (selectionStart >= indices[0] && selectionStart <= indices[0] + 300 )
+            || (selectionStart >= indices[1] && selectionStart <= indices[1] + 300) ) {   // arr[indices[0]].length + arr[indices[1]].length + distance
+              return true //[indices[0], indices[1]]
           }else{
-            return null 
+            return false 
           }
         }else{
-          return null
+          if(selectionStart === arr.length-1)
+          return true
         }
       }
     }
@@ -272,7 +276,11 @@ Note.prototype.needThumbUpdate = function(selectionStart, selectionEnd){
  */
 Note.prototype.getHeader = function(){
   let arr = this.splitTextAtNewline()
+  console.log("note arr")
+  console.log(arr)
   let txt_is = this.getParagraphIndices(arr)
+  console.log("getHeader")
+  console.log(txt_is)
   if(txt_is.length >= 1){
     if(arr[txt_is[0]].length > 0){
       if(arr[txt_is[0]].length > 150){

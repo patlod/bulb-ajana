@@ -320,23 +320,26 @@ function App(el){
     render(true)
     
   })
+
   self.on('transitionNoteAndEditor', function(project, note){
     console.log("transitionNoteAndEditor")
     let active_note = project.getActiveNote()
-    if(active_note.uuid.localeCompare(note.uuid) === 0){
-      return
-    }
 
-    self.session.prepProjectForTrans(project)
+    
 
-    project.toggleActiveNote(note)
+    
     console.log(project.getGraphMode())
     if(project.getGraphMode()){
-      console.log("reset graph mode")
+      project.toggleActiveNote(note)
       project.setGraphMode(false)
       self.views.graph.takedown()
       render()
     }else{
+      if(active_note.uuid.localeCompare(note.uuid) === 0){
+        return
+      }
+      self.session.prepProjectForTrans(project)
+      project.toggleActiveNote(note)
       render(true)
     }
     
@@ -348,10 +351,18 @@ function App(el){
       console.log("App listener createNewNote -- No active project.")
       return 
     }
+
     let nn = self.session.getActiveProject().createNewNote()
     nn.saveData() // REFACTOR: Maybe better move this in createNewNote()
 
-    render(true)
+    //render(true)
+    if(self.session.getGraphMode()){
+      transToNoteEditor()
+      render()
+    }else{
+      render()
+    }
+    
   })
 
   self.on('deleteSelectedNotes', function(){
@@ -373,14 +384,14 @@ function App(el){
     let active_note = active_p.getActiveNote()
     console.log(active_g)
     if(active_g !== null ){
-      active_g.deleteVertexForNote(active_note)
-      if(active_p.getGraphMode()){
-        self.views.graph.updateGraph(active_g)
-      }
+      active_g.deleteVerticesForNote(active_note)
+      //if(active_p.getGraphMode()){
+      self.views.graph.updateGraph(active_g)
+      //}
     }
     active_p.deleteNote(active_note)
 
-    render(true)
+    render()
   })
 
   

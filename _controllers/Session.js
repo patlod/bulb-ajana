@@ -157,7 +157,7 @@ Session.prototype.prepProjectForTrans = function(project){
     if(empty_notes.length === 1 && active_note.compareTo(empty_notes[0])){
       project.deleteNote(active_note)
       if(active_graph !== null){
-        active_graph.deleteVertexForNote(active_note)
+        active_graph.deleteVerticesForNote(active_note)
         if(project.getGraphMode()){
           self.app.views.graph.updateGraph(active_graph)
         }

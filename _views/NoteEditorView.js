@@ -180,17 +180,19 @@ NoteEditorView.prototype.render = function(project){
     self.selectionEnd = this.selectionEnd
     // console.log("Keyup, selectionStart: " + this.selectionStart)
     // console.log("Keyup, selectionEnd: " + this.selectionEnd)
-
-    // Remove carriage returns and split at \newlines
-    let chk = self.active_note.needThumbUpdate(self.selectionStart, self.selectionEnd)
-    if(chk){
-      self.send("updateByEditorContent", self.active_note)
-    }
-
+    
     console.log(this.value)
 
     // Save text to note object
     self.active_note.text = this.value
+
+    // Remove carriage returns and split at \newlines
+    let chk = self.active_note.needThumbUpdate(self.selectionStart, self.selectionEnd)
+    console.log("chk")
+    console.log(chk)
+    if(chk){
+      self.send("updateByEditorContent", self.active_note)
+    }
 
     // Set dirty bit of note
     if(!self.active_note.isDirty()){ 
@@ -237,8 +239,6 @@ NoteEditorView.prototype.render = function(project){
         if(!project.getGraphMode()){
 
             let colorCollection = CSSProcessor.getNoteBackgroundColors()
-
-            console.log(colorCollection)
 
             function clickColorDPItem(e){
               let style = window.getComputedStyle(this.getElementsByTagName('span')[0])
@@ -318,13 +318,10 @@ NoteEditorView.prototype.render = function(project){
         <div class="note-content-ctrls">
           ${makeColorPaletteDropdown(project.getActiveNote())}
         </div>
-      <!-- <div id="notepad" class="note-content" contenteditable="true" onkeyup=${keyupHandlerNotepad}> -->
-        <!-- Alternative HTML: <textarea id="notepad">Note text here</textarea> -->
         <textarea id="notepad" class="note-content" wrap="soft" 
         oninput=${inputHandlerNotepad} 
         onkeyup=${keyupHandlerNotepad}
         onclick=${clickHandlerNotepad}>${self.active_note.getContent()}</textarea>
-      <!-- </div> -->
       </div>
     </div>
   `

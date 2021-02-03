@@ -48,8 +48,8 @@ Graph.prototype.createNewVertexForNote = function(coords, note){
   var self = this
 
   // Check whether vertex with note exists already
-  let chks = self.vertices.filter( v => v.note !== null && v.note.compareTo(note))
-  if(chks.length > 1){ return }
+  // let chks = self.vertices.filter( v => v.note !== null && v.note.compareTo(note))
+  // if(chks.length > 1){ return }
 
   let data = FileDatabaseManager.getEmptyVertexJSON()
   data.note = note;
@@ -86,23 +86,33 @@ Graph.prototype.deleteVertex = function(selectedVertex){
   }
 }
 
-Graph.prototype.deleteVertexForNote = function(note){
+Graph.prototype.deleteVerticesForNote = function(note){
+  console.log("deleteVerticesForNote")
   var self = this
-
+  let i,idx
   let chks = self.vertices.filter( v => v.note !== null && v.note.compareTo(note))
-  if(chks.length === 1){
-    console.log(self.vertices)
-
+  console.log(self.vertices)
+  console.log(chks)
+  if(chks.length >= 1){
+    let del_jsons = []
+    
     let v_ids = self.vertices.map(function(v) { return v.uuid; })
-    let idx = v_ids.indexOf(chks[0].uuid);
-    if(idx >= 0 ){
-      self.vertices.splice(idx, 1)
-      self.spliceEdgesForVertex(chks[0]);
-      console.log(self.vertices)
-      // TODO: Delete from database
-      console.log("Delete Vertex from database..")
-      self.getDB().deleteVertices(self.uuid, [chks[0].getVertexJSON()])
+    for(i in chks){
+      idx = v_ids.indexOf(chks[i].uuid);
+      if(idx >= 0){
+        self.vertices.splice(idx, 1)
+        // Keeping the ids in separate list is very bad it introduces inconsistencies. 
+        // If one forgets to delete the id the loop is broken..
+        // Better try to check indexOf with the Object.
+        v_ids.splice(idx, 1)  
+        self.spliceEdgesForVertex(chks[0]);
+        
+        del_jsons.push(chks[i].getVertexJSON())
+      }
     }
+    // Delete from database
+    console.log("Delete vertices from database..")
+    self.getDB().deleteVertices(self.uuid, del_jsons)
   }
 }
 
