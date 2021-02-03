@@ -225,9 +225,6 @@ Note.prototype.getParagraphIndices = function(arr){
  */
 Note.prototype.needThumbUpdate = function(selectionStart, selectionEnd){
   let arr = this.splitTextAtNewline()
-  console.log(arr)
-  console.log("selectionStart: " + selectionStart)
-  console.log("selectionEnd: " + selectionEnd)
   if( selectionStart === selectionEnd ){
     if( arr.length === 1 && selectionStart <= 300 ){
       /**
@@ -240,7 +237,6 @@ Note.prototype.needThumbUpdate = function(selectionStart, selectionEnd){
     }else{
       if(arr.length >= 2){
         let indices = this.getParagraphIndices(arr)
-        console.log(indices)
         if(indices.length === 1){
           if(selectionStart >= indices[0] && selectionStart <= indices[0] + 300/*arr[indices[0]].length*/){
             return true // [indices[0]]
@@ -276,11 +272,7 @@ Note.prototype.needThumbUpdate = function(selectionStart, selectionEnd){
  */
 Note.prototype.getHeader = function(){
   let arr = this.splitTextAtNewline()
-  console.log("note arr")
-  console.log(arr)
   let txt_is = this.getParagraphIndices(arr)
-  console.log("getHeader")
-  console.log(txt_is)
   if(txt_is.length >= 1){
     if(arr[txt_is[0]].length > 0){
       if(arr[txt_is[0]].length > 150){

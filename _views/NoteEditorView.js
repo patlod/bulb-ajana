@@ -188,8 +188,6 @@ NoteEditorView.prototype.render = function(project){
 
     // Remove carriage returns and split at \newlines
     let chk = self.active_note.needThumbUpdate(self.selectionStart, self.selectionEnd)
-    console.log("chk")
-    console.log(chk)
     if(chk){
       self.send("updateByEditorContent", self.active_note)
     }
