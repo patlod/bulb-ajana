@@ -7,6 +7,7 @@ const { ipcRenderer } = require('electron')
 const app = require('electron').remote.app
 
 const yo = require('yo-yo')
+const d3 = require('d3')
 
 // App Peripherals
 const ConfigManager = require('./_app/ConfigurationManager')
@@ -80,7 +81,10 @@ function App(el){
   self.appControls.addRole('default', '*', 'toggledevtools')
   self.appControls.addSpacer('default', '*', 'quitters')
   // self.appControls.add('default', '*', 'Reset', () => { console.log("Reset") }, 'CmdOrCtrl+Backspace')
-  self.appControls.add('default', '*', 'Quit', () => { console.log("Quit") }, 'CmdOrCtrl+Q')
+  self.appControls.add('default', '*', 'Quit', () => { 
+    console.log("Quit");
+    closeApp();
+  }, 'CmdOrCtrl+Q')
   
   // File
   self.appControls.add('default', 'File', 'New Project', () => { console.log("New Project") }, 'CmdOrCtrl+P')
@@ -234,7 +238,9 @@ function App(el){
         },
         drop: function(event,ui){
           console.log("Dropped note in graph at position...")
-          console.log(ui.position)
+          
+          
+          
 
           let active_project = self.session.getActiveProject()
           let active_graph = active_project.getActiveGraph()
@@ -243,7 +249,9 @@ function App(el){
           // Get note from project
           let note = active_project.getNoteByUUID(note_id)
           console.log(note)
-          let coords = {x: 0, y: 0}
+          
+          console.log("calcDropZone coordinates...")
+          let coords = self.views.graph.calcRelativeDropZone(ui.position)
           if(note !== null){
             console.log("..it exists, so add it...")
             let nV = active_graph.createNewVertexForNote(coords, note)
@@ -504,17 +512,20 @@ function App(el){
   })
   
 
-  /**
-   * Handlers for IPC
-   */
-  ipcRenderer.on('saveEdits', (event) => {
-    // TODO: Check for graph or regular view
+  function closeApp(){
+     // TODO: Check for graph or regular view
     
     // Save the text of active note
     let aP = self.session.getActiveProject()
     self.session.prepProjectForTrans(aP)
     
     ipcRenderer.send('closed')
+  }
+  /**
+   * Handlers for IPC
+   */
+  ipcRenderer.on('saveEdits', (event) => {
+   closeApp()
   })
 
 }

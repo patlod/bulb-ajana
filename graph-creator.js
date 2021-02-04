@@ -567,6 +567,7 @@ GraphCreator.prototype.updateGraph = function(){
 
 GraphCreator.prototype.zoomed = function(){
   this.state.justScaleTransGraph = true;
+  
   d3.select("." + this.consts.graphClass)
     .attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
 };

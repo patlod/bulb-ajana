@@ -22,7 +22,7 @@ body{
 #toolbox {
   position: absolute;
   bottom: 10px;
-  right: 10px;
+  left: 10px;
   margin-bottom: 0.5em;
   margin-left: 1em;
   border: 2px solid #EEEEEE;

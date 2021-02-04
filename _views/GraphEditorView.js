@@ -118,6 +118,7 @@ GraphEditorView.prototype.init = function(svg){
   self.paths = svgG.append("g").selectAll("g");
   self.circles = svgG.append("g").selectAll("g");
 
+  // Drag behaviour for the vertices
   self.drag = d3.behavior.drag()
         .origin(function(d){
           console.log("drag origin: ")
@@ -165,8 +166,8 @@ GraphEditorView.prototype.init = function(svg){
   svg.on("mousedown", function(d){self.svgMouseDown.call(self, d);});
   svg.on("mouseup", function(d){self.svgMouseUp.call(self, d);});
 
-  // listen for dragging
-  var dragSvg = d3.behavior.zoom()
+  // Listen for drag and zoom behavior on the svg
+  self.dragSvg = d3.behavior.zoom()
         .on("zoom", function(){
           if (d3.event.sourceEvent.shiftKey){
             // TODO  the internal d3 state is still changing
@@ -187,7 +188,7 @@ GraphEditorView.prototype.init = function(svg){
           d3.select('#graph-editor').style("cursor", "auto");
         });
 
-  svg.call(dragSvg).on("dblclick.zoom", null);
+  svg.call(self.dragSvg).on("dblclick.zoom", null);
 
   // listen for resize
   window.onresize = function(){self.updateWindow();};
@@ -348,6 +349,14 @@ GraphEditorView.prototype.circleMouseUp = function(d3node, d){
 GraphEditorView.prototype.svgMouseDown = function(){
   this.state.graphMouseDown = true;
 };
+
+GraphEditorView.prototype.mousePositionSVG = function(){
+  var self = this;
+
+  var xycoords = d3.mouse(self.svgG.node())
+  console.log("Mouse Posisch in Svg: ")
+  console.log(xycoords)
+}
 
 // mouseup on main svg
 GraphEditorView.prototype.svgMouseUp = function(){
@@ -570,6 +579,10 @@ GraphEditorView.prototype.updateGraph = function(graphController){
 
 GraphEditorView.prototype.zoomed = function(){
   this.state.justScaleTransGraph = true;
+  console.log("d3.event.translate")
+  console.log(d3.event.translate)
+  console.log("D3 event scale")
+  console.log(d3.event.scale)
   d3.select("." + this.consts.graphClass)
     .attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
 };
@@ -583,40 +596,40 @@ GraphEditorView.prototype.updateWindow = function(){
   self.svg.attr("width", x).attr("height", y);
 };
 
-
-
-/* ============================================================================== */
-/* ============================================================================== */
-
-
 /**
- * Resets the editor before new content is loaded.
+ * Calculates the position at which a vertex will be placed in the svg
+ * on drag'n'drop.
+ * Coordinates relative to the graph <g> element origin.
+ * 
+ * NOTE: This is a hack, as mouse position can not be fetched without click event.
+ * 
+ * @param {Object} drop_pos -- Drop position coordinates of draggable object relative 
+ *                             to the body element. 
  */
-GraphEditorView.prototype.resetEditorState = function(svg){
-  var self = this
+GraphEditorView.prototype.calcRelativeDropZone = function(drop_pos){
+  let self = this;
 
-  self.svg = svg
-  self.paths = null
-  self.circles = null
+  let measures_svg = self.svg.node().getBoundingClientRect(),
+    zoomTransX = self.dragSvg.translate()[0],
+    zoomTransY = self.dragSvg.translate()[1];
+  // console.log(measures_svg)
+  // console.log(self.dragSvg.translate())
 
-  self.state = {
-    selectedNode: null,
-    selectedEdge: null,
-    mouseDownNode: null,
-    //mouseDownD3Node: null,
-    mouseDownLink: null,
-    //mouseDownD3Link: null,
-    justDragged: false,
-    justScaleTransGraph: false,
-    lastKeyDown: -1,
-    shiftNodeDrag: false,
-    selectedText: null
-  };
+  let x_svg = drop_pos.left - measures_svg.left;
+  let y_svg = drop_pos.top - measures_svg.top;
+  // console.log("x_svg: " + x_svg)
+  // console.log("y_svg: " + y_svg)
 
-  if (self.globalTimeout !== null) {
-    clearTimeout(self.globalTimeout);
+  return {
+    x: (x_svg - zoomTransX), 
+    y: (y_svg - zoomTransY)
   }
 }
+
+
+/* ============================================================================== */
+/* ============================================================================== */
+
 
 /**
  * Renders the GraphEditorView for a given project
@@ -630,6 +643,17 @@ GraphEditorView.prototype.render = function(project){
 
   //if(!session){ return }
 
+  function resetZoom(){
+    let transX = 0.0;
+    let transY = 0.0;
+    let scale = 0.3;
+    console.log("======[RESET ZOOM]======")
+    console.log(self.dragSvg.translate())
+    console.log(self.dragSvg.scale())
+    d3.select("." + self.consts.graphClass).attr("transform", "translate(" + transX + "," + transY + ") scale(" + scale + ")");
+    self.dragSvg.translate([transX, transY]).scale(scale);
+  }
+
   var style = getComputedStyle(document.getElementById('content'))
   var width = style.width
   var height = style.height
@@ -639,7 +663,7 @@ GraphEditorView.prototype.render = function(project){
     <svg xmlns="http://www.w3.org/2000/svg" ></svg>
     
     <div id="toolbox">
-        <span>
+        <span onclick=${resetZoom}>
           <i class="fas fa-compress-arrows-alt"></i>
         </span>
       </div>
