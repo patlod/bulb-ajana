@@ -238,9 +238,6 @@ function App(el){
         },
         drop: function(event,ui){
           console.log("Dropped note in graph at position...")
-          
-          
-          
 
           let active_project = self.session.getActiveProject()
           let active_graph = active_project.getActiveGraph()
@@ -249,9 +246,10 @@ function App(el){
           // Get note from project
           let note = active_project.getNoteByUUID(note_id)
           console.log(note)
-          
+
           console.log("calcDropZone coordinates...")
           let coords = self.views.graph.calcRelativeDropZone(ui.position)
+          
           if(note !== null){
             console.log("..it exists, so add it...")
             let nV = active_graph.createNewVertexForNote(coords, note)

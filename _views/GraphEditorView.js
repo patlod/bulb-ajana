@@ -611,7 +611,9 @@ GraphEditorView.prototype.calcRelativeDropZone = function(drop_pos){
 
   let measures_svg = self.svg.node().getBoundingClientRect(),
     zoomTransX = self.dragSvg.translate()[0],
-    zoomTransY = self.dragSvg.translate()[1];
+    zoomTransY = self.dragSvg.translate()[1],
+    scale = self.dragSvg.scale();
+    console.log(scale)
   // console.log(measures_svg)
   // console.log(self.dragSvg.translate())
 
@@ -621,8 +623,8 @@ GraphEditorView.prototype.calcRelativeDropZone = function(drop_pos){
   // console.log("y_svg: " + y_svg)
 
   return {
-    x: (x_svg - zoomTransX), 
-    y: (y_svg - zoomTransY)
+    x: (x_svg - zoomTransX) / scale, 
+    y: (y_svg - zoomTransY) / scale
   }
 }
 
@@ -646,10 +648,14 @@ GraphEditorView.prototype.render = function(project){
   function resetZoom(){
     let transX = 0.0;
     let transY = 0.0;
-    let scale = 0.3;
+    let scale = 1;
     console.log("======[RESET ZOOM]======")
     console.log(self.dragSvg.translate())
+    console.log(self.dragSvg.x())
+    console.log(self.dragSvg.y())
+    console.log(self.dragSvg.d3_behavior_zoomDelta())
     console.log(self.dragSvg.scale())
+    
     d3.select("." + self.consts.graphClass).attr("transform", "translate(" + transX + "," + transY + ") scale(" + scale + ")");
     self.dragSvg.translate([transX, transY]).scale(scale);
   }
