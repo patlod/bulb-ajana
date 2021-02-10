@@ -1,0 +1,112 @@
+/* ======================================= */
+/*   Graph Creator                         */
+/* ======================================= */
+
+
+/* === Base code === */
+#toolbox{
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    margin-bottom: 0.5em;
+    margin-left: 1em;
+    border: 2px solid #EEEEEE;
+    border-radius: 5px;
+    padding: 1em;
+    z-index: 5;
+}
+#toolbox span {
+    display: block;
+    opacity: 0.4;
+}
+#toolbox span:hover {
+    opacity: 1;
+    cursor: pointer;
+}
+
+marker{
+    fill: #333;
+}
+
+path.link {
+    fill: none;
+    stroke: #333;
+    stroke-width: 4px;
+    cursor: default;
+}
+
+path.link:hover{
+    stroke: rgb(94, 196, 204);
+}
+
+g.connect-node circle{
+    fill: #BEFFFF;
+}
+
+path.link.hidden{
+    stroke-width: 0;
+}
+
+path.link.selected {
+    stroke: rgb(229, 172, 247);
+}
+
+/* ========= Notes in Graph ====================================== */
+
+.graph-droppable-active{
+    border: 3px solid #DDD3DB;
+    border-radius: 6px;
+}
+  
+.graph-note {
+border: 1px solid #ddd;
+-webkit-box-shadow: -3px 6px 12px -8px #000000;
+box-shadow: -3px 6px 12px -8px #000000;
+display: inline-block;
+background: #FFF;
+}
+
+.graph-note-header .datetime{
+font-size: 11px;
+text-align: center;
+padding: 3px 3px;
+border-bottom: 1px solid #666;/*#3595f6;*/
+}
+
+.graph-note-content{
+border-style: none;
+resize: none;
+outline: none;
+overflow: hidden;
+max-height: 500px;
+font-size: 11px;
+display: block;
+width: 100%;
+height: auto;
+padding: 7px 11px;
+background:  inherit;
+}
+.graph-note-tags {
+display: block;
+width: 100%;
+padding: 4px 4px;
+/*border-top:1px solid #666;*/
+border-bottom: 1px solid #666;/*#3595f6;*/
+background:  inherit;
+}
+.graph-note-tags > span {
+display: inline-block;
+padding: 2px 4px;
+background: #D6D7F1;
+/*opacity: 0.3;*/
+margin-left: 2px;
+margin-right: 2px;
+margin-top: 2px;
+margin-bottom: 2px;
+color: black;
+border-radius: 4px;
+}
+
+foreignObject.selected {
+box-shadow: 0 0 0 3px #97C3E1;
+}

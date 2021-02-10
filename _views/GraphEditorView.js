@@ -613,7 +613,7 @@ GraphEditorView.prototype.calcRelativeDropZone = function(drop_pos){
     zoomTransX = self.dragSvg.translate()[0],
     zoomTransY = self.dragSvg.translate()[1],
     scale = self.dragSvg.scale();
-    console.log(scale)
+  //  console.log(scale)
   // console.log(measures_svg)
   // console.log(self.dragSvg.translate())
 

@@ -1,0 +1,166 @@
+/* ======================================= */
+/*   Left-Side-Menu 1 -- Project List      */
+/* ======================================= */
+
+/* === Variables === */
+@left-menu-1-width: 150px;
+@prjct-list-header: 26.38px;
+@prjct-list-ctrls: 31px;
+
+
+#left-menu-1{
+  float: left;
+  /* Combine float and position: relative (to its flow) */
+  position: relative;
+  width: @left-menu-1-width; 
+  height: 100%; /* calc(100% - @titlebar-height);*/ 
+  background: #f7f7f7; 
+  /*z-index: 5;*/
+  /*border-right: 1px solid #666666;*/
+  min-width: 100px;
+}
+
+#left-menu-1 > div {
+  position: relative; 
+  height: 100%;
+}
+#prjct-list-scroll {
+  /*position: relative; */
+  display: block;
+  width: 100%;
+  height: calc(100% - @prjct-list-header - @prjct-list-ctrls);
+  overflow-y: auto; /* REASON for semantic-ui dropdown not to exceed container.*/
+}
+
+/* Makes semantic-ui dropdown work with overflow-y: auto on 
+  the parent #prjct-list-scroll container */
+#prjct-list-scroll:after{ 
+  clear:both;                 
+  content:" ";
+  display:block;
+  font-size:0;
+  height:0;
+  line-height:0;
+  visibility:hidden;
+  width:0;
+}
+
+#prjct-list-head {
+  padding: .35em .5em;
+  border-bottom: 1px solid #DDD;
+  width: 100%;
+  display: block;
+  text-align: center;
+  font-weight: bolder;
+}
+
+.prjct-thmb {
+  display: flex;
+  padding: .35em .5em;
+  border-bottom: 1px solid #DDD;
+  width: 100%;
+  cursor: pointer;
+}
+.prjct-thmb:hover {
+  background: #E4E4E4;
+}
+.prjct-thmb.active {
+  background: #E4E4E4;
+}
+
+.prjct-thmb-name {
+  min-width: 0px;
+  text-overflow: ellipsis;
+  overflow: hidden; 
+  white-space: nowrap;
+}
+.prjct-thmb-name.hidden {
+  display: none;
+}
+.prjct-thmb-ctrls{
+  /* position: absolute -- Makes dropdown function correctly on expense of 
+     name truncating. "Relative" makes truncating work but dropdown not.. */
+  position: absolute; 
+  right: 5px;
+  display: block;
+  margin-left: auto;
+  float: right;
+  white-space: nowrap;
+}
+.prjct-thmb-digit{  
+  color: #666;
+  padding: 0 .35em;
+}
+.prjct-thmb-dropdown{
+  padding: 0 .5em;
+}
+
+
+.prjct-name-input {
+  width: 100%;
+  border: 1px solid #666666;
+  border-radius: 5px;
+  height: 22px;
+}
+.prjct-name-input.hidden {
+  display: none
+}
+.prjct-name-input.alert {
+  border: 3px solid #be0000;
+  outline: none;
+}
+.prjct-name-input:focus {
+  border: 2px solid #0094E3;
+  outline: none;
+}
+.prjct-name-input.alert:focus {
+  border: 3px solid #be0000;
+  outline: none;
+}
+
+#left-menu-1-ctrls{
+  position: absolute; /* Only works because parent is 'relative' */
+  bottom: 1px;
+  width: 100%;
+  background: #f7f7f7;
+}
+#left-menu-1-ctrls span {
+  display: inline-block;
+  padding: 7px 10px;
+}
+#left-menu-1-ctrls span:hover {
+  cursor: pointer;
+  color: #666666
+}
+
+#left-menu-dropdown{
+  display: inline-block;
+  padding-left: 10px;
+}
+#left-menu-dropdown .scrolling.menu {
+  max-height: 200px !important;
+}
+#left-menu-dropdown .header{
+  margin-top: 0.3em !important;
+  margin-bottom: 0.3em !important;
+}
+.dropdown .item{
+  font-size: 11px !important;
+}
+
+/* Overwriting the padding defined by semantic.min.css
+   for dropdown items */
+.ui.dropdown .menu>.item {
+  padding: 0.6em 1.1em !important;
+}
+
+#dummy-dropdown {
+  position: absolute !important;
+  display: block;
+  top: 100%;
+  left: 100px;
+  width: 120px;
+  height: 100px;
+  background: yellow;
+  z-index: 40;
+}

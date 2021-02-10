@@ -1,0 +1,86 @@
+/* ======================================= */
+/*   Left-Side-Menu 2 -- Notes List        */
+/* ======================================= */
+
+/* === Variables === */
+@left-menu-2-width: 150px;
+
+#left-menu-2{
+  float: left;
+  position: relative;
+  width: @left-menu-2-width; 
+  height: 100%; 
+  background: #f7f7f7; 
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+/* ===== Note list thumbnail ===== */
+.note-thmb{
+  font-size: 10px;
+  float: right;
+  width: 90%;
+  padding: 5px 10px;
+  border-bottom: 1px solid #DDD;
+}
+.note-thmb.active{
+  background: #E4E4E4;
+}
+.note-thmb:hover {
+  background: #E4E4E4;
+  cursor: pointer;
+}
+
+.flex-wrap {
+  display: flex;
+  width: 100%;
+}
+.note-thmb-head {
+  flex: 1;
+  display: block;
+  font-weight: bolder;
+  min-width: 0px;
+  text-overflow: ellipsis;
+  overflow: hidden; 
+  white-space: nowrap;
+}
+.note-thmb-mid {
+  min-width: 0px;
+  text-overflow: ellipsis;
+  overflow: hidden; 
+  white-space: nowrap;
+}
+.note-thmb-datetime {
+  padding-right: 7px;
+  font-weight: 500;
+}
+.note-thmb-content {
+  min-width: 0px;
+  text-overflow: ellipsis;
+  overflow: hidden; 
+  white-space: nowrap;
+}
+.note-thmb-tags {
+  min-width: 0px;
+  text-overflow: ellipsis;
+  overflow: hidden; 
+  white-space: nowrap;
+}
+.note-thmb-tags > span {
+  padding: 2px 4px;
+  background: #D6D7F1;
+  /*opacity: 0.3;*/
+  margin-left: 2px;
+  margin-right: 2px;
+  color: black;
+  border-radius: 4px;
+}
+.color-pickr-circle-thmb {
+  display: inline-block !important;
+  width: 10px;
+  height: 10px; 
+  border-radius: 5px;
+  margin-top: 0.25em;
+  margin-left: 0.1em;
+  margin-right: 0.2em;
+}

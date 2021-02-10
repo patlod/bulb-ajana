@@ -319,12 +319,13 @@ function App(el){
       return
     }
 
-    self.session.prepProjectForTrans(project)
-
+    if(!project.getGraphMode()){
+      self.session.prepProjectForTrans(project)
+    }
+    
     project.toggleActiveNote(note)
     
     render(true)
-    
   })
 
   self.on('transitionNoteAndEditor', function(project, note){

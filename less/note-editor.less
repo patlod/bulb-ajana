@@ -1,0 +1,83 @@
+/* ======================================= */
+/*   Note Editor                           */
+/* ======================================= */
+.note-header .datetime{
+  font-size: 11px;
+  text-align: center;
+  padding: 3px 3px;
+}
+.note-header .datetime > i:hover {
+  cursor: pointer;
+}
+
+#dt-created.hidden,
+#dt-modified.hidden{
+  display: none !important;
+}
+
+.note-header textarea{
+  font-size: 11px !important;
+}
+
+.note-content-wrap{
+  background-color: #e8e8e8; /*#E4E4E4;*/
+}
+.note-content-ctrls{
+  display: inline-block;
+  width: 100%;
+  height: 2.0em;
+}
+#note-color-dp {
+  font-size: 11px !important;
+  float: right;
+  color: #666;
+  padding-top: 4px;
+  margin-right: 0.5em
+}
+#note-color-dp > i:nth-child(2) {
+  margin-left: 0em !important;
+}
+#note-color-dp .item {
+  display: inline-block !important;
+  /*padding: 2px 4px !important;*/
+  padding: 0.5em 0.8em !important;
+  &.active{
+    box-shadow: 0 0 0 1px #ddd;
+  }
+}
+#note-color-dp .header {
+  margin-top: 0.5em !important;
+  margin-bottom: 0.5em !important;
+  /*padding: 2px 4px !important;*/
+}
+#note-color-dp .divider {
+  margin: 0px !important;
+  /*padding: 2px 4px !important;*/
+}
+#note-color-dp .menu.scrolling{
+  max-height: 200px;
+}
+.color-pickr-circle {
+  display: block;
+  width: 16px;
+  height: 16px; 
+  border-radius: 8px;
+}
+.note-content {
+  border-style: none;
+  resize: none;
+  outline: none;
+  overflow: auto;
+  font-size: 11px !important;
+  display: block;
+  position: relative;
+  bottom: 0px;
+  width: 100%;
+  height: 26px;
+  padding-left: 1.0em;
+  padding-right: 1.0em;
+  padding-bottom: 0.63em;
+  background-color: inherit;
+  -webkit-box-shadow: 1px 6px 12px -8px #000000; 
+  box-shadow: 1px 6px 12px -8px #000000;
+}
