@@ -528,7 +528,7 @@ path.link.selected {
   border-radius: 6px;
 }
 .graph-note {
-  border: 1px solid #ddd;
+  /*border: 1px solid #ddd;*/
   -webkit-box-shadow: -3px 6px 12px -8px #000000;
   box-shadow: -3px 6px 12px -8px #000000;
   display: inline-block;
@@ -576,7 +576,7 @@ path.link.selected {
   border-radius: 4px;
 }
 foreignObject.selected {
-  box-shadow: 0 0 0 3px #97C3E1;
+  box-shadow: 0 0 0 3px #000;
 }
 /**
  * Color collections for the note backgrounds. Inspired by Post-It color collections.

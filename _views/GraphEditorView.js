@@ -241,6 +241,11 @@ GraphEditorView.prototype.replaceSelectNode = function(d3Node, nodeData){
   self.state.selectedNode = nodeData;
 };
 
+GraphEditorView.prototype.replaceSelectNodeExternal = function(vertex){
+  var self = this;
+  self.replaceSelectNode(self.getD3NodeByVertex(vertex), vertex);
+}
+
 GraphEditorView.prototype.removeSelectFromNode = function(){
   var self = this;
   self.circles.filter(function(cd){
@@ -333,6 +338,7 @@ GraphEditorView.prototype.circleMouseUp = function(d3node, d){
 
         if (!prevNode || prevNode.uuid !== d.uuid){
           self.replaceSelectNode(d3node, d);
+          self.send('transitionNote', d.note.project, d.note, 'graph-node')
         } else{
           self.removeSelectFromNode();
         }
@@ -597,6 +603,22 @@ GraphEditorView.prototype.updateWindow = function(){
 };
 
 /**
+ * Get d3 selection of node containing
+ */
+ GraphEditorView.prototype.getD3NodeByVertex = function(vertex){
+   let self = this;
+   let el = null
+   self.circles.each(function(d){
+    //  console.log(d)
+    //  console.log(this)
+     if(d.compareTo(vertex)){
+       el = d3.select(this);
+     }
+   })
+   return el;
+ }
+
+/**
  * Calculates the position at which a vertex will be placed in the svg
  * on drag'n'drop.
  * Coordinates relative to the graph <g> element origin.
@@ -610,17 +632,13 @@ GraphEditorView.prototype.calcRelativeDropZone = function(drop_pos){
   let self = this;
 
   let measures_svg = self.svg.node().getBoundingClientRect(),
-    zoomTransX = self.dragSvg.translate()[0],
-    zoomTransY = self.dragSvg.translate()[1],
-    scale = self.dragSvg.scale();
-  //  console.log(scale)
-  // console.log(measures_svg)
-  // console.log(self.dragSvg.translate())
+      zoomTransX = self.dragSvg.translate()[0],
+      zoomTransY = self.dragSvg.translate()[1],
+      scale = self.dragSvg.scale();
+  
 
   let x_svg = drop_pos.left - measures_svg.left;
   let y_svg = drop_pos.top - measures_svg.top;
-  // console.log("x_svg: " + x_svg)
-  // console.log("y_svg: " + y_svg)
 
   return {
     x: (x_svg - zoomTransX) / scale, 
@@ -653,7 +671,7 @@ GraphEditorView.prototype.render = function(project){
     console.log(self.dragSvg.translate())
     console.log(self.dragSvg.x())
     console.log(self.dragSvg.y())
-    console.log(self.dragSvg.d3_behavior_zoomDelta())
+    //console.log(self.dragSvg.d3_behavior_zoomDelta())
     console.log(self.dragSvg.scale())
     
     d3.select("." + self.consts.graphClass).attr("transform", "translate(" + transX + "," + transY + ") scale(" + scale + ")");
@@ -684,8 +702,8 @@ GraphEditorView.prototype.render = function(project){
     console.log(elem)
 
   let active_graph = project.getActiveGraph()
-  console.log("updateGraph graph:")
-  console.log(active_graph)
+  // console.log("updateGraph graph:")
+  // console.log(active_graph)
   
   self.init(svg)
 

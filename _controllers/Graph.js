@@ -48,8 +48,8 @@ Graph.prototype.createNewVertexForNote = function(coords, note){
   var self = this
 
   // Check whether vertex with note exists already
-  // let chks = self.vertices.filter( v => v.note !== null && v.note.compareTo(note))
-  // if(chks.length > 1){ return }
+  let chks = self.vertices.filter( v => v.note !== null && v.note.compareTo(note))
+  if(chks.length >= 1){ return }
 
   let data = FileDatabaseManager.getEmptyVertexJSON()
   data.note = note;
@@ -114,6 +114,16 @@ Graph.prototype.deleteVerticesForNote = function(note){
     console.log("Delete vertices from database..")
     self.getDB().deleteVertices(self.uuid, del_jsons)
   }
+}
+
+Graph.prototype.getVertexForNote = function(note){
+  let self = this;
+  let chks = self.vertices.filter( v => v.note !== null && v.note.compareTo(note))
+  if(chks.length > 1) { 
+    console.error("Error duplicate vertices found");
+    return null;
+  }else if(chks.length < 1){ return null; }
+  else { return chks[chks.length - 1] }
 }
 
 /**

@@ -253,10 +253,13 @@ function App(el){
           if(note !== null){
             console.log("..it exists, so add it...")
             let nV = active_graph.createNewVertexForNote(coords, note)
-            nV.saveData()
-
-            self.views.graph.updateGraph(active_graph)
-            render(true)
+            if(nV){
+              nV.saveData()
+              self.views.graph.updateGraph(active_graph)
+              render(true)
+            }else{
+              console.log("Vertex for this note already exists..")
+            }
           }
         }
       });
@@ -312,7 +315,7 @@ function App(el){
     self.session.deleteProject(project_id, render)
   })
 
-  self.on('transitionNote', function(project, note){
+  self.on('transitionNote', function(project, note, trigger='note-thumb'){
     let active_note = project.getActiveNote()
     // Toggle active project & update UI in case switched to different note
     if(active_note.uuid.localeCompare(note.uuid) === 0){
@@ -324,6 +327,17 @@ function App(el){
     }
     
     project.toggleActiveNote(note)
+
+    if(project.getGraphMode() && trigger.localeCompare('note-thumb') === 0){
+      // TODO: Set active note to selectedNode in GraphEditor in case a node exist for the note.
+      console.log("Set selected node here.")
+      let vertex = self.session.getActiveGraph().getVertexForNote(note)
+      if(vertex){
+        // Set selectedNode in GraphEditor
+        self.views.graph.replaceSelectNodeExternal(vertex);
+        self.views.graph.updateGraph(project.getActiveGraph())
+      }
+    }
     
     render(true)
   })
@@ -332,9 +346,6 @@ function App(el){
     console.log("transitionNoteAndEditor")
     let active_note = project.getActiveNote()
 
-    
-
-    
     console.log(project.getGraphMode())
     if(project.getGraphMode()){
       project.toggleActiveNote(note)
