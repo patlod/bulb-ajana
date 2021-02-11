@@ -330,16 +330,10 @@ function App(el){
     project.toggleActiveNote(note)
 
     if(project.getGraphMode() && trigger.localeCompare('note-thumb') === 0){
-      // TODO: Set active note to selectedNode in GraphEditor in case a node exist for the note.
       console.log("Set selected node here.")
-      let vertex = self.session.getActiveGraph().getVertexForNote(note)
-      if(vertex){
-        // Set selectedNode in GraphEditor
-        self.views.graph.replaceSelectNodeExternal(vertex);
-        self.views.graph.updateGraph(project.getActiveGraph())
-      }
+      self.views.graph.updateGraph(project.getActiveGraph())
     }
-    
+
     render(true)
   })
 

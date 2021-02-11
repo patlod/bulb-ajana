@@ -245,7 +245,7 @@ GraphEditorView.prototype.replaceSelectNodeExternal = function(vertex){
   var self = this;
   let d3node = self.getD3NodeByVertex(vertex);
   console.log(d3node);
-  //self.replaceSelectNode(d3node, vertex);
+  self.replaceSelectNode(d3node, vertex);
 }
 
 GraphEditorView.prototype.removeSelectFromNode = function(){
@@ -490,11 +490,7 @@ GraphEditorView.prototype.updateGraph = function(graphController){
     // console.log(gNote.clientWidth)
     // console.log(gNote.clientHeight)
 
-    // Set selectedNode to active note.
-    if(d.note.compareTo(active_note)){
-      self.state.selectedNode = d;
-      foreignObj.classed(self.consts.selectedClass, true)
-    }
+    
     
     // Set background color of graph-note
     graph_note_html.style("background", d.note.bg_color)
@@ -539,11 +535,17 @@ GraphEditorView.prototype.updateGraph = function(graphController){
       self.circleMouseUp.call(self, d3.select(this), d);
     })
     .call(self.drag);
-  })
+  });
 
   // Remove old nodes
   self.circles.exit().remove();
   
+  // Select vertex associated with active note if existing.
+  let vertex = graphController.getVertexForNote(active_note)
+  if(vertex){
+    // Set selectedNode in GraphEditor
+    self.replaceSelectNodeExternal(vertex);
+  }
 
   // Associate edges data in the graph controller with the UI elements
   self.paths = self.paths.data(graphController.edges, function(d){
@@ -636,7 +638,7 @@ GraphEditorView.prototype.getD3NodeByVertex = function(vertex){
   self.circles.each(function(d){
     console.log(d)
     console.log(d3.select(this))
-  if(d.uuid.compareTo(vertex.uuid) === 0){
+  if(d.uuid.localeCompare(vertex.uuid) === 0){
     el = d3.select(this);
   }
   })
@@ -669,6 +671,10 @@ GraphEditorView.prototype.calcRelativeDropZone = function(drop_pos){
     x: (x_svg - zoomTransX) / scale, 
     y: (y_svg - zoomTransY) / scale
   }
+}
+
+GraphEditorView.prototype.resetZoom = function(){
+
 }
 
 
@@ -736,7 +742,5 @@ GraphEditorView.prototype.render = function(project){
     self.updateGraph(active_graph)
   }, 50);
   
-  
   return graph_view
 }
-
