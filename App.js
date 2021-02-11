@@ -275,6 +275,7 @@ function App(el){
   self.on('render', render)
 
   function transToGraphEditor(){
+    let active_p = self.session.getActiveProject();
     self.session.setGraphMode(true)
     render()
   }

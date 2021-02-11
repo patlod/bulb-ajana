@@ -243,7 +243,9 @@ GraphEditorView.prototype.replaceSelectNode = function(d3Node, nodeData){
 
 GraphEditorView.prototype.replaceSelectNodeExternal = function(vertex){
   var self = this;
-  self.replaceSelectNode(self.getD3NodeByVertex(vertex), vertex);
+  let d3node = self.getD3NodeByVertex(vertex);
+  console.log(d3node);
+  //self.replaceSelectNode(d3node, vertex);
 }
 
 GraphEditorView.prototype.removeSelectFromNode = function(){
@@ -445,6 +447,8 @@ GraphEditorView.prototype.makeTagsHTMLString = function(tags){
 GraphEditorView.prototype.updateGraph = function(graphController){
   var self = this
   
+  let active_project = graphController.project
+  let active_note = active_project.getActiveNote()
   // console.log("upateGraph -- graph_controller")
   // console.log(graphController.getVertices())
   // console.log(graphController.getEdges())
@@ -474,10 +478,11 @@ GraphEditorView.prototype.updateGraph = function(graphController){
       .attr('width', 427)
       
   newGs.each(function(d){
+    
     let foreignObj = d3.select(this)
     // console.log(foreignObj)
     // console.log(d)
-    let graph_note = foreignObj.select('.graph-note')
+    let graph_note_html = foreignObj.select('.graph-note')
     // console.log("offsetSizes:")
     // console.log(gNote.offsetWidth)
     // console.log(gNote.offsetHeight)
@@ -485,8 +490,14 @@ GraphEditorView.prototype.updateGraph = function(graphController){
     // console.log(gNote.clientWidth)
     // console.log(gNote.clientHeight)
 
+    // Set selectedNode to active note.
+    if(d.note.compareTo(active_note)){
+      self.state.selectedNode = d;
+      foreignObj.classed(self.consts.selectedClass, true)
+    }
+    
     // Set background color of graph-note
-    graph_note.style("background", d.note.bg_color)
+    graph_note_html.style("background", d.note.bg_color)
     
     // Create content and insert..
     let html_str = `
@@ -500,9 +511,9 @@ GraphEditorView.prototype.updateGraph = function(graphController){
         ${d.note.getContent()}
       </div>
     `
-    graph_note.html(html_str)
+    graph_note_html.html(html_str)
     
-    let gnNode = graph_note.node()
+    let gnNode = graph_note_html.node()
     // Associate vertex' UI dimensions with its data
     if(!d.width_dom || d.width_dom === 0){
       d.width_dom = gnNode.offsetWidth
@@ -584,13 +595,24 @@ GraphEditorView.prototype.updateGraph = function(graphController){
 };
 
 GraphEditorView.prototype.zoomed = function(){
+  let self = this;
   this.state.justScaleTransGraph = true;
   console.log("d3.event.translate")
   console.log(d3.event.translate)
   console.log("D3 event scale")
   console.log(d3.event.scale)
+  let trans_setting = "translate(" + d3.event.translate + ") "
+  if(d3.event.scale < 0.015){
+    self.dragSvg.scale(0.015);
+    trans_setting += "scale(0.015)";
+  }else if(d3.event.scale > 5){
+    self.dragSvg.scale(5);
+    trans_setting += "scale(5)";
+  }else{
+    trans_setting += "scale(" + d3.event.scale + ")";
+  }
   d3.select("." + this.consts.graphClass)
-    .attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
+    .attr("transform", trans_setting);
 };
 
 GraphEditorView.prototype.updateWindow = function(){
@@ -603,20 +625,23 @@ GraphEditorView.prototype.updateWindow = function(){
 };
 
 /**
- * Get d3 selection of node containing
+ * Get d3 selection of UI element associated with given vertex
+ *
+ * @param {Vertex} vertex - The vertex for which the UI element is fetched.
  */
- GraphEditorView.prototype.getD3NodeByVertex = function(vertex){
-   let self = this;
-   let el = null
-   self.circles.each(function(d){
-    //  console.log(d)
-    //  console.log(this)
-     if(d.compareTo(vertex)){
-       el = d3.select(this);
-     }
-   })
-   return el;
- }
+GraphEditorView.prototype.getD3NodeByVertex = function(vertex){
+  let self = this;
+  let el = null
+  console.log(self.circles)
+  self.circles.each(function(d){
+    console.log(d)
+    console.log(d3.select(this))
+  if(d.uuid.compareTo(vertex.uuid) === 0){
+    el = d3.select(this);
+  }
+  })
+  return el;
+}
 
 /**
  * Calculates the position at which a vertex will be placed in the svg
