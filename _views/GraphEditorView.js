@@ -25,12 +25,13 @@ function GraphEditorView(target) {
   // this.dirty_bit = false
   this.dirty_vertices = []
 
-  // Graph related variables
-  this.svg = null
-  this.paths = null
-  this.circles = null
+  // Graph object which is currently rendered
+  this.graph = null;
+  // Grahpic related variables
+  this.svg = null;
+  this.paths = null;
+  this.circles = null;
   
-
   this.consts =  {
     selectedClass: "selected",
     connectClass: "connect-node",
@@ -113,6 +114,12 @@ GraphEditorView.prototype.init = function(svg){
         .attr('class', 'link dragline hidden')
         .attr('d', 'M0,0L0,0')
         .style('marker-end', 'url(#mark-end-arrow)');
+
+  self.center = svgG.append('svg:path')
+        .attr('class', 'graph-center')
+        .attr('d', 'M-15,0 L15,0 M0,-15 L0,15 Z')
+        .attr('stroke', '#666666')
+        .attr('stroke-width', '1');
 
   // svg nodes and edges
   self.paths = svgG.append("g").selectAll("g");
@@ -444,14 +451,19 @@ GraphEditorView.prototype.makeTagsHTMLString = function(tags){
 }
 
 // Call to propagate changes to graph
-GraphEditorView.prototype.updateGraph = function(graphController){
+GraphEditorView.prototype.updateGraph = function(graphController = null){
   var self = this
   
-  let active_project = graphController.project
+  if(!self.graph){
+    console.error("GraphEditorView: Graph variable not set.")
+    return;
+  }
+
+  let active_project = self.graph.project
   let active_note = active_project.getActiveNote()
   // console.log("upateGraph -- graph_controller")
-  // console.log(graphController.getVertices())
-  // console.log(graphController.getEdges())
+  // console.log(self.graph.getVertices())
+  // console.log(self.graph.getEdges())
 
   // console.log("upateGraph -- self.circles/paths")
   // console.log(self.circles)
@@ -460,7 +472,7 @@ GraphEditorView.prototype.updateGraph = function(graphController){
   // Update existing nodes 
   // Should happen before edges as the width and height attributes are set dynamically on depending on the content.
   // Associate vertex data in the graph controller with the UI elements
-  self.circles = self.circles.data(graphController.vertices, function(d){ return d.uuid;});
+  self.circles = self.circles.data(self.graph.vertices, function(d){ return d.uuid;});
 
   self.circles.attr("transform", function(d){return "translate(" + d.posX + "," + d.posY + ")";})
 
@@ -541,14 +553,14 @@ GraphEditorView.prototype.updateGraph = function(graphController){
   self.circles.exit().remove();
   
   // Select vertex associated with active note if existing.
-  let vertex = graphController.getVertexForNote(active_note)
+  let vertex = self.graph.getVertexForNote(active_note)
   if(vertex){
     // Set selectedNode in GraphEditor
     self.replaceSelectNodeExternal(vertex);
   }
 
   // Associate edges data in the graph controller with the UI elements
-  self.paths = self.paths.data(graphController.edges, function(d){
+  self.paths = self.paths.data(self.graph.edges, function(d){
     return String(d.source.uuid) + "+" + String(d.target.uuid);
   });
   var paths = self.paths;
@@ -590,10 +602,15 @@ GraphEditorView.prototype.updateGraph = function(graphController){
   paths.exit().remove();
 
   // console.log("Graph controller vertices")
-  // console.log(graphController.vertices)
+  // console.log(self.graph.vertices)
   // console.log("Local vertex data self.circles:")
   // console.log(self.circles)
   // console.log(self.paths)
+
+  // TODO: Refactor! This for basic orientation but 
+  // with this it becomes impossible to save the graph state during 
+  // the transitions between graph and note editor.
+  self.resetZoom();
 };
 
 GraphEditorView.prototype.zoomed = function(){
@@ -674,7 +691,42 @@ GraphEditorView.prototype.calcRelativeDropZone = function(drop_pos){
 }
 
 GraphEditorView.prototype.resetZoom = function(){
+    var self = this;
 
+    let bounds_svg = self.svg.node().getBoundingClientRect(),
+        bounds_vertices = self.graph.getVerticesBoundingBox();
+
+    let scaleWidth = bounds_svg.width / bounds_vertices.width,
+        scaleHeight = bounds_svg.height / bounds_vertices.height,
+        SCALE_MARGIN = 0.1;
+
+    let rescale = (scaleWidth < scaleHeight) ? scaleWidth - SCALE_MARGIN : scaleHeight - SCALE_MARGIN;
+
+    let marginX = (bounds_svg.width - bounds_vertices.width * rescale) / 2,
+        marginY = (bounds_svg.height - bounds_vertices.height * rescale) / 2;
+
+    let transX = -bounds_vertices.startX * rescale
+        transY = -bounds_vertices.startY * rescale
+    // let transX = (-bounds_vertices.startX < 0) ? -bounds_vertices.startX * rescale + marginX : -bounds_vertices.startX * rescale - marginX,
+    //     transY = (-bounds_vertices.startY < 0) ? -bounds_vertices.startY * rescale - marginY : -bounds_vertices.startY * rescale + marginY;
+    
+    console.log("======[RESET ZOOM]======")
+    console.log(self.dragSvg.translate())
+    console.log(self.dragSvg.scale())
+    console.log("Largest edging rectangle:")
+    console.log(bounds_svg)
+    console.log(bounds_vertices)
+    console.log("scaleWidth: " + scaleWidth)
+    console.log("scaleHeight: " + scaleHeight)
+    console.log("rescale: " + rescale)
+    console.log("Rescaled bounding rect width: " + bounds_vertices.width * rescale)
+    console.log("marginX: " + marginX)
+    console.log("marginY: " + marginY)
+    console.log("transX: " + transX)
+    console.log("transY: " + transY)
+    d3.select("." + self.consts.graphClass).attr("transform", "translate(" + transX + "," + transY + ") scale(" + rescale + ")");
+      self.dragSvg.translate([ transX, transY ]).scale(rescale);
+    
 }
 
 
@@ -694,19 +746,8 @@ GraphEditorView.prototype.render = function(project){
 
   //if(!session){ return }
 
-  function resetZoom(){
-    let transX = 0.0;
-    let transY = 0.0;
-    let scale = 1;
-    console.log("======[RESET ZOOM]======")
-    console.log(self.dragSvg.translate())
-    console.log(self.dragSvg.x())
-    console.log(self.dragSvg.y())
-    //console.log(self.dragSvg.d3_behavior_zoomDelta())
-    console.log(self.dragSvg.scale())
-    
-    d3.select("." + self.consts.graphClass).attr("transform", "translate(" + transX + "," + transY + ") scale(" + scale + ")");
-    self.dragSvg.translate([transX, transY]).scale(scale);
+  function clickResetZoom(){
+    self.resetZoom();
   }
 
   var style = getComputedStyle(document.getElementById('content'))
@@ -718,7 +759,7 @@ GraphEditorView.prototype.render = function(project){
     <svg xmlns="http://www.w3.org/2000/svg" ></svg>
     
     <div id="toolbox">
-        <span onclick=${resetZoom}>
+        <span onclick=${clickResetZoom}>
           <i class="fas fa-compress-arrows-alt"></i>
         </span>
       </div>
@@ -732,14 +773,14 @@ GraphEditorView.prototype.render = function(project){
     .attr("height", height);
     console.log(elem)
 
-  let active_graph = project.getActiveGraph()
+  self.graph = project.getActiveGraph()
   // console.log("updateGraph graph:")
   // console.log(active_graph)
   
   self.init(svg)
 
   setTimeout(function() {
-    self.updateGraph(active_graph)
+    self.updateGraph(/*active_graph*/)
   }, 50);
   
   return graph_view

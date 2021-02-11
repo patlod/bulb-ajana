@@ -209,6 +209,51 @@ Graph.prototype.getDB = function(){
   return this.project.db
 }
 
+/**
+ * Calculates largest rectangle that wraps around all vertices.
+ *
+ * Returns the rectangle as tuple of start point and end point. 
+ */
+Graph.prototype.getVerticesBoundingBox = function(){
+  var self = this;
+  if(self.vertices.length === 0){ return; }
+
+  let north = self.vertices[0].posY,
+      south = self.vertices[0].posY, 
+      east = self.vertices[0].posX, 
+      west = self.vertices[0].posX
+      dNorthSouth = 0;
+      dWestEast = 0;
+  for(var i in self.vertices){
+    if(self.vertices[i].posY < north){ north = self.vertices[i].posY }
+    if(self.vertices[i].posY > south){ south = self.vertices[i].posY }
+    if(self.vertices[i].posX < west){ west = self.vertices[i].posX }
+    if(self.vertices[i].posX > east){ east = self.vertices[i].posX }
+  }
+
+  if( ( north < 0 && south > 0 )
+    || ( north > 0 && south < 0 ) ){ 
+    dNorthSouth = Math.abs(north) + Math.abs(south)
+  }else{
+    dNorthSouth = Math.abs(north - south)
+  }
+  if( (west < 0 && south > 0) 
+    || (west > 0 && south < 0 ) ){
+    dWestEast = Math.abs(west) + Math.abs(east)
+  }else{
+    dWestEast = Math.abs(west - east)
+  }
+
+  return {
+    startX: west,   // Rect start point
+    startY: north,   
+    endX: east,     // Rect end point
+    endY: south,
+    width: dWestEast,     // Dimensions
+    height: dNorthSouth,
+  }
+}
+
 
 Graph.prototype.getGraphJSON = function(){
   return {

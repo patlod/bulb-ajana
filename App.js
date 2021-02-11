@@ -178,7 +178,7 @@ function App(el){
    * such as Split.js, Tagify.js and Semantic-UI dropdown 
    * 
    * 
-   * BUG: I need to parametrize the scripts otherwise 
+   * BUG: Need to parametrize the scripts otherwise 
    * the split-screen is reinitialised with the default values
    * instead of the values from the beginning.
    */
@@ -398,9 +398,9 @@ function App(el){
     console.log(active_g)
     if(active_g !== null ){
       active_g.deleteVerticesForNote(active_note)
-      //if(active_p.getGraphMode()){
-      self.views.graph.updateGraph(active_g)
-      //}
+      if(self.views.graph.graph !== null){
+        self.views.graph.updateGraph(active_g)
+      }
     }
     active_p.deleteNote(active_note)
 
@@ -536,7 +536,8 @@ function App(el){
 }
 
 /**
- *  
+ * Creates the UI element for the content area. 
+ * 
  * @param {Boolean} lazy_load - When the graph mode is active lazy loading 
  * does not reload the full graph with rendering but treats it separate so once
  * it is initialised the graph content will updated by the GraphEditorView.
