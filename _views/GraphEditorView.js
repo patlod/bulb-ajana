@@ -710,20 +710,20 @@ GraphEditorView.prototype.resetZoom = function(){
     // let transX = (-bounds_vertices.startX < 0) ? -bounds_vertices.startX * rescale + marginX : -bounds_vertices.startX * rescale - marginX,
     //     transY = (-bounds_vertices.startY < 0) ? -bounds_vertices.startY * rescale - marginY : -bounds_vertices.startY * rescale + marginY;
     
-    console.log("======[RESET ZOOM]======")
-    console.log(self.dragSvg.translate())
-    console.log(self.dragSvg.scale())
-    console.log("Largest edging rectangle:")
-    console.log(bounds_svg)
-    console.log(bounds_vertices)
-    console.log("scaleWidth: " + scaleWidth)
-    console.log("scaleHeight: " + scaleHeight)
-    console.log("rescale: " + rescale)
-    console.log("Rescaled bounding rect width: " + bounds_vertices.width * rescale)
-    console.log("marginX: " + marginX)
-    console.log("marginY: " + marginY)
-    console.log("transX: " + transX)
-    console.log("transY: " + transY)
+    // console.log("======[RESET ZOOM]======")
+    // console.log(self.dragSvg.translate())
+    // console.log(self.dragSvg.scale())
+    // console.log("Largest edging rectangle:")
+    // console.log(bounds_svg)
+    // console.log(bounds_vertices)
+    // console.log("scaleWidth: " + scaleWidth)
+    // console.log("scaleHeight: " + scaleHeight)
+    // console.log("rescale: " + rescale)
+    // console.log("Rescaled bounding rect width: " + bounds_vertices.width * rescale)
+    // console.log("marginX: " + marginX)
+    // console.log("marginY: " + marginY)
+    // console.log("transX: " + transX)
+    // console.log("transY: " + transY)
     d3.select("." + self.consts.graphClass).attr("transform", "translate(" + transX + "," + transY + ") scale(" + rescale + ")");
       self.dragSvg.translate([ transX, transY ]).scale(rescale);
     
