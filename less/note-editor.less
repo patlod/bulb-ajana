@@ -25,14 +25,16 @@
 .note-content-ctrls{
   display: inline-block;
   width: 100%;
-  height: 2.0em;
+  padding-top: 0.4em;
+  padding-bottom: 0.25em;
 }
 #note-color-dp {
+  display: inline-block;
   font-size: 11px !important;
   float: right;
-  color: #666;
-  padding-top: 4px;
-  margin-right: 0.5em
+  color: #666666;
+  margin-right: 0.5em;
+  margin-left: 0.5em
 }
 #note-color-dp > i:nth-child(2) {
   margin-left: 0em !important;
@@ -58,11 +60,53 @@
   max-height: 200px;
 }
 .color-pickr-circle {
-  display: block;
+  display: inline-block;
   width: 16px;
   height: 16px; 
   border-radius: 8px;
 }
+
+#local-search {
+  display: inline-block;
+  float: left;
+  position: relative;
+  padding-left: 0.7em;
+  width: 90%;
+}
+#local-search.hidden{
+  display: none;
+}
+#local-search > input {
+  border: 1px solid #c5c5c5;
+  font-size: 10px;
+  border-radius: 0.5em;
+  display: block;
+  padding-left: 2.0em;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  padding-right: 2.0em;
+  width: 100%;
+}
+#local-search > input:focus{
+  box-shadow: 0px 0px 0px 2px #666666;
+  outline: none;
+}
+#local-search > .fa-search {
+  position: absolute;
+  left: 0.9em;
+  top: 0.25em;
+  color: #666666;
+}
+#local-search > .fa-times-circle {
+  position: absolute;
+  right: 0.2em;
+  top: 0.25em;
+  color: #666666;
+}
+#local-search > .fa-times-circle.hidden {
+  display: none;
+}
+
 .note-content {
   border-style: none;
   resize: none;
@@ -74,6 +118,7 @@
   bottom: 0px;
   width: 100%;
   height: 26px;
+  padding-top: 0.23em;
   padding-left: 1.0em;
   padding-right: 1.0em;
   padding-bottom: 0.63em;

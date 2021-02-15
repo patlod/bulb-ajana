@@ -25,6 +25,8 @@ function NoteEditorView(target) {
   this.tagify = null
 
   this.dirty_bit = false
+
+  this.currentSearch = ""
 }
 inherits(NoteEditorView, EventEmitterElement)
 
@@ -136,17 +138,31 @@ NoteEditorView.prototype.resizeElementByContent = function(el){
 NoteEditorView.prototype.resetEditorState = function(){
   var self = this
 
-  self.active_note = null
+  self.active_note = null;
+  self.currentSearch = "";
 
   if(self.tagify !== null){
-    self.tagify.destroy()
-    self.tagify = null  /* Necessary to avoid null reference error. */
+    self.tagify.destroy();
+    self.tagify = null;  /* Necessary to avoid null reference error. */
   }
 
   if (self.globalTimeout !== null) {
     clearTimeout(self.globalTimeout);
   }
 }
+
+NoteEditorView.prototype.toggleLocalSearch = function(){
+  let el = document.getElementById('local-search')
+  if(el){
+    if(el.classList.contains('hidden')){
+      el.classList.remove('hidden');
+      el.getElementsByTagName('input')[0].focus();
+    }else{
+      el.getElementsByTagName('input')[0].focus();
+    }
+  }
+}
+
 
 /**
  * Renders the NoteEditorView for a given project
@@ -229,74 +245,117 @@ NoteEditorView.prototype.render = function(project){
   /* ====================================================================== */
   /* ====================================================================== */
 
+  function keyupLocalSearch(e){
+    console.log("keyupLocalSearch");
+    // - Change visibility of the x-cancel icon
+    if(self.currentSearch.length === 0 && this.value.length > 0){
+      document.getElementById('local-search')
+        .getElementsByClassName("fa-times-circle")[0].classList.remove("hidden");
+    }
+    if(self.currentSearch.length > 0 && this.value.length === 0){
+        document.getElementById('local-search')
+          .getElementsByClassName("fa-times-circle")[0].classList.add("hidden");
+    }
+    self.currentSearch = this.value;
+    // - send the event to app which triggers the search fucntion of 
+    //   the session
+    self.send("updateLocalSearch")
+  }
+
+  function clickClearLocalSearch(e){
+    console.log("Clear local search, current value: ");
+    console.log(self.currentSearch);
+    // Clear search input
+    let input = document.getElementById("local-search").getElementsByTagName("input")[0].value = "";
+    input.focus();
+    // Clear local search state
+    self.currentSearch = "";
+    // Clear the search data in the controller/model structures
+    self.send("clearLocalSearch")
+  }
+
+  function makeLocalSearchField(){
+    // if(!project){
+    //     return
+    // }else{
+    return yo`
+        <div id="local-search" class="hidden">
+            <i class="fas fa-search"></i>
+            <input class="" type="text" placeholder="Search..." onkeyup=${keyupLocalSearch}>
+            <span id="counter"></span>
+            <i class="fas fa-times-circle hidden" onclick=${clickClearLocalSearch}></i>
+        </div>
+    `
+    // }
+  }
 
   function makeColorPaletteDropdown(active_note){
     if(!project){
         return
     }else{
-        if(!project.getGraphMode()){
+      if(!project.getGraphMode()){
 
-            let colorCollection = CSSProcessor.getNoteBackgroundColors()
+          let colorCollection = CSSProcessor.getNoteBackgroundColors()
 
-            function clickColorDPItem(e){
-              let style = window.getComputedStyle(this.getElementsByTagName('span')[0])
-              let color_str = UnitConverter.rgbToHex( style.getPropertyValue('background-color') )
-              
-              // let targetColor = colorCollection.filter(function(x){
-              //   return x.color.localeCompare(color_str) === 0
-              // })
+          function clickColorDPItem(e){
+            let style = window.getComputedStyle(this.getElementsByTagName('span')[0])
+            let color_str = UnitConverter.rgbToHex( style.getPropertyValue('background-color') )
+            
+            // let targetColor = colorCollection.filter(function(x){
+            //   return x.color.localeCompare(color_str) === 0
+            // })
 
-              // Set background of the note-editor
-              document.getElementsByClassName('note-content-wrap')[0].style.backgroundColor = color_str
+            // Set background of the note-editor
+            document.getElementsByClassName('note-content-wrap')[0].style.backgroundColor = color_str
 
-              
-              self.send('updateNoteColor', active_note, color_str)
+            
+            self.send('updateNoteColor', active_note, color_str)
+          }
+
+          let items_html = []
+          let el = null
+          colorCollection.map(function(x, idx){
+            if(active_note.bg_color.localeCompare(x.color) === 0){
+              el = yo` 
+              <div class="item active" onclick=${clickColorDPItem}>
+                  <span class="color-pickr-circle ${x.selector.substring(1)}"></span>
+              </div>
+            ` 
+            }else{
+              el = yo` 
+              <div class="item" onclick=${clickColorDPItem}>
+                  <span class="color-pickr-circle ${x.selector.substring(1)}"></span>
+              </div>
+            ` 
             }
-
-            let items_html = []
-            let el = null
-            colorCollection.map(function(x, idx){
-              if(active_note.bg_color.localeCompare(x.color) === 0){
-                el = yo` 
-                <div class="item active" onclick=${clickColorDPItem}>
-                    <span class="color-pickr-circle ${x.selector.substring(1)}"></span>
-                </div>
-              ` 
-              }else{
-                el = yo` 
-                <div class="item" onclick=${clickColorDPItem}>
-                    <span class="color-pickr-circle ${x.selector.substring(1)}"></span>
-                </div>
-              ` 
+            
+              items_html.push(el)
+              if((idx + 1) % 5 === 0){
+                  items_html.push(yo`<div class="divider"></div>`)
               }
               
-                items_html.push(el)
-                if((idx + 1) % 5 === 0){
-                    items_html.push(yo`<div class="divider"></div>`)
-                }
-                
-            })
+          })
+          
             
-             
-            return yo`
-            <div id="note-color-dp" class="ui floated dropdown">
-                <i class="fas fa-palette"></i>
-                <i class="dropdown icon"></i>
-                
-                <div class="menu">
-                    <div class="header">
-                        <i class="fas fa-paint-roller"></i>
-                        Note Color
-                    </div>
-                    <div class="menu scrolling">
-                        ${items_html}
-                    </div>
-                </div>
-            </div>
-            `
+          return yo`
+          <div id="note-color-dp" class="ui floated dropdown">
+              <i class="fas fa-palette"></i>
+              <i class="dropdown icon"></i>
+              
+              <div class="menu">
+                  <div class="header">
+                      <i class="fas fa-paint-roller"></i>
+                      Note Color
+                  </div>
+                  <div class="menu scrolling">
+                      ${items_html}
+                  </div>
+              </div>
+          </div>
+          `
         }
+      }
     }
-}
 
 
   
@@ -314,6 +373,7 @@ NoteEditorView.prototype.render = function(project){
       </div>
       <div class="note-content-wrap" style="background-color: ${project.getActiveNote().bg_color}">
         <div class="note-content-ctrls">
+          ${makeLocalSearchField()}
           ${makeColorPaletteDropdown(project.getActiveNote())}
         </div>
         <textarea id="notepad" class="note-content" wrap="soft" 

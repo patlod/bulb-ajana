@@ -26,7 +26,9 @@ function GlobalData(path){
 }
 inherits(GlobalData, AppStorageManager)
 
-
+/**
+ * Recent Projects
+ */
 GlobalData.prototype.loadRecentProjects = function(){
   let els = this.db.get(this.KEY_RECENT_PROJ).value()
   if(els){
@@ -88,5 +90,6 @@ GlobalData.prototype.getAllRecentProjects = function(){
   this.loadAndFilterZombies()
   return this.recent_projects.getAllItems()
 }
+
 
 

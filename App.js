@@ -108,7 +108,12 @@ function App(el){
   // self.appControls.addRole('default', 'Edit', 'delete')
   // self.appControls.addRole('default', 'Edit', 'selectall')
   self.appControls.addSpacer('default', 'Edit', 'Find')
-  self.appControls.add('default', 'Edit', 'Find in Editor', () => { console.log("Find in Editor") }, 'CmdOrCtrl+F')
+  self.appControls.add('default', 'Edit', 'Find in Editor', () => { 
+    console.log("Find in Editor");
+    if(!self.session.getGraphMode()){
+      self.views.editor.toggleLocalSearch();
+    } 
+  }, 'CmdOrCtrl+F')
   self.appControls.add('default', 'Edit', 'Find in Notes', () => { console.log("Find in Notes") }, 'CmdOrCtrl+Shift+F')
   self.appControls.add('default', 'Edit', 'Find in Graphs', () => { console.log("Find in Graphs") }, 'CmdOrCtrl+Shift+G')
 
@@ -431,6 +436,12 @@ function App(el){
     self.views.notes.updateNoteThmbColor(note)
   })
 
+  self.on('updateGlobalSearch', function(){
+    // - Execute search functions in session -> project -> note
+  });
+  self.on('clearGlobalSearch', function(){
+    // - Clear the search state in the session.
+  });
 /* ============================================================================== */
 /*  Graph Event Listeners                                                         */
 /* ============================================================================== */

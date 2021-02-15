@@ -9,20 +9,10 @@ function TitlebarView(target){
     var self = this
 
     EventEmitterElement.call(this, target)
+
+    this.currentSearch = ""
 }
 inherits(TitlebarView, EventEmitterElement)
-
-/**
- * TODO:
- *  - Create new note button and delete note button 
- *      - ONLY WHEN PROJECT IS SELECTED
- *          - Disactivate the buttons when no project is selected.
- *  - Search
- *      - ONLY WHEN ONE OR MORE PROJECTS ARE OPENED
- *  - Toggle List|Graph
- *      - ONLY WHEN A PROJECT IS SELECTED
- */
-
 
 TitlebarView.prototype.updateCreateNewBtn = function(dom_el, active_note){
     // let create_new_btn = dom_el.getElementsByClassName('')[0]
@@ -73,14 +63,6 @@ TitlebarView.prototype.render = function (session) {
         self.send('createNewNote')
     }
 
-    function clickDeleteSelectedNotes(e){
-        self.send('deleteSelectedNotes')
-    }
-
-    function triggerSearch(e){
-        // TODO...
-    }
-
     function makeCreateNewBtn(project){
         if(!project){
             return
@@ -107,6 +89,10 @@ TitlebarView.prototype.render = function (session) {
         }
     }
 
+    function clickDeleteSelectedNotes(e){
+        self.send('deleteSelectedNotes')
+    }
+
     function makeDeleteButton(project){
         if(!project){
             return
@@ -117,14 +103,42 @@ TitlebarView.prototype.render = function (session) {
         }
     }
 
+    function keyupGlobalSearch(e){
+        // - Change visibility of the x-cancel icon
+        if(self.currentSearch.length === 0 && this.value.length > 0){
+            document.getElementById('global-search')
+                .getElementsByClassName("fa-times-circle")[0].classList.remove("hidden");
+        }
+        if(self.currentSearch.length > 0 && this.value.length === 0){
+            document.getElementById('global-search')
+                .getElementsByClassName("fa-times-circle")[0].classList.add("hidden");
+        }
+        self.currentSearch = this.value;
+        // - send the event to app which triggers the search fucntion of 
+        //   the session
+        self.send("updateGlobalSearch")
+    }
+
+    function clickClearSearch(e){
+        console.log("Reset search, current value: ");
+        console.log(self.currentSearch);
+        // Clear search input
+        document.getElementById("global-search").getElementsByTagName("input")[0].value = "";
+        // Clear local search state
+        self.currentSearch = "";
+        // Clear the search data in the controller/model structures
+        self.send("clearGlobalSearch")
+    }
+
     function makeSearchField(project){
         if(!project){
             return
         }else{
             return yo`
-                <div id="search">
+                <div id="global-search">
                     <i class="fas fa-search"></i>
-                    <input class="" type="text" placeholder="Search...">
+                    <input class="" type="text" placeholder="Search..." onkeyup=${keyupGlobalSearch}>
+                    <i class="fas fa-times-circle hidden" onclick=${clickClearSearch}></i>
                 </div>
             `
         }

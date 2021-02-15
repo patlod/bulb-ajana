@@ -700,7 +700,8 @@ GraphEditorView.prototype.resetZoom = function(){
         scaleHeight = bounds_svg.height / bounds_vertices.height,
         SCALE_MARGIN = 0.1;
 
-    let rescale = (scaleWidth < scaleHeight) ? scaleWidth - SCALE_MARGIN : scaleHeight - SCALE_MARGIN;
+    //let rescale = (scaleWidth < scaleHeight) ? scaleWidth - SCALE_MARGIN : scaleHeight - SCALE_MARGIN;
+    let rescale = (scaleWidth < scaleHeight) ? scaleHeight : scaleWidth;
 
     let marginX = (bounds_svg.width - bounds_vertices.width * rescale) / 2,
         marginY = (bounds_svg.height - bounds_vertices.height * rescale) / 2;

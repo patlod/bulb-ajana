@@ -436,33 +436,11 @@ Project.prototype.selectNote = function(note){
 }
 
 /**
- * Fetch single note
- */
-Project.prototype.searchNote = function(){
-
-}
-
-/**
  * Fetch all tags
  */
 Project.prototype.getAllTags = function(){
   return this.tags
 }
-
-/**
- * Delete either single note or selection of notes
- */
-Project.prototype.addTag = function(){
-
-}
-
-/**
- * Delete either single note or selection of notes
- */
-Project.prototype.deleteTag = function(){
-
-}
-
 
 
 /**
