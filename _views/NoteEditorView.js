@@ -26,7 +26,7 @@ function NoteEditorView(target) {
 
   this.dirty_bit = false
 
-  this.currentSearch = ""
+  this.currentNeedle = ""
 }
 inherits(NoteEditorView, EventEmitterElement)
 
@@ -139,7 +139,7 @@ NoteEditorView.prototype.resetEditorState = function(){
   var self = this
 
   self.active_note = null;
-  self.currentSearch = "";
+  self.currentNeedle = "";
 
   if(self.tagify !== null){
     self.tagify.destroy();
@@ -163,6 +163,12 @@ NoteEditorView.prototype.toggleLocalSearch = function(){
   }
 }
 
+/**
+ * Converts the text of a note into format that is used by contenteditable.
+ */
+NoteEditorView.prototype.convertNoteTextContenteditable = function(){
+  // TODO
+}
 
 /**
  * Renders the NoteEditorView for a given project
@@ -200,7 +206,8 @@ NoteEditorView.prototype.render = function(project){
     console.log(this.value)
 
     // Save text to note object
-    self.active_note.text = this.value
+    self.active_note.text = this.value;
+    // document.getElementById('notepad-overlay').textContent = this.value;
 
     // Remove carriage returns and split at \newlines
     let chk = self.active_note.needThumbUpdate(self.selectionStart, self.selectionEnd)
@@ -248,36 +255,32 @@ NoteEditorView.prototype.render = function(project){
   function keyupLocalSearch(e){
     console.log("keyupLocalSearch");
     // - Change visibility of the x-cancel icon
-    if(self.currentSearch.length === 0 && this.value.length > 0){
+    if(self.currentNeedle.length === 0 && this.value.length > 0){
       document.getElementById('local-search')
         .getElementsByClassName("fa-times-circle")[0].classList.remove("hidden");
     }
-    if(self.currentSearch.length > 0 && this.value.length === 0){
+    if(self.currentNeedle.length > 0 && this.value.length === 0){
         document.getElementById('local-search')
           .getElementsByClassName("fa-times-circle")[0].classList.add("hidden");
     }
-    self.currentSearch = this.value;
-    // - send the event to app which triggers the search fucntion of 
-    //   the session
-    self.send("updateLocalSearch")
+    self.currentNeedle = this.value;
+    console.log(self.active_note.searchNoteText(this.value));
   }
 
   function clickClearLocalSearch(e){
     console.log("Clear local search, current value: ");
-    console.log(self.currentSearch);
+    console.log(self.currentNeedle);
     // Clear search input
-    let input = document.getElementById("local-search").getElementsByTagName("input")[0].value = "";
+    let input = document.getElementById("local-search").getElementsByTagName("input")[0]
+    input.value = "";
     input.focus();
     // Clear local search state
-    self.currentSearch = "";
+    self.currentNeedle = "";
     // Clear the search data in the controller/model structures
     self.send("clearLocalSearch")
   }
 
   function makeLocalSearchField(){
-    // if(!project){
-    //     return
-    // }else{
     return yo`
         <div id="local-search" class="hidden">
             <i class="fas fa-search"></i>
@@ -286,7 +289,6 @@ NoteEditorView.prototype.render = function(project){
             <i class="fas fa-times-circle hidden" onclick=${clickClearLocalSearch}></i>
         </div>
     `
-    // }
   }
 
   function makeColorPaletteDropdown(active_note){
@@ -380,7 +382,19 @@ NoteEditorView.prototype.render = function(project){
         oninput=${inputHandlerNotepad} 
         onkeyup=${keyupHandlerNotepad}
         onclick=${clickHandlerNotepad}>${self.active_note.getContent()}</textarea>
+        <div id="notepad-overlay" style="font-family: Verdana, Geneva; font-size: 10px" >
+          <div><span style="box-shadow: 0px 0px 0px 1px #000">Did</span> I create other note I didn't notice?</div>
+          <div><br/></div>
+          <div>This is now supposed to be longer note.</div>
+          <div><br/></div>
+          <div><br/></div>
+          <div>I need more text to test the scroll for the plane that will handle the highlighting of words..</div>
+          <div><br/></div>
+          <div>This is necessary to</div>
+          
+        </div>
       </div>
+      
     </div>
   `
 

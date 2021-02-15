@@ -62,8 +62,8 @@ Project.prototype.loadData = function(){
   this.tags = this.db.getProjectTags()
   this.notes = this.loadNotes()
   this.graphs = this.loadGraphs()
-  console.log("Project grahps")
-  console.log(this.graphs)
+  // console.log("Project grahps")
+  // console.log(this.graphs)
 }
 
 /**
@@ -440,6 +440,21 @@ Project.prototype.selectNote = function(note){
  */
 Project.prototype.getAllTags = function(){
   return this.tags
+}
+
+Project.prototype.searchAllNotes = function(needle){
+  let results = [],
+      cur = null;
+  for(var i in this.notes){
+    cur = this.notes[i].searchNoteText(needle);
+    if(cur.length > 0){
+      results.push({
+        note: this.notes[i], 
+        result: cur
+      })
+    }
+  }
+  return results;
 }
 
 

@@ -436,12 +436,15 @@ function App(el){
     self.views.notes.updateNoteThmbColor(note)
   })
 
-  self.on('updateGlobalSearch', function(){
-    // - Execute search functions in session -> project -> note
+  self.on('updateGlobalSearch', function(needle){
+    self.session.GLOBAL_SEARCH_ACTIVE = true;
+    render();
   });
   self.on('clearGlobalSearch', function(){
     // - Clear the search state in the session.
+    self.session.GLOBAL_SEARCH_ACTIVE = false;
   });
+
 /* ============================================================================== */
 /*  Graph Event Listeners                                                         */
 /* ============================================================================== */

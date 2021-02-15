@@ -1,6 +1,6 @@
-const fs = require('fs')
-const low = require('lowdb')
-const FileSync = require('lowdb/adapters/FileSync')
+const fs = require('fs');
+const low = require('lowdb');
+const FileSync = require('lowdb/adapters/FileSync');
 const FileDatabase = require('../_models/FileDatabase');
 //const FileDatabaseManager = require('../_models/FileDatabaseManager')
 

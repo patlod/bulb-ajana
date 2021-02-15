@@ -116,7 +116,7 @@ TitlebarView.prototype.render = function (session) {
         self.currentSearch = this.value;
         // - send the event to app which triggers the search fucntion of 
         //   the session
-        self.send("updateGlobalSearch")
+        self.send("updateGlobalSearch", this.value);
     }
 
     function clickClearSearch(e){

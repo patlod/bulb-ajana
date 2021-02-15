@@ -1,12 +1,4 @@
-const { hasUncaughtExceptionCaptureCallback } = require('process');
-const { equal } = require('assert');
-const { TestScheduler } = require('jest');
-
-//const { Note } = require('../_controllers/Note')
-
-
-
-
+const Note = require('../_controllers/note');
 
 
 beforeAll(() => {  
@@ -54,4 +46,21 @@ test('compareTo', () => {
 
   console.log(JSON.stringify(n1_json) === JSON.stringify(n2_json))
 
+})
+
+test('searchNoteText', () => {
+  let note, results, OCCURENCES;
+
+  // 26, 
+  OCCURENCES = 5;
+
+  note = new Note(null);
+  note.text = "This is dummy text, which dumb. Not saying anything. Of course you would never write such a dumb text but how do you test a text based functionality without a meaningless dumb text that does not say anything for the sake of staying neutral in the interest of all neutral participants. Depending on the perspective 'dumb' is not a neutral word, but in this context it does not reference anything else than the note text which is fine, because it is indeed dumb, thus it says nothing but the truth.";
+
+  results = note.searchNoteText("dumb");
+
+  console.log(results);
+
+  //expect(results.needle).toEqual('dumb');
+  expect(results.length).toEqual(OCCURENCES);
 })

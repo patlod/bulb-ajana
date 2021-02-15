@@ -1,6 +1,7 @@
 module.exports = Note
 
 const FileDatabaseManager = require('../_models/FileDatabaseManager')
+const StringFormatter = require('../_util/StringFormatter')
 
 function Note(project, data = FileDatabaseManager.getEmptyNoteJSON()) 
 {
@@ -117,6 +118,22 @@ Note.prototype.updateTag = function(new_val, pre_val){
  */
 Note.prototype.getTags = function(){
   return this.tags
+}
+
+/**
+ * Searches the note text for a specific string and returns an array with indices
+ * of the needles in the haystack.
+ * 
+ * NOTE: Search settings are not implemented. So for now the search will be:
+ *    - ignoring case
+ *    - wrap around
+ *    - "contains" i.e. no matter where in the word.
+ * 
+ * @param {String} str -- The string to be searched for in the text
+ */
+Note.prototype.searchNoteText = function(needle){
+  return StringFormatter.getIndicesOf(needle, this.text, false);
+
 }
 
 /* ======================================================= */

@@ -20,10 +20,11 @@
 }
 
 .note-content-wrap{
+  position: relative;
   background-color: #e8e8e8; /*#E4E4E4;*/
 }
 .note-content-ctrls{
-  display: inline-block;
+  display: block;
   width: 100%;
   padding-top: 0.4em;
   padding-bottom: 0.25em;
@@ -112,9 +113,11 @@
   resize: none;
   outline: none;
   overflow: auto;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
   font-size: 11px !important;
   display: block;
   position: relative;
+  z-index: 1;
   bottom: 0px;
   width: 100%;
   height: 26px;
@@ -125,4 +128,23 @@
   background-color: inherit;
   -webkit-box-shadow: 1px 6px 12px -8px #000000; 
   box-shadow: 1px 6px 12px -8px #000000;
+  line-height: 1.1em;
+  
+}
+
+#notepad-overlay {
+  font-family: Verdana, Geneva, Tahoma, sans-serif !important;
+  font-size: 11px !important;
+  -webkit-appearance: textarea;
+  font: -webkit-small-control;
+  padding-top: 0.23em;
+  padding-left: 1.0em;
+  padding-right: 1.0em;
+  padding-bottom: 0.63em;
+  /*height: 400px;*/
+  line-height: 1.1em;
+  position: absolute;
+  z-index: 20;
+  width: 100%;
+  top: 2.05em;
 }
