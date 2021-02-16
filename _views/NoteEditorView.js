@@ -166,21 +166,43 @@ NoteEditorView.prototype.toggleLocalSearch = function(){
 }
 
 /**
- * Converts the text of a note into format that is used by contenteditable.
+ * Converts the text of a note into format that is used by 'contenteditable'
+ * elements.
+ * 
+ * Format: 
+ *  - Each paragraph is wrapped in <div></div>
+ *  - New lines are <br/>
+ *  
+ * Example:
+ * "Lorem ipsum,\n\netsum masum.\n"
+ * ..translates to..
+ * <div>Lorem ipsum,</div>
+ * <div><br/></div>
+ * <div>etsum masum.</div>
+ * 
+ * @param {TextSearchIterator} iterator -- Iterator that wraps the result of the text search
+ * @param {string} text -- The text that was searched.
  */
-NoteEditorView.prototype.makeSearchOverlayContent = function(search_iterator, text, case_sensitive = false){
-  let i,
-      nStr = text,
-      html_str = "", split_html_str,
-      res_iter = search_iterator.results,
-      needle = search_iterator.needle;
+NoteEditorView.prototype.makeSearchOverlayContent = function(iterator, case_sensitive = false){
+  let i, clip_length = 0, cur_clip, next_idx, offset_idx,
+      nStr = iterator.haystack,
+      needle = iterator.needle,
+      html_str = "", split_html_str;
+      
+  // Fetch first needle index
+  next_idx = iterator.next()
+  while(next_idx !== null){
 
-  for(i in res_iter){
-    html_str += nStr.substring(0, res_iter[i]);
-    html_str += "<span class='needle-marker'>" + nStr.substring(res_iter[i], needle.length) + "</span>"
-    nStr = nStr.substring(res_iter[i] + needle.length, nStr.length);
+    offset_idx = next_idx - clip_length;
+    cur_clip = nStr.substring(0, offset_idx);
+    html_str += cur_clip
+    html_str += "<span class='needle-marker'>" + nStr.substring(offset_idx, offset_idx + needle.length) + "</span>"
+    nStr = nStr.substring(offset_idx + needle.length, nStr.length);
+    clip_length += cur_clip.length + needle.length;
+    next_idx = iterator.next();
   }
   html_str += nStr;
+  
   split_html_str = StringFormatter.splitAtNewLine(html_str);
   for(i in split_html_str){
     if(split_html_str[i].length > 0){
@@ -261,8 +283,6 @@ NoteEditorView.prototype.render = function(project){
   }
 
   function clickHandlerNotepad(e){
-    // console.log("Click, selectionStart: " + this.selectionStart)
-    // console.log("Click, selectionEnd: " + this.selectionEnd)
     self.selectionStart = this.selectionStart
     self.selectionEnd = this.selectionEnd
   }
@@ -280,26 +300,28 @@ NoteEditorView.prototype.render = function(project){
 
   function keyupLocalSearch(e){
     console.log("keyupLocalSearch");
-    // - Change visibility of the x-cancel icon
+    // Change visibility of the x-cancel icon
+    let search_in_el = document.getElementById('local-search');
     if(self.current_search !== null && self.current_search.needle.length === 0 && this.value.length > 0){
-      document.getElementById('local-search')
-        .getElementsByClassName("fa-times-circle")[0].classList.remove("hidden");
+      search_in_el.getElementsByClassName("right-ctrls")[0].classList.remove("hidden");
+      
     }
     if(self.current_search !== null && self.current_search.needle.length > 0 && this.value.length === 0){
-        document.getElementById('local-search')
-          .getElementsByClassName("fa-times-circle")[0].classList.add("hidden");
+      search_in_el.getElementsByClassName("right-ctrls")[0].classList.add("hidden");
     }
     
     let search = self.active_note.searchNoteText(this.value)
-    self.current_search = new TextSearchIterator(this.value, search)
+    self.current_search = new TextSearchIterator(this.value, self.active_note.text, search)
+    search_in_el.getElementsByClassName('needle-count')[0].textContent = self.current_search.size();
     // TODO: Update the matches counter in the search field..
     let overlay = document.getElementById('notepad-overlay');
     if(search.length > 0){
-      // TODO: Fill the notepad overlay with content
-      overlay.innerHTML = self.makeSearchOverlayContent(self.current_search, self.active_note.text);
-      // TODO: Trigger the textarea overlay
+      // Fill the notepad overlay with content
+      overlay.innerHTML = self.makeSearchOverlayContent(self.current_search);
+      // Trigger the textarea overlay
       overlay.classList.remove('hidden');
     }else{
+      // Hide textarea overlay
       if(!overlay.classList.contains('hidden')){
         overlay.classList.add('hidden');
       }
@@ -317,6 +339,16 @@ NoteEditorView.prototype.render = function(project){
     input.focus();
     // Clear local search state
     self.current_search = null;
+    // Hide textarea overlay
+    let overlay = document.getElementById('notepad-overlay');
+    if(!overlay.classList.contains('hidden')){
+      overlay.innerHTML = '';
+      overlay.classList.add('hidden');
+    }
+    let right_ctrls = input.getElementsByClassName('right-ctrls')[0].classList.contains('hidden')
+    if(!right_ctrls){
+      right_ctrls.classList.add('hidden');
+    }
   }
 
   function makeLocalSearchField(){
@@ -324,8 +356,10 @@ NoteEditorView.prototype.render = function(project){
         <div id="local-search" class="hidden">
             <i class="fas fa-search"></i>
             <input class="" type="text" placeholder="Search..." onkeyup=${keyupLocalSearch}>
-            <span id="counter"></span>
-            <i class="fas fa-times-circle hidden" onclick=${clickClearLocalSearch}></i>
+            <div class="right-ctrls">
+              <span class="needle-count hidden"></span>  
+              <i class="fas fa-times-circle hidden" onclick=${clickClearLocalSearch}></i>
+            </div>
         </div>
     `
   }
@@ -421,16 +455,7 @@ NoteEditorView.prototype.render = function(project){
         oninput=${inputHandlerNotepad} 
         onkeyup=${keyupHandlerNotepad}
         onclick=${clickHandlerNotepad}>${self.active_note.getContent()}</textarea>
-        <div id="notepad-overlay" onclick=${clickNotepadOverlay}>
-          <div><span class="needle-marker">Did</span> I create other note I didn't notice?</div>
-          <div><br/></div>
-          <div>This is now supposed to be longer note.</div>
-          <div><br/></div>
-          <div><br/></div>
-          <div>I need more text to test the scroll for the plane that will handle the highlighting of words..</div>
-          <div><br/></div>
-          <div>This is necessary to</div>
-        </div>
+        <div id="notepad-overlay" class="hidden" onclick=${clickNotepadOverlay}></div>
       </div>
       
     </div>

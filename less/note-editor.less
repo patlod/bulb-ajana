@@ -74,6 +74,7 @@
 }
 
 #local-search {
+  font-size: 10px;
   display: inline-block;
   float: left;
   position: relative;
@@ -104,17 +105,22 @@
   top: 0.25em;
   color: #666666;
 }
-#local-search > .fa-times-circle {
+#local-search > .right-ctrls {
   position: absolute;
   right: 0.2em;
-  top: 0.25em;
+  top: 0em;
   color: #666666;
 }
-#local-search > .fa-times-circle.hidden {
+#local-search > .right-ctrls.hidden {
   display: none;
 }
+
 .needle-marker{
   box-shadow: 0px 0px 0px 1px #000;
+}
+.needle-marker.selected {
+  background: white;
+  color: black;
 }
 
 .note-content {
