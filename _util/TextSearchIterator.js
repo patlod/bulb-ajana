@@ -14,11 +14,17 @@ TextSearchIterator.prototype.prev__Linear = function(){
   return (this.index - 1 >= 0) ? this.results[++this.index] : null;
 }
 TextSearchIterator.prototype.next__Ring = function(){
+  if(this.index >= this.results.length){
+    this.index = this.index % this.results.length
+  }
   let res = this.results[this.index]
   this.index = (this.index + 1) % this.results.length;
   return res
 }
 TextSearchIterator.prototype.prev__Ring = function(){
+  if(this.index >= this.results.length){
+    this.index = this.index % this.results.length
+  }
   let res = this.results[this.index]
   this.index = (this.index - 1) % this.results.length;
   return res
