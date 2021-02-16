@@ -27,7 +27,13 @@
   display: block;
   width: 100%;
   padding-top: 0.4em;
-  padding-bottom: 0.25em;
+  padding-bottom: 0.4em;
+  z-index: 0;
+}
+.note-content-ctrls:after{
+  display: block;
+  content: "";
+  clear: both;
 }
 #note-color-dp {
   display: inline-block;
@@ -89,7 +95,7 @@
   width: 100%;
 }
 #local-search > input:focus{
-  box-shadow: 0px 0px 0px 2px #666666;
+  box-shadow: 0px 0px 0px 1px #666666;
   outline: none;
 }
 #local-search > .fa-search {
@@ -107,6 +113,9 @@
 #local-search > .fa-times-circle.hidden {
   display: none;
 }
+.needle-marker{
+  box-shadow: 0px 0px 0px 1px #000;
+}
 
 .note-content {
   border-style: none;
@@ -117,7 +126,7 @@
   font-size: 11px !important;
   display: block;
   position: relative;
-  z-index: 1;
+  z-index: 0;
   bottom: 0px;
   width: 100%;
   height: 26px;
@@ -146,5 +155,9 @@
   position: absolute;
   z-index: 20;
   width: 100%;
-  top: 2.05em;
+  top: 2.4em;
+  color: rgba(0, 0, 0, 0)
+}
+#notepad-overlay.hidden {
+  display: none;
 }

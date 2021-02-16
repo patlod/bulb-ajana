@@ -1,13 +1,15 @@
 module.exports = NoteEditorView
 
-const EventEmitterElement = require('../_app/EventEmitterElement')
-var inherits = require('util').inherits
+const EventEmitterElement = require('../_app/EventEmitterElement');
+var inherits = require('util').inherits;
 
-const yo = require('yo-yo')
-const Tagify = require('@yaireo/tagify')
-const DateFormatter = require('../_util/DateFormatter')
-const UnitConverter = require('../_util/UnitConverter')
-const CSSProcessor = require('../_util/CSSProcessor')
+const yo = require('yo-yo');
+const Tagify = require('@yaireo/tagify');
+const DateFormatter = require('../_util/DateFormatter');
+const UnitConverter = require('../_util/UnitConverter');
+const CSSProcessor = require('../_util/CSSProcessor');
+const StringFormatter = require('../_util/StringFormatter');
+const TextSearchIterator = require('../_util/TextSearchIterator');
 
 
 function NoteEditorView(target) {
@@ -26,7 +28,7 @@ function NoteEditorView(target) {
 
   this.dirty_bit = false
 
-  this.currentNeedle = ""
+  this.current_search = null
 }
 inherits(NoteEditorView, EventEmitterElement)
 
@@ -139,7 +141,7 @@ NoteEditorView.prototype.resetEditorState = function(){
   var self = this
 
   self.active_note = null;
-  self.currentNeedle = "";
+  self.current_search = null;
 
   if(self.tagify !== null){
     self.tagify.destroy();
@@ -166,8 +168,28 @@ NoteEditorView.prototype.toggleLocalSearch = function(){
 /**
  * Converts the text of a note into format that is used by contenteditable.
  */
-NoteEditorView.prototype.convertNoteTextContenteditable = function(){
-  // TODO
+NoteEditorView.prototype.makeSearchOverlayContent = function(search_iterator, text, case_sensitive = false){
+  let i,
+      nStr = text,
+      html_str = "", split_html_str,
+      res_iter = search_iterator.results,
+      needle = search_iterator.needle;
+
+  for(i in res_iter){
+    html_str += nStr.substring(0, res_iter[i]);
+    html_str += "<span class='needle-marker'>" + nStr.substring(res_iter[i], needle.length) + "</span>"
+    nStr = nStr.substring(res_iter[i] + needle.length, nStr.length);
+  }
+  html_str += nStr;
+  split_html_str = StringFormatter.splitAtNewLine(html_str);
+  for(i in split_html_str){
+    if(split_html_str[i].length > 0){
+      split_html_str[i] = "<div>" + split_html_str[i] + "</div>";
+    }else{
+      split_html_str[i] = "<div><br/></div>";
+    }
+  }
+  return split_html_str.join('');
 }
 
 /**
@@ -249,35 +271,52 @@ NoteEditorView.prototype.render = function(project){
     self.send("toggleEditorDate");
   }
 
+  function clickNotepadOverlay(e){
+    this.classList.add('hidden');
+  }
+
   /* ====================================================================== */
   /* ====================================================================== */
 
   function keyupLocalSearch(e){
     console.log("keyupLocalSearch");
     // - Change visibility of the x-cancel icon
-    if(self.currentNeedle.length === 0 && this.value.length > 0){
+    if(self.current_search !== null && self.current_search.needle.length === 0 && this.value.length > 0){
       document.getElementById('local-search')
         .getElementsByClassName("fa-times-circle")[0].classList.remove("hidden");
     }
-    if(self.currentNeedle.length > 0 && this.value.length === 0){
+    if(self.current_search !== null && self.current_search.needle.length > 0 && this.value.length === 0){
         document.getElementById('local-search')
           .getElementsByClassName("fa-times-circle")[0].classList.add("hidden");
     }
-    self.currentNeedle = this.value;
-    console.log(self.active_note.searchNoteText(this.value));
+    
+    let search = self.active_note.searchNoteText(this.value)
+    self.current_search = new TextSearchIterator(this.value, search)
+    // TODO: Update the matches counter in the search field..
+    let overlay = document.getElementById('notepad-overlay');
+    if(search.length > 0){
+      // TODO: Fill the notepad overlay with content
+      overlay.innerHTML = self.makeSearchOverlayContent(self.current_search, self.active_note.text);
+      // TODO: Trigger the textarea overlay
+      overlay.classList.remove('hidden');
+    }else{
+      if(!overlay.classList.contains('hidden')){
+        overlay.classList.add('hidden');
+      }
+        
+    }
+    
   }
 
   function clickClearLocalSearch(e){
     console.log("Clear local search, current value: ");
-    console.log(self.currentNeedle);
+    console.log(self.current_search);
     // Clear search input
     let input = document.getElementById("local-search").getElementsByTagName("input")[0]
     input.value = "";
     input.focus();
     // Clear local search state
-    self.currentNeedle = "";
-    // Clear the search data in the controller/model structures
-    self.send("clearLocalSearch")
+    self.current_search = null;
   }
 
   function makeLocalSearchField(){
@@ -382,8 +421,8 @@ NoteEditorView.prototype.render = function(project){
         oninput=${inputHandlerNotepad} 
         onkeyup=${keyupHandlerNotepad}
         onclick=${clickHandlerNotepad}>${self.active_note.getContent()}</textarea>
-        <div id="notepad-overlay" style="font-family: Verdana, Geneva; font-size: 10px" >
-          <div><span style="box-shadow: 0px 0px 0px 1px #000">Did</span> I create other note I didn't notice?</div>
+        <div id="notepad-overlay" onclick=${clickNotepadOverlay}>
+          <div><span class="needle-marker">Did</span> I create other note I didn't notice?</div>
           <div><br/></div>
           <div>This is now supposed to be longer note.</div>
           <div><br/></div>
@@ -391,7 +430,6 @@ NoteEditorView.prototype.render = function(project){
           <div>I need more text to test the scroll for the plane that will handle the highlighting of words..</div>
           <div><br/></div>
           <div>This is necessary to</div>
-          
         </div>
       </div>
       

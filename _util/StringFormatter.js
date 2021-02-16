@@ -27,6 +27,17 @@ var StringFormatter = {
         startIndex = index + needleStrLength;
     }
     return indices;
+  },
+  
+  /**
+   * Splits string at new line and returns array with text blocks.
+   * 
+   * NOTE: Also removes the carriage returns \r
+   * 
+   * @param {*} string 
+   */
+  splitAtNewLine: function(string){
+    return string.replace(/\r/g, "").split(/\n/g)
   }
 }
 
