@@ -570,7 +570,7 @@ body {
   /*height: 400px;*/
   line-height: 1.1em;
   position: absolute;
-  z-index: 20;
+  z-index: 2;
   width: 100%;
   top: 2.4em;
   color: rgba(0, 0, 0, 0);
