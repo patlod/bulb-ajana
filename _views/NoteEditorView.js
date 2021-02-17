@@ -10,6 +10,7 @@ const UnitConverter = require('../_util/UnitConverter');
 const CSSProcessor = require('../_util/CSSProcessor');
 const StringFormatter = require('../_util/StringFormatter');
 const TextSearchIterator = require('../_util/TextSearchIterator');
+const NoteEditorSearch = require('./NoteEditorSearch');
 
 
 function NoteEditorView(target) {
@@ -28,7 +29,7 @@ function NoteEditorView(target) {
 
   this.dirty_bit = false
 
-  this.current_search = null
+  this.search = null;
 }
 inherits(NoteEditorView, EventEmitterElement)
 
@@ -134,6 +135,9 @@ NoteEditorView.prototype.resizeElementByContent = function(el){
   el.style.height = el.scrollHeight.toString() + "px"
 }
 
+NoteEditorView.prototype.resetSearch = function(){
+  self.search = null;
+}
 /**
  * Resets the editor before new content is loaded.
  */
@@ -141,7 +145,6 @@ NoteEditorView.prototype.resetEditorState = function(){
   var self = this
 
   self.active_note = null;
-  self.current_search = null;
 
   if(self.tagify !== null){
     self.tagify.destroy();
@@ -163,55 +166,6 @@ NoteEditorView.prototype.toggleLocalSearch = function(){
       el.getElementsByTagName('input')[0].focus();
     }
   }
-}
-
-/**
- * Converts the text of a note into format that is used by 'contenteditable'
- * elements.
- * 
- * Format: 
- *  - Each paragraph is wrapped in <div></div>
- *  - New lines are <br/>
- *  
- * Example:
- * "Lorem ipsum,\n\netsum masum.\n"
- * ..translates to..
- * <div>Lorem ipsum,</div>
- * <div><br/></div>
- * <div>etsum masum.</div>
- * 
- * @param {TextSearchIterator} iterator -- Iterator that wraps the result of the text search
- * @param {string} text -- The text that was searched.
- */
-NoteEditorView.prototype.makeSearchOverlayContent = function(iterator, case_sensitive = false){
-  let i, clip_length = 0, cur_clip, next_idx, offset_idx,
-      nStr = iterator.haystack,
-      needle = iterator.needle,
-      html_str = "", split_html_str;
-      
-  // Fetch first needle index
-  next_idx = iterator.next()
-  while(next_idx !== null){
-
-    offset_idx = next_idx - clip_length;
-    cur_clip = nStr.substring(0, offset_idx);
-    html_str += cur_clip
-    html_str += "<span class='needle-marker'>" + nStr.substring(offset_idx, offset_idx + needle.length) + "</span>"
-    nStr = nStr.substring(offset_idx + needle.length, nStr.length);
-    clip_length += cur_clip.length + needle.length;
-    next_idx = iterator.next();
-  }
-  html_str += nStr;
-  
-  split_html_str = StringFormatter.splitAtNewLine(html_str);
-  for(i in split_html_str){
-    if(split_html_str[i].length > 0){
-      split_html_str[i] = "<div>" + split_html_str[i] + "</div>";
-    }else{
-      split_html_str[i] = "<div><br/></div>";
-    }
-  }
-  return split_html_str.join('');
 }
 
 /**
@@ -297,57 +251,83 @@ NoteEditorView.prototype.render = function(project){
 
   /* ====================================================================== */
   /* ====================================================================== */
-
+  function focusLocalSearch(){
+    if(self.search !== null){
+      self.search.showOverlay();
+    }
+  }
   function keyupLocalSearch(e){
     console.log("keyupLocalSearch");
     // Change visibility of the x-cancel icon
+    if(e.key === "Enter"){
+      if(e.getModifierState("Shift")){
+        clickSearchPrev();
+      }else{
+        clickSearchNext();
+      }
+      return;
+    }
     let search_in_el = document.getElementById('local-search');
-    if(self.current_search !== null && self.current_search.needle.length === 0 && this.value.length > 0){
+    if(self.search !== null && self.search.iterator.needle.length === 0 && this.value.length > 0){
       search_in_el.getElementsByClassName("right-ctrls")[0].classList.remove("hidden");
       
     }
-    if(self.current_search !== null && self.current_search.needle.length > 0 && this.value.length === 0){
+    if(self.search !== null && self.search.iterator.needle.length > 0 && this.value.length === 0){
       search_in_el.getElementsByClassName("right-ctrls")[0].classList.add("hidden");
     }
     
-    let search = self.active_note.searchNoteText(this.value)
-    self.current_search = new TextSearchIterator(this.value, self.active_note.text, search)
-    search_in_el.getElementsByClassName('needle-count')[0].textContent = self.current_search.size();
-    // TODO: Update the matches counter in the search field..
-    let overlay = document.getElementById('notepad-overlay');
-    if(search.length > 0){
+    let needles = self.active_note.searchNoteText(this.value)
+    self.search = new NoteEditorSearch(
+      new TextSearchIterator(this.value, self.active_note.text, needles),
+      document.getElementById('notepad-overlay')
+    );
+    console.log(needles);
+    // Update the needle counter..
+    search_in_el.getElementsByClassName('needle-count')[0].textContent = self.search.iterator.size();
+    if(needles.length > 0){
       // Fill the notepad overlay with content
-      overlay.innerHTML = self.makeSearchOverlayContent(self.current_search);
+      self.search.loadOverlayContent();
       // Trigger the textarea overlay
-      overlay.classList.remove('hidden');
+      self.search.showOverlay();
+      self.search.gotoNextNeedle();
     }else{
       // Hide textarea overlay
-      if(!overlay.classList.contains('hidden')){
-        overlay.classList.add('hidden');
-      }
-        
+      self.search.hideOverlay(); 
     }
     
   }
 
   function clickClearLocalSearch(e){
     console.log("Clear local search, current value: ");
-    console.log(self.current_search);
+    console.log(self.search);
     // Clear search input
-    let input = document.getElementById("local-search").getElementsByTagName("input")[0]
+    let input = document.getElementById("local-search").getElementsByTagName("input")[0];
     input.value = "";
     input.focus();
+
     // Clear local search state
-    self.current_search = null;
-    // Hide textarea overlay
-    let overlay = document.getElementById('notepad-overlay');
-    if(!overlay.classList.contains('hidden')){
-      overlay.innerHTML = '';
-      overlay.classList.add('hidden');
-    }
-    let right_ctrls = input.getElementsByClassName('right-ctrls')[0].classList.contains('hidden')
-    if(!right_ctrls){
+    self.search.clearOverlayContent();
+    self.search.hideOverlay();
+
+    self.search = null;
+    
+    let right_ctrls = this.parentNode; 
+    if(right_ctrls && !right_ctrls.classList.contains('hidden')){
       right_ctrls.classList.add('hidden');
+    }
+  }
+
+  function clickSearchPrev(){
+    console.log("clickSearchPrev");
+    if(self.search !== null){
+      self.search.gotoPrevNeedle();
+    }
+  }
+
+  function clickSearchNext(){
+    console.log("clickSearchNext");
+    if(self.search !== null){
+      self.search.gotoNextNeedle();
     }
   }
 
@@ -355,8 +335,10 @@ NoteEditorView.prototype.render = function(project){
     return yo`
         <div id="local-search" class="hidden">
             <i class="fas fa-search"></i>
-            <input class="" type="text" placeholder="Search..." onkeyup=${keyupLocalSearch}>
+            <input type="text" placeholder="Search..." value="" onkeyup=${keyupLocalSearch} onfocus=${focusLocalSearch}>
             <div class="right-ctrls">
+              <span id="loc-search-prev" onclick=${clickSearchPrev}><i class="fas fa-chevron-left"></i></span>
+              <span id="loc-search-next" onclick=${clickSearchNext}><i class="fas fa-chevron-right"></i></span>
               <span class="needle-count hidden"></span>  
               <i class="fas fa-times-circle hidden" onclick=${clickClearLocalSearch}></i>
             </div>
