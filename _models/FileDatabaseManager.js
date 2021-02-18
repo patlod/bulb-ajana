@@ -48,6 +48,13 @@ var FileDatabaseManager = {
       uuid:       uuidv4(),
       created:    Date.now(),
       modified:   Date.now(),
+      position:  {
+        translate: {
+          x: 0,
+          y: 0,
+        },
+        scale: 1
+      },
       vertices:   [],
       edges:      []
     }

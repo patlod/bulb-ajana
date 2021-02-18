@@ -7,6 +7,7 @@ const FileSync = require('lowdb/adapters/FileSync')
 
 const { v4: uuidv4 } = require('uuid')
 const FileDatabaseManager = require('./FileDatabaseManager')
+const { position } = require('custom-electron-titlebar/lib/common/dom')
 
 /**
  * TODO Refactoring:
@@ -508,6 +509,14 @@ FileDatabase.prototype.insertGraph = function(graph){
   if(!s){
     this.db.get('graphs').push(graph).write()
   }
+}
+
+FileDatabase.prototype.updateGraphPosition = function(graph_id, position){
+  this.db.read();
+  this.db.get('graphs').find({uuid: graph_id}).assign({position: {
+    translate: { x: position.translate.x, y: position.translate.y},
+    scale: position.scale
+  }}).write()
 }
 
 FileDatabase.prototype.selectAllGraphs = function(){

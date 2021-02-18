@@ -281,15 +281,20 @@ function App(el){
 
   function transToGraphEditor(){
     let active_p = self.session.getActiveProject();
-    self.session.setGraphMode(true)
-    render()
+    if(!active_p.getGraphMode()){
+      self.session.setGraphMode(true);
+      render();
+    }
   }
   self.on('transToGraphEditor', transToGraphEditor)
 
   function transToNoteEditor(){
-    self.session.setGraphMode(false)
-    self.views.graph.takedown()
-    render()
+    let active_p = self.session.getActiveProject();
+    if(active_p.getGraphMode()){
+      self.session.setGraphMode(false);
+      self.views.graph.takedown();
+      render();
+    }
   }
   self.on('transToNoteEditor', transToNoteEditor)
 

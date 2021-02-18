@@ -13,6 +13,7 @@ function Graph(project, data = FileDatabaseManager.getEmptyGraphJSON())
   this.uuid = data.uuid
   this.created = data.created
   // this.modified = data.modified
+  this.position = data.position
   this.vertices = data.vertices
   this.edges = data.edges
 
@@ -32,6 +33,10 @@ Graph.prototype.saveData = function(){
   this.getDB().insertGraph(this.getGraphJSON())
 }
 
+Graph.prototype.savePosition = function(){
+  console.log("Graph - savePosition")
+  this.getDB().updateGraphPosition(this.uuid, this.position);
+}
 
 Graph.prototype.getVertices = function(){
   return this.vertices
@@ -259,6 +264,7 @@ Graph.prototype.getGraphJSON = function(){
   return {
     uuid:       this.uuid,
     created:    this.created,
+    position:   this.position,
     vertices:   this.vertices,
     edges:      this.edges
   }

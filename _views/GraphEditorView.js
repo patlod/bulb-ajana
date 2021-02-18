@@ -19,8 +19,10 @@ function GraphEditorView(target) {
   var self = this
   EventEmitterElement.call(this, target)
 
-  this.globalTimeout = null
-  this.POSITION_SAVE_INTERVAL = 3000   // Save repositioning the vertices every 3s
+  this.dragTimeout = null;
+  this.POSITION_SAVE_INTERVAL = 3000;   // Save repositioning the vertices every 3s
+  this.zoomTimeout = null;
+  this.ZOOM_TIMER_INTERVAL = 500;
 
   // this.dirty_bit = false
   this.dirty_vertices = []
@@ -60,8 +62,11 @@ GraphEditorView.prototype.init = function(svg){
 
   console.log("GraphEditorView init()...")
   
-  if (self.globalTimeout !== null) {
-    clearTimeout(self.globalTimeout);
+  if (self.dragTimeout !== null) {
+    clearTimeout(self.dragTimeout);
+  }
+  if (self.zoomTimeout !== null){
+    clearTimeout(self.zoomTimeout);
   }
 
   self.paths = null
@@ -146,11 +151,11 @@ GraphEditorView.prototype.init = function(svg){
           }
           
           // Set/Reset timer for writing to database
-          if (self.globalTimeout !== null) {
-            clearTimeout(self.globalTimeout);
+          if (self.dragTimeout !== null) {
+            clearTimeout(self.dragTimeout);
           }
-          self.globalTimeout = setTimeout(function() {
-            self.globalTimeout = null;  
+          self.dragTimeout = setTimeout(function() {
+            self.dragTimeout = null;  
 
             console.log("TIMEOUT: Writing dirty vertices to database.")
             for(var i in self.dirty_vertices){
@@ -619,6 +624,12 @@ GraphEditorView.prototype.updateGraph = function(graphController = null){
   // console.log("Local vertex data self.circles:")
   // console.log(self.circles)
   // console.log(self.paths)
+
+  self.setGraphPosition(
+    self.graph.position.translate.x,
+    self.graph.position.translate.y,
+    self.graph.position.scale
+    );
   
   self.applyProjectSearch(active_project.search);
 
@@ -630,23 +641,48 @@ GraphEditorView.prototype.updateGraph = function(graphController = null){
 
 GraphEditorView.prototype.zoomed = function(){
   let self = this;
+
   this.state.justScaleTransGraph = true;
+
   console.log("d3.event.translate")
   console.log(d3.event.translate)
   console.log("D3 event scale")
   console.log(d3.event.scale)
-  let trans_setting = "translate(" + d3.event.translate + ") ";
-  if(d3.event.scale < 0.015){
+
+  let d3_translate = d3.event.translate,
+      d3_scale = d3.event.scale;
+  let trans_setting = "translate(" + d3_translate + ") ";
+  if(d3_scale < 0.015){
     self.dragSvg.scale(0.015);
     trans_setting += "scale(0.015)";
-  }else if(d3.event.scale > 5){
+  }else if(d3_scale > 5){
     self.dragSvg.scale(5);
     trans_setting += "scale(5)";
   }else{
-    trans_setting += "scale(" + d3.event.scale + ")";
+    trans_setting += "scale(" + d3_scale + ")";
   }
+  // Set graph to d3 transformation values
   d3.select("." + this.consts.graphClass)
     .attr("transform", trans_setting);
+
+  // Set/Reset timer for writing graph position database
+  if (self.zoomTimeout !== null) {
+    clearTimeout(self.zoomTimeout);
+  }
+  self.zoomTimeout = setTimeout(function() {
+    self.zoomTimeout = null;  
+
+    // Set data in controller and database
+    self.graph.position = {
+      translate: {
+        x: d3_translate[0],
+        y: d3_translate[1]
+      },
+      scale: d3_scale
+    }
+    self.graph.savePosition();
+
+  }, self.ZOOM_TIMER_INTERVAL);  
 };
 
 GraphEditorView.prototype.updateWindow = function(){
@@ -724,11 +760,24 @@ GraphEditorView.prototype.resetZoom = function(){
     let transX = -bounds_vertices.startX * rescale
         transY = -bounds_vertices.startY * rescale
     // let transX = (-bounds_vertices.startX < 0) ? -bounds_vertices.startX * rescale + marginX : -bounds_vertices.startX * rescale - marginX,
-    //     transY = (-bounds_vertices.startY < 0) ? -bounds_vertices.startY * rescale - marginY : -bounds_vertices.startY * rescale + marginY;
-
-    d3.select("." + self.consts.graphClass).attr("transform", "translate(" + transX + "," + transY + ") scale(" + rescale + ")");
-      self.dragSvg.translate([ transX, transY ]).scale(rescale);
+    //     transY = (-bounds_vertices.startY < 0) ? -bounds_vertices.startY * rescale - marginY : -bounds_vertices.startY * rescale + marginY;    
     
+    self.setGraphPosition(transX, transY, rescale);
+    // Update the controllers
+    self.graph.position = {
+      translate: {
+        x: transX,
+        y: transY
+      },
+      scale: rescale
+    }
+    self.graph.savePosition();
+}
+
+GraphEditorView.prototype.setGraphPosition = function(transX, transY, scale){
+  var self = this;
+  d3.select("." + self.consts.graphClass).attr("transform", "translate(" + transX + "," + transY + ") scale(" + scale + ")");
+  self.dragSvg.translate([ transX, transY ]).scale(scale);
 }
 
 
