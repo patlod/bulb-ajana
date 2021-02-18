@@ -437,17 +437,30 @@ function App(el){
   })
 
   self.on('updateGlobalSearch', function(needle){
-    self.session.global_search = {
+    let active_project = self.session.getActiveProject()
+    active_project.search = {
       needle: needle,
       notes: self.session.getActiveProject().searchAllNotesTextsAndTags(needle)
     }
-    console.log(self.session.global_search);
-    render();
+    console.log(active_project.search);
+    if(active_project.getGraphMode()){
+      render(true);
+      self.views.graph.updateGraph();
+    }else{
+      render();
+    }
+    
   });
   self.on('clearGlobalSearch', function(){
     // - Clear the search state in the session.
-    self.session.global_search = null;
-    render();
+    let active_project = self.session.getActiveProject();
+    active_project.search = null;
+    if(active_project.getGraphMode()){
+      render(true);
+      self.views.graph.updateGraph();
+    }else{
+      render();
+    }
   });
 
 /* ============================================================================== */

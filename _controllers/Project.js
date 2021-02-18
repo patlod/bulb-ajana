@@ -38,6 +38,8 @@ function Project(path, session, data = FileDatabaseManager.getEmptyProjectJSON()
 
   this.session = session
 
+  this.search = null;
+
   this.graph_mode = false   // Default: Graph is off..
   this.graphs = data.graphs
 

@@ -85,10 +85,10 @@ NoteListView.prototype.render = function(project){
 
   // Get project notes
   let notes;
-  if(project.session.global_search === null){
+  if(project.search === null){
     notes = project.getAllNotes();
   }else{
-    notes = project.session.global_search.notes.map(function(x){
+    notes = project.search.notes.map(function(x){
       return x.note;
     });
   }
@@ -161,7 +161,7 @@ NoteListView.prototype.render = function(project){
     return yo`
       <div>
         ${function(){
-          if(project.session.global_search !== null){
+          if(project.search !== null){
             return yo`
             <div class="note-thmb-wrap">
               <div class="note-thmb">

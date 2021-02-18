@@ -594,6 +594,7 @@ body {
   border-radius: 5px;
   padding: 1em;
   z-index: 5;
+  background: #fff;
 }
 #toolbox span {
   display: block;
@@ -636,6 +637,9 @@ path.link.selected {
   display: inline-block;
   background: #FFF;
 }
+.graph-note.blurred {
+  opacity: 0.2;
+}
 .graph-note-header .datetime {
   font-size: 11px;
   text-align: center;
@@ -676,6 +680,9 @@ path.link.selected {
   margin-bottom: 2px;
   color: black;
   border-radius: 4px;
+}
+foreignObject {
+  background: #fff;
 }
 foreignObject.selected {
   box-shadow: 0 0 0 3px #000;

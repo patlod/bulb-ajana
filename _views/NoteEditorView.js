@@ -554,8 +554,8 @@ NoteEditorView.prototype.render = function(project){
       }
     }
 
-  let global_search = self.active_note.project.session.global_search;
-  if(global_search !== null && global_search.notes.length === 0){
+  let project_search = self.active_note.project.search;
+  if(project_search !== null && project_search.notes.length === 0){
     return null;
   }
 
@@ -581,7 +581,7 @@ NoteEditorView.prototype.render = function(project){
         onkeyup=${keyupHandlerNotepad}
         onclick=${clickHandlerNotepad}>${self.active_note.getContent()}</textarea>
         ${function(){ 
-            if(global_search !== null){
+            if(project_search !== null){
               return yo`<div id="notepad-overlay" class="overlay" onclick=${clickNotepadOverlay}></div>`;
             }else{
               return yo`<div id="notepad-overlay" class="overlay hidden" onclick=${clickNotepadOverlay}></div>`;
@@ -596,15 +596,15 @@ NoteEditorView.prototype.render = function(project){
    * 
    * Once again this proofs how limiting yo-yo framework is..
    */
-  if(global_search !== null){
-    let chk = global_search.notes.filter(function(x){ 
+  if(project_search !== null){
+    let chk = project_search.notes.filter(function(x){ 
       return x.note.compareTo(self.active_note) 
     });
     if(chk.length === 1){
       let overlay = editor_view.getElementsByClassName('overlay')[0]
       overlay.innerHTML = self.makeNotepadOverlayContent(
         chk[0].note.text, 
-        global_search.needle, 
+        project_search.needle, 
         chk[0].results
         );
     }
@@ -630,7 +630,7 @@ NoteEditorView.prototype.render = function(project){
     }
   });
 
-  if(global_search !== null && global_search.notes.length === 0){
+  if(project_search !== null && project_search.notes.length === 0){
     return null
   }else{
     return editor_view
