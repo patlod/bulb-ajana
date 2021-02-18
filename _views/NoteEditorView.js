@@ -554,8 +554,11 @@ NoteEditorView.prototype.render = function(project){
       }
     }
 
-  
-  
+  let global_search = self.active_note.project.session.global_search;
+  if(global_search !== null && global_search.notes.length === 0){
+    return null;
+  }
+
   var editor_view = yo`
     <div id="note-editor" >
       <div class="note-header">
@@ -578,7 +581,7 @@ NoteEditorView.prototype.render = function(project){
         onkeyup=${keyupHandlerNotepad}
         onclick=${clickHandlerNotepad}>${self.active_note.getContent()}</textarea>
         ${function(){ 
-            if(self.active_note.project.session.global_search !== null){
+            if(global_search !== null){
               return yo`<div id="notepad-overlay" class="overlay" onclick=${clickNotepadOverlay}></div>`;
             }else{
               return yo`<div id="notepad-overlay" class="overlay hidden" onclick=${clickNotepadOverlay}></div>`;
@@ -593,9 +596,7 @@ NoteEditorView.prototype.render = function(project){
    * 
    * Once again this proofs how limiting yo-yo framework is..
    */
-  let global_search = self.active_note.project.session.global_search
   if(global_search !== null){
-    
     let chk = global_search.notes.filter(function(x){ 
       return x.note.compareTo(self.active_note) 
     });
@@ -608,6 +609,8 @@ NoteEditorView.prototype.render = function(project){
         );
     }
   }
+  
+  
 
   /**
    * Initialise tagify input on the UI fragment.
@@ -627,6 +630,11 @@ NoteEditorView.prototype.render = function(project){
     }
   });
 
-  return editor_view
+  if(global_search !== null && global_search.notes.length === 0){
+    return null
+  }else{
+    return editor_view
+  }
+  
   
 }

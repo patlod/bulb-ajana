@@ -439,7 +439,7 @@ function App(el){
   self.on('updateGlobalSearch', function(needle){
     self.session.global_search = {
       needle: needle,
-      notes: self.session.getActiveProject().searchAllNotes(needle)
+      notes: self.session.getActiveProject().searchAllNotesTextsAndTags(needle)
     }
     console.log(self.session.global_search);
     render();

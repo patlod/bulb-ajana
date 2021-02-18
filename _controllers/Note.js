@@ -133,8 +133,21 @@ Note.prototype.getTags = function(){
  */
 Note.prototype.searchNoteText = function(needle){
   return StringFormatter.getIndicesOf(needle, this.text, false);
-
 }
+
+/**
+ * Checks whether note tags contain needle string.
+ * 
+ * Returns array of matching tag objects.
+ * 
+ * @param {*} needle 
+ */
+Note.prototype.searchNoteTags = function(needle){
+  return this.tags.filter(function(t){ 
+    return t.name.toLowerCase() === needle.toLowerCase();
+  });
+}
+
 
 /* ======================================================= */
 /*  Other                                                  */

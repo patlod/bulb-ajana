@@ -452,7 +452,7 @@ Project.prototype.getAllTags = function(){
  * 
  * @param {String} needle -- The string to be searched for
  */
-Project.prototype.searchAllNotes = function(needle){
+Project.prototype.searchAllNotesTexts = function(needle){
   let results = [],
       cur = null;
   for(var i in this.notes){
@@ -462,6 +462,31 @@ Project.prototype.searchAllNotes = function(needle){
         note: this.notes[i], 
         results: cur
       })
+    }
+  }
+  return results;
+}
+
+Project.prototype.searchAllNotesTextsAndTags = function(needle){
+  let results = [],
+      cur_txt_pins = null, cur_tags_pins = null;
+  for(var i in this.notes){
+    cur_txt_pins = this.notes[i].searchNoteText(needle);
+    cur_tags_pins = this.notes[i].searchNoteTags(needle);
+    if(cur_txt_pins.length > 0){
+      results.push({
+        note: this.notes[i], 
+        results: cur_txt_pins,
+        tags: cur_tags_pins
+      })
+    }else{
+      if(cur_tags_pins.length > 0){
+        results.push({
+          note: this.notes[i],
+          results: cur_txt_pins,
+          tags: cur_tags_pins
+        })
+      }
     }
   }
   return results;
