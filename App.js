@@ -437,12 +437,16 @@ function App(el){
   })
 
   self.on('updateGlobalSearch', function(needle){
-    self.session.GLOBAL_SEARCH_ACTIVE = true;
+    self.session.global_search = {
+      needle: needle,
+      notes: self.session.getActiveProject().searchAllNotes(needle)
+    }
     render();
   });
   self.on('clearGlobalSearch', function(){
     // - Clear the search state in the session.
-    self.session.GLOBAL_SEARCH_ACTIVE = false;
+    self.session.global_search = null;
+    render();
   });
 
 /* ============================================================================== */

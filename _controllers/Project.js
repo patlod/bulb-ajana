@@ -442,6 +442,16 @@ Project.prototype.getAllTags = function(){
   return this.tags
 }
 
+/**
+ * Searches all notes of the project for given string parameter.
+ * 
+ * Returns an array of objects containing the note which the string was found in
+ * and array of the indices in the text where the string could be found.
+ * 
+ * Format: [ {note: {Note}, results: [{int}, {int},...]}, ... ]
+ * 
+ * @param {String} needle -- The string to be searched for
+ */
 Project.prototype.searchAllNotes = function(needle){
   let results = [],
       cur = null;
@@ -450,7 +460,7 @@ Project.prototype.searchAllNotes = function(needle){
     if(cur.length > 0){
       results.push({
         note: this.notes[i], 
-        result: cur
+        results: cur
       })
     }
   }

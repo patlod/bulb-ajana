@@ -25,7 +25,7 @@ function Session(app) {    /* Alternative name:    ProjectManager */
   this.index = 0;
   this.selected_projects = [];
 
-  this.GLOBAL_SEARCH_ACTIVE = false;
+  this.global_search = null;
 
   this.app = app
 }

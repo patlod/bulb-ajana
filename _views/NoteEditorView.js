@@ -10,7 +10,6 @@ const UnitConverter = require('../_util/UnitConverter');
 const CSSProcessor = require('../_util/CSSProcessor');
 const StringFormatter = require('../_util/StringFormatter');
 const TextSearchIterator = require('../_util/TextSearchIterator');
-const NoteEditorSearch = require('./NoteEditorSearch');
 
 
 function NoteEditorView(target) {
@@ -30,6 +29,9 @@ function NoteEditorView(target) {
   this.dirty_bit = false
 
   this.search = null;
+  // this.iterator = iterator;
+  this.overlay_DOMEl = null;
+  this.current_needle_DOMEl = null;
 }
 inherits(NoteEditorView, EventEmitterElement)
 
@@ -135,8 +137,145 @@ NoteEditorView.prototype.resizeElementByContent = function(el){
   el.style.height = el.scrollHeight.toString() + "px"
 }
 
+/**
+ * Functions related to note editor local search.
+ */
+
+NoteEditorView.prototype.isSearch = function(){
+  return this.search !== null;
+}
+NoteEditorView.prototype.initNotepadOverlay = function(){
+  this.overlay_DOMEl = document.getElementById('notepad-overlay');
+}
+NoteEditorView.prototype.showNotepadOverlay = function(){
+  if(this.overlay_DOMEl === null){ this.initNotepadOverlay(); }
+  if(this.overlay_DOMEl.classList.contains('hidden')){
+    this.overlay_DOMEl.classList.remove('hidden');
+  }
+}
+
+NoteEditorView.prototype.hideNotepadOverlay = function(){
+  if(this.overlay_DOMEl === null){ this.initNotepadOverlay(); }
+  if(!this.overlay_DOMEl.classList.contains('hidden')){
+    this.overlay_DOMEl.classList.add('hidden');
+  }
+}
+
+// NoteEditorView.prototype.loadOverlayContent = function(){
+//   let haystack = this.search.haystack,
+//       needle = this.search.needle,
+//       needle_pos = this.search.getResults();
+  
+// }
+
+/**
+ * Converts the text of a note into format that is used by 'contenteditable'
+ * elements.
+ * 
+ * Format: 
+ *  - Each paragraph is wrapped in <div></div>
+ *  - New lines are <br/>
+ *  
+ * Example:
+ * "Lorem ipsum,\n\netsum masum.\n"
+ * ..translates to..
+ * <div>Lorem ipsum,</div>
+ * <div><br/></div>
+ * <div>etsum masum.</div>
+ * 
+ * @param {TextSearchIterator} iterator -- Iterator that wraps the result of the text search
+ * @param {string} text -- The text that was searched.
+ */
+NoteEditorView.prototype.makeNotepadOverlayContent = function(haystack, needle, needle_pos, case_sensitive = false){
+  let i, clip_length = 0, cur_clip, sResults, offset_idx,
+      nStr = haystack,
+      html_str = "", split_html_str;
+      
+  // Fetch first needle index
+  sResults = needle_pos;
+  for(i in sResults){
+    offset_idx = sResults[i] - clip_length;
+    cur_clip = nStr.substring(0, offset_idx);
+    html_str += cur_clip
+    html_str += "<span id='needle-idx-" + sResults[i] + "' class='needle-marker'>" + nStr.substring(offset_idx, offset_idx + needle.length) + "</span>"
+    nStr = nStr.substring(offset_idx + needle.length, nStr.length);
+    clip_length += cur_clip.length + needle.length;
+  }
+  html_str += nStr;
+  
+  split_html_str = StringFormatter.splitAtNewLine(html_str);
+  for(i in split_html_str){
+    if(split_html_str[i].length > 0){
+      split_html_str[i] = "<div>" + split_html_str[i] + "</div>";
+    }else{
+      split_html_str[i] = "<div><br/></div>";
+    }
+  }
+  return split_html_str.join('');
+}
+
+NoteEditorView.prototype.clearNotepadOverlay = function(){
+  this.overlay_DOMEl.innerHTML = "";
+}
+
+NoteEditorView.prototype.getPrevNeedleDOMEl = function(){
+  if(this.search.size() > 0){
+    // needle-idx-<id>
+    let idx = this.search.prev__Ring(),
+        id_str = 'needle-idx-' + idx;
+
+    return document.getElementById(id_str);
+  }
+}
+
+NoteEditorView.prototype.getNextNeedleDOMEl = function(){
+  if(this.search.size() > 0){
+    // needle-idx-<id>
+    let idx = this.search.next__Ring(),
+        id_str = 'needle-idx-' + idx;
+    
+    return document.getElementById(id_str);
+  }
+}
+
+NoteEditorView.prototype.gotoPrevNeedle = function(){
+  let prev = this.getPrevNeedleDOMEl();
+  if(this.current_needle_DOMEl === null){
+    this.current_needle_DOMEl = prev;
+  }
+  this.concealNeeedleDOMEl(this.current_needle_DOMEl);
+  this.current_needle_DOMEl = prev;
+  this.illuminateNeedleDOMEl(this.current_needle_DOMEl);
+}
+
+NoteEditorView.prototype.gotoNextNeedle = function(){
+  let next = this.getNextNeedleDOMEl();
+  if(this.current_needle_DOMEl === null){
+    this.current_needle_DOMEl = next;
+  }
+  this.concealNeeedleDOMEl(this.current_needle_DOMEl);
+  this.current_needle_DOMEl = next;
+  this.illuminateNeedleDOMEl(this.current_needle_DOMEl);
+}
+
+NoteEditorView.prototype.illuminateNeedleDOMEl = function(el){
+  if(!this.current_needle_DOMEl.classList.contains('selected')){
+    this.current_needle_DOMEl.classList.add('selected');
+  }
+}
+
+NoteEditorView.prototype.concealNeeedleDOMEl = function(el){
+  if(this.current_needle_DOMEl.classList.contains('selected')){
+    this.current_needle_DOMEl.classList.remove('selected');
+  }
+}
+
+
+
 NoteEditorView.prototype.resetSearch = function(){
-  self.search = null;
+  this.search = null;
+  this.overlay_DOMEl = null;
+  this.current_needle_DOMEl = null;
 }
 /**
  * Resets the editor before new content is loaded.
@@ -154,6 +293,8 @@ NoteEditorView.prototype.resetEditorState = function(){
   if (self.globalTimeout !== null) {
     clearTimeout(self.globalTimeout);
   }
+
+  this.resetSearch();
 }
 
 NoteEditorView.prototype.toggleLocalSearch = function(){
@@ -198,14 +339,11 @@ NoteEditorView.prototype.render = function(project){
     // Store cursor position..
     self.selectionStart = this.selectionStart
     self.selectionEnd = this.selectionEnd
-    // console.log("Keyup, selectionStart: " + this.selectionStart)
-    // console.log("Keyup, selectionEnd: " + this.selectionEnd)
     
     console.log(this.value)
 
     // Save text to note object
     self.active_note.text = this.value;
-    // document.getElementById('notepad-overlay').textContent = this.value;
 
     // Remove carriage returns and split at \newlines
     let chk = self.active_note.needThumbUpdate(self.selectionStart, self.selectionEnd)
@@ -253,13 +391,14 @@ NoteEditorView.prototype.render = function(project){
   /* ====================================================================== */
   function focusLocalSearch(){
     if(self.search !== null){
-      self.search.showOverlay();
+      self.showNotepadOverlay();
     }
   }
   function keyupLocalSearch(e){
     console.log("keyupLocalSearch");
     // Change visibility of the x-cancel icon
     if(e.key === "Enter"){
+      this.select();
       if(e.getModifierState("Shift")){
         clickSearchPrev();
       }else{
@@ -268,31 +407,32 @@ NoteEditorView.prototype.render = function(project){
       return;
     }
     let search_in_el = document.getElementById('local-search');
-    if(self.search !== null && self.search.iterator.needle.length === 0 && this.value.length > 0){
+    if(self.search !== null && self.search.needle.length === 0 && this.value.length > 0){
       search_in_el.getElementsByClassName("right-ctrls")[0].classList.remove("hidden");
       
     }
-    if(self.search !== null && self.search.iterator.needle.length > 0 && this.value.length === 0){
+    if(self.search !== null && self.search.needle.length > 0 && this.value.length === 0){
       search_in_el.getElementsByClassName("right-ctrls")[0].classList.add("hidden");
     }
     
-    let needles = self.active_note.searchNoteText(this.value)
-    self.search = new NoteEditorSearch(
-      new TextSearchIterator(this.value, self.active_note.text, needles),
-      document.getElementById('notepad-overlay')
-    );
-    console.log(needles);
+    let needles = self.active_note.searchNoteText(this.value);
+    self.search = new TextSearchIterator(this.value, self.active_note.text, needles);
+    self.initNotepadOverlay()
+
     // Update the needle counter..
-    search_in_el.getElementsByClassName('needle-count')[0].textContent = self.search.iterator.size();
+    search_in_el.getElementsByClassName('needle-count')[0].textContent = self.search.size();
     if(needles.length > 0){
       // Fill the notepad overlay with content
-      self.search.loadOverlayContent();
+      self.overlay_DOMEl.innerHTML = self.makeNotepadOverlayContent(
+        self.search.haystack, 
+        self.search.needle, 
+        self.search.results);
       // Trigger the textarea overlay
-      self.search.showOverlay();
-      self.search.gotoNextNeedle();
+      self.showNotepadOverlay();
+      self.gotoNextNeedle();
     }else{
       // Hide textarea overlay
-      self.search.hideOverlay(); 
+      self.hideNotepadOverlay(); 
     }
     
   }
@@ -306,8 +446,8 @@ NoteEditorView.prototype.render = function(project){
     input.focus();
 
     // Clear local search state
-    self.search.clearOverlayContent();
-    self.search.hideOverlay();
+    self.clearNotepadOverlay();
+    self.hideNotepadOverlay();
 
     self.search = null;
     
@@ -320,14 +460,14 @@ NoteEditorView.prototype.render = function(project){
   function clickSearchPrev(){
     console.log("clickSearchPrev");
     if(self.search !== null){
-      self.search.gotoPrevNeedle();
+      self.gotoPrevNeedle();
     }
   }
 
   function clickSearchNext(){
     console.log("clickSearchNext");
     if(self.search !== null){
-      self.search.gotoNextNeedle();
+      self.gotoNextNeedle();
     }
   }
 
@@ -414,7 +554,7 @@ NoteEditorView.prototype.render = function(project){
       }
     }
 
-
+  
   
   var editor_view = yo`
     <div id="note-editor" >
@@ -437,13 +577,41 @@ NoteEditorView.prototype.render = function(project){
         oninput=${inputHandlerNotepad} 
         onkeyup=${keyupHandlerNotepad}
         onclick=${clickHandlerNotepad}>${self.active_note.getContent()}</textarea>
-        <div id="notepad-overlay" class="hidden" onclick=${clickNotepadOverlay}></div>
+        ${function(){ 
+            if(self.active_note.project.session.global_search !== null){
+              return yo`<div id="notepad-overlay" class="overlay" onclick=${clickNotepadOverlay}></div>`;
+            }else{
+              return yo`<div id="notepad-overlay" class="overlay hidden" onclick=${clickNotepadOverlay}></div>`;
+            }
+          }()}
+        
       </div>
-      
     </div>
-  `
+    `
+  /**
+   * HACK because html strings are not really processable with yo-yo
+   * 
+   * Once again this proofs how limiting yo-yo framework is..
+   */
+  let global_search = self.active_note.project.session.global_search
+  if(global_search !== null){
+    
+    let chk = global_search.notes.filter(function(x){ 
+      return x.note.compareTo(self.active_note) 
+    });
+    if(chk.length === 1){
+      let overlay = editor_view.getElementsByClassName('overlay')[0]
+      overlay.innerHTML = self.makeNotepadOverlayContent(
+        chk[0].note.text, 
+        global_search.needle, 
+        chk[0].results
+        );
+    }
+  }
 
-
+  /**
+   * Initialise tagify input on the UI fragment.
+   */
   var input = editor_view.querySelector('textarea[name=note-tags]')
   // Create tagify tag input on textarea
   self.tagify = new Tagify(input, {

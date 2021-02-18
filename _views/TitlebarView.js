@@ -16,7 +16,7 @@ inherits(TitlebarView, EventEmitterElement)
 
 TitlebarView.prototype.updateCreateNewBtn = function(dom_el, active_note){
     // let create_new_btn = dom_el.getElementsByClassName('')[0]
-    let btn = docment.getElementById('new-note-btn')
+    let btn = document.getElementById('new-note-btn')
     if(active_note.getContent().length === 0){
         btn.disabled = true
         if(!btn.classList.contains("disabled")){
@@ -91,6 +91,10 @@ TitlebarView.prototype.render = function (session) {
     function keyupGlobalSearch(e){
         console.log("keyupGlobalSearch");
         // Change visibility of clear button
+        if(e.key === "Enter"){
+            this.select();
+            return;
+        }
         if(self.current_search.length === 0 && this.value.length > 0){
             this.parentNode.getElementsByClassName("fa-times-circle")[0].classList.remove("hidden");
         }
@@ -98,8 +102,12 @@ TitlebarView.prototype.render = function (session) {
             this.parentNode.getElementsByClassName("fa-times-circle")[0].classList.add("hidden");
         }
         self.current_search = this.value;
-      
-        self.send("updateGlobalSearch", this.value);
+        if(self.current_search.length > 0){
+            self.send("updateGlobalSearch", this.value);
+        }else{
+            self.send("clearGlobalSearch");
+        }
+        
     }
 
     function clickClearSearch(e){

@@ -84,7 +84,15 @@ NoteListView.prototype.render = function(project){
   // Could also check whether project is active here...
 
   // Get project notes
-  let notes = project.getAllNotes()
+  let notes;
+  if(project.session.global_search === null){
+    notes = project.getAllNotes();
+  }else{
+    notes = project.session.global_search.notes.map(function(x){
+      return x.note;
+    });
+  }
+  
 
   var notes_thmbs = notes.map(function(note){
     
@@ -149,10 +157,25 @@ NoteListView.prototype.render = function(project){
     return note_thumb
   })
 
+  
+    return yo`
+      <div>
+        ${function(){
+          if(project.session.global_search !== null){
+            return yo`
+            <div class="note-thmb-wrap">
+              <div class="note-thmb">
+                <div class="flex-wrap">
+                  <span class="note-thmb-head">Found ${notes.length} results</span>
+                </div>
+              </div>
+            </div>
+            `
+          }
+        }()}
+        ${notes_thmbs}
+      </div>
+    `  
 
-  return yo`
-    <div>
-      ${notes_thmbs}
-    </div>
-  `  
+  
 }
