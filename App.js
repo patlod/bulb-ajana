@@ -441,6 +441,7 @@ function App(el){
       needle: needle,
       notes: self.session.getActiveProject().searchAllNotes(needle)
     }
+    console.log(self.session.global_search);
     render();
   });
   self.on('clearGlobalSearch', function(){

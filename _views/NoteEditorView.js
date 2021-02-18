@@ -65,7 +65,7 @@ NoteEditorView.prototype.addTag = function(e, tagify, note){
   console.log(tagify.settings.whitelist)
 
   // Trigger update of notes list
-  self.send("updateActiveNoteThumb", self.active_note)
+  self.send("updateByEditorContent", self.active_note)
 }
 
 NoteEditorView.prototype.removeTag = function(e, tagify, note){
@@ -87,7 +87,7 @@ NoteEditorView.prototype.removeTag = function(e, tagify, note){
   console.log(tagify.settings.whitelist)
   
   // Trigger update of notes list
-  self.send("updateActiveNoteThumb", self.active_note)
+  self.send("updateByEditorContent", self.active_note)
 }
 
 NoteEditorView.prototype.updateTag = function(e, tagify, note){
@@ -110,7 +110,7 @@ NoteEditorView.prototype.updateTag = function(e, tagify, note){
   console.log(tagify.settings.whitelist)
 
   // Trigger update of notes list
-  self.send("updateActiveNoteThumb", self.active_note)
+  self.send("updateByEditorContent", self.active_note)
 }
 
 /**
@@ -615,8 +615,10 @@ NoteEditorView.prototype.render = function(project){
   var input = editor_view.querySelector('textarea[name=note-tags]')
   // Create tagify tag input on textarea
   self.tagify = new Tagify(input, {
+    pattern          : /^[a-zA-ZäöüÄÖÜß0-9\-_]{0,40}$/,
     enforceWhitelist : false,
-    delimiters       : null,
+    maxTags          : 12,
+    delimiters       : ",",
     whitelist        : this.fetchWhitelist(project),
     callbacks        : {
       "add"    : (e) => { self.addTag(e, self.tagify) },  // TODO: callback when adding a tag
