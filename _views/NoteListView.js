@@ -157,25 +157,39 @@ NoteListView.prototype.render = function(project){
     return note_thumb
   })
 
+  function scrollNoteList(){
+    /**
+     * Save the scroll position in the NoteListView class here..
+     */
+    console.log("Scroll position: " + this.scrollTop);
+    self.scrollTop = this.scrollTop;
+  }
   
-    return yo`
-      <div>
-        ${function(){
-          if(project.search !== null){
-            return yo`
-            <div class="note-thmb-wrap">
-              <div class="note-thmb">
-                <div class="flex-wrap">
-                  <span class="note-thmb-head">Found ${notes.length} results</span>
-                </div>
-              </div>
-            </div>
-            `
-          }
-        }()}
-        ${notes_thmbs}
-      </div>
-    `  
-
+  
+  let notes_list = yo`
+    <div>
+      ${function(){
+        if(project.search !== null){
+          return yo`
+          <div id="note-list-head" class="note-thmb-wrap">
+            <span class="note-thmb-head">Found ${notes.length} results</span> 
+          </div>
+          `
+        }
+      }()}
+      ${function(){
+        if(project.search !== null){
+          return yo`<div id="note-list-scroll" class="search-active" onscroll=${scrollNoteList}>
+                      ${notes_thmbs}
+                    </div>`;
+        }else{
+          return yo`<div id="note-list-scroll" onscroll=${scrollNoteList}>
+            ${notes_thmbs}
+          </div>`;
+        }
+        
+      }()}
+      </div>`  
+  return notes_list;
   
 }

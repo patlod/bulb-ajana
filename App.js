@@ -613,13 +613,7 @@ App.prototype.render = function (lazy_load = false) {
   //console.log("Active Project: ")
   //console.log(self.session.getActiveProject())
 
-  function scrollNoteList(){
-    /**
-     * Save the scroll position in the NoteListView class here..
-     */
-    console.log("Scroll position: " + this.scrollTop)
-    self.views.notes.scrollTop = this.scrollTop
-  }
+  
 
   /**
    * Refactor: 
@@ -642,7 +636,7 @@ App.prototype.render = function (lazy_load = false) {
           </div>
 
           <!-- Notes Menu -->
-          <div id="left-menu-2" onscroll=${scrollNoteList}>
+          <div id="left-menu-2">
             ${views.notes.render(self.session.getActiveProject())}
           </div>
 
@@ -667,7 +661,7 @@ App.prototype.render = function (lazy_load = false) {
           </div>
 
           <!-- Notes Menu -->
-          <div id="left-menu-2" onscroll=${scrollNoteList}>
+          <div id="left-menu-2">
             ${views.notes.render(self.session.getActiveProject())}
           </div>
 
