@@ -30,6 +30,13 @@ TitlebarView.prototype.updateCreateNewBtn = function(dom_el, active_note){
     }
 }
 
+TitlebarView.prototype.clearSearch = function(){
+    // Clear search input
+    document.getElementById("global-search").getElementsByTagName("input")[0].value = "";
+    // Clear local search state
+    this.current_search = "";
+}
+
 TitlebarView.prototype.render = function (session) {
     var self = this
     
@@ -114,10 +121,7 @@ TitlebarView.prototype.render = function (session) {
         console.log("clickClearSearch");
         console.log("Reset search, current value: ");
         console.log(self.current_search);
-        // Clear search input
-        document.getElementById("global-search").getElementsByTagName("input")[0].value = "";
-        // Clear local search state
-        self.current_search = "";
+        self.clearSearch();
         // Clear the search data in the controller/model structures
         self.send("clearGlobalSearch")
     }

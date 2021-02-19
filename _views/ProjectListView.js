@@ -280,7 +280,7 @@ ProjectListView.prototype.render = function(projects, recents){
     
     var className = project.isActive() ? 'active' : ''
 
-    return yo`
+    let project_thumb = yo`
       <div class="prjct-thmb ${className}" onclick="${clickPrjctThmb}" data-id="${project.uuid}">
         <!-- <div class="fw-prjct-thmb-name"> -->
           <input class="prjct-name-input hidden" type="text" value="${project.getName()}" onblur=${blurHandlerInput} onkeyup=${keyupHandlerInput}>
@@ -294,6 +294,50 @@ ProjectListView.prototype.render = function(projects, recents){
         </div>
       </div>
     `
+
+    // Make project-thumbs droppable elements
+    $(project_thumb).droppable({
+      accept:'.note-thmb-wrap',
+      tolerance: 'pointer',
+      classes: {
+        "ui-droppable-active": "graph-droppable-active",
+        "ui-droppable-hover": "graph-droppable-hover"
+      },
+      over: function(event, ui) {
+        $('body').css("cursor", "copy")
+      },
+      out: function(event, ui) {
+        $('body').css("cursor", "no-drop")
+      },
+      drop: function(event,ui){
+        console.log("Dropped note in graph at position...")
+
+        let active_project = self.session.getActiveProject()
+        let active_graph = active_project.getActiveGraph()
+
+        let note_id = ui.draggable.find('.note-thmb').attr('data-id')
+        // Get note from project
+        let note = active_project.getNoteByUUID(note_id)
+        console.log(note)
+
+        console.log("calcDropZone coordinates...")
+        let coords = self.views.graph.calcRelativeDropZone(ui.position)
+        
+        if(note !== null){
+          console.log("..it exists, so add it...")
+          let nV = active_graph.createNewVertexForNote(coords, note)
+          if(nV){
+            nV.saveData()
+            self.views.graph.updateGraph(active_graph)
+            render(true)
+          }else{
+            console.log("Vertex for this note already exists..")
+          }
+        }
+      }
+    });
+
+    return project_thumb
   })
 
   //console.log("Project thumbnails..")

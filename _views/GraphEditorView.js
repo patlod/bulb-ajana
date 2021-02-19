@@ -477,7 +477,7 @@ GraphEditorView.prototype.applyProjectSearch = function(search){
 }
 
 // Call to propagate changes to graph
-GraphEditorView.prototype.updateGraph = function(graphController = null){
+GraphEditorView.prototype.updateGraph = function(graph = null){
   var self = this
   
   if(!self.graph){
@@ -485,6 +485,7 @@ GraphEditorView.prototype.updateGraph = function(graphController = null){
     return;
   }
 
+  console.log(self.graph);
   let active_project = self.graph.project;
   let active_note = active_project.getActiveNote();
 
@@ -569,7 +570,13 @@ GraphEditorView.prototype.updateGraph = function(graphController = null){
 
   // Remove old nodes
   self.circles.exit().remove();
-  
+
+  console.log("updateGraph:")
+  console.log("active project")
+  console.log(active_project)
+  console.log("active note")
+  console.log(active_note)
+
   // Select vertex associated with active note if existing.
   let vertex = self.graph.getVertexForNote(active_note)
   if(vertex){
@@ -632,11 +639,6 @@ GraphEditorView.prototype.updateGraph = function(graphController = null){
     );
   
   self.applyProjectSearch(active_project.search);
-
-  // TODO: Refactor! This for basic orientation but 
-  // with this it becomes impossible to save the graph state during 
-  // the transitions between graph and note editor.
-  //self.resetZoom();
 };
 
 GraphEditorView.prototype.zoomed = function(){
@@ -780,14 +782,16 @@ GraphEditorView.prototype.setGraphPosition = function(transX, transY, scale){
   self.dragSvg.translate([ transX, transY ]).scale(scale);
 }
 
+GraphEditorView.prototype.forceClearContentDOMEl = function(){
+  document.getElementById("content").innerHTML = "";
+}
 
 /* ============================================================================== */
 /* ============================================================================== */
-
 
 /**
- * Renders the GraphEditorView for a given project
- * @param {Project} project 
+ * Renders the GraphEditorView for a given graph
+ * @param {Graph} graph 
  */
 GraphEditorView.prototype.render = function(project){
   var self = this
@@ -824,15 +828,16 @@ GraphEditorView.prototype.render = function(project){
     .attr("height", height);
     console.log(elem)
 
-  self.graph = project.getActiveGraph()
+  self.graph = project.getActiveGraph();
   // console.log("updateGraph graph:")
   // console.log(active_graph)
   
   self.init(svg)
 
+  // Timer necessary so that rendering in updateGraph happens correctly.
   setTimeout(function() {
-    self.updateGraph(/*active_graph*/)
-  }, 50);
-  
+    self.updateGraph()
+  }, 20);
+
   return graph_view
 }

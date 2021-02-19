@@ -12,6 +12,7 @@ const { v4: uuidv4 } = require('uuid');
 const App = require('../App.js')
 const Project = require('./Project')
 const { path } = require('d3')
+const GraphEditorView = require('../_views/GraphEditorView')
 
 
 /**
@@ -185,19 +186,19 @@ Session.prototype.transToProject = function(project, callback){
   // Due to my design it is enough to just toggle the active projects and 
   // trigger a re-render()
   self.toggleActiveProject(project)
-  project.setActiveNoteAtIndex(0)
+  
+  
   let cur_active_project = self.getActiveProject()
-
+  cur_active_project.setActiveNoteAtIndex(0)
   // Reset the scroll position of NotesListView
   //self.app.views.notes.scrollTop = 0
 
   if(typeof callback === "function"){
     if(prior_project_gm && cur_active_project.getGraphMode()){
-      self.app.views.graph.updateGraph(cur_active_project.getActiveGraph())
-      callback(true)
-    }else{
-      callback()
+      // For some reason the graph only loads when DOM element is force cleaned.
+      self.app.views.graph.forceClearContentDOMEl();
     }
+    callback();
   }
 }
 
