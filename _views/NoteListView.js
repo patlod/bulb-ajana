@@ -91,6 +91,14 @@ NoteListView.prototype.render = function(project){
     notes = project.search.notes.map(function(x){
       return x.note;
     });
+
+    let chk = notes.filter(function(x){
+      return x.compareTo(project.getActiveNote())
+    })
+    if(notes.length > 0 && chk.length === 0){
+      project.toggleActiveNote(notes[0]);
+    }
+    
   }
   
 

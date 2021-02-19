@@ -155,7 +155,7 @@ body {
   padding-left: 23px;
 }
 #global-search > input:focus {
-  border: 3px solid #0094E3;
+  box-shadow: 0px 0px 0px 3px #0094E3;
   outline: none;
 }
 #global-search > .fa-search {
@@ -234,6 +234,11 @@ body {
 }
 .prjct-thmb.active {
   background: #E4E4E4;
+}
+.prjct-thmb-drppbl-active {
+  /*box-shadow: 0px 0px 0px 3px #0094E3;*/
+  border: 3px solid #0094E3;
+  border-radius: 2px;
 }
 .prjct-thmb-name {
   min-width: 0px;
@@ -652,7 +657,8 @@ path.link.selected {
 }
 /* ========= Notes in Graph ====================================== */
 .graph-droppable-active {
-  border: 3px solid #DDD3DB;
+  /*box-shadow: 0px 0px 0px 3px ;*/
+  border: 3px solid #F28CCF;
   border-radius: 6px;
 }
 .graph-note {

@@ -172,6 +172,8 @@ Session.prototype.prepProjectForTrans = function(project){
         console.log("App - prepProjectForTrans - Writing text to database.")
       }
     }
+
+    project.search = null;
   }
 }
 

@@ -300,8 +300,8 @@ ProjectListView.prototype.render = function(projects, recents){
       accept:'.note-thmb-wrap',
       tolerance: 'pointer',
       classes: {
-        "ui-droppable-active": "graph-droppable-active",
-        "ui-droppable-hover": "graph-droppable-hover"
+        "ui-droppable-active": "prjct-thmb-drppbl-active",
+        "ui-droppable-hover": "prjct-thmb-drppbl-hover"
       },
       over: function(event, ui) {
         $('body').css("cursor", "copy")
@@ -310,30 +310,34 @@ ProjectListView.prototype.render = function(projects, recents){
         $('body').css("cursor", "no-drop")
       },
       drop: function(event,ui){
-        console.log("Dropped note in graph at position...")
+        console.log("Dropped note on project thmb...")
 
-        let active_project = self.session.getActiveProject()
-        let active_graph = active_project.getActiveGraph()
+        // TODO:
+        // Check whether its not the current project
+        // Check insert note into other project.
 
-        let note_id = ui.draggable.find('.note-thmb').attr('data-id')
-        // Get note from project
-        let note = active_project.getNoteByUUID(note_id)
-        console.log(note)
+        // let active_project = self.session.getActiveProject()
+        // let active_graph = active_project.getActiveGraph()
 
-        console.log("calcDropZone coordinates...")
-        let coords = self.views.graph.calcRelativeDropZone(ui.position)
+        // let note_id = ui.draggable.find('.note-thmb').attr('data-id')
+        // // Get note from project
+        // let note = active_project.getNoteByUUID(note_id)
+        // console.log(note)
+
+        // console.log("calcDropZone coordinates...")
+        // let coords = self.views.graph.calcRelativeDropZone(ui.position)
         
-        if(note !== null){
-          console.log("..it exists, so add it...")
-          let nV = active_graph.createNewVertexForNote(coords, note)
-          if(nV){
-            nV.saveData()
-            self.views.graph.updateGraph(active_graph)
-            render(true)
-          }else{
-            console.log("Vertex for this note already exists..")
-          }
-        }
+        // if(note !== null){
+        //   console.log("..it exists, so add it...")
+        //   let nV = active_graph.createNewVertexForNote(coords, note)
+        //   if(nV){
+        //     nV.saveData()
+        //     self.views.graph.updateGraph(active_graph)
+        //     render(true)
+        //   }else{
+        //     console.log("Vertex for this note already exists..")
+        //   }
+        // }
       }
     });
 

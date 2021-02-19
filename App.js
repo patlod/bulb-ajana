@@ -301,6 +301,7 @@ function App(el){
   self.on('switchProject', function(project){
     // For currently active project save the content of active note
     // in case it exists..
+    self.views.titlebar.clearSearch();
     self.session.transToProject(project, render)
   })
 
@@ -448,6 +449,7 @@ function App(el){
       notes: self.session.getActiveProject().searchAllNotesTextsAndTags(needle)
     }
     console.log(active_project.search);
+    console.log(active_project.getGraphMode())
     if(active_project.getGraphMode()){
       render(true);
       self.views.graph.updateGraph();
@@ -608,12 +610,9 @@ App.prototype.renderContentArea = function(lazy_load = false){
 App.prototype.render = function (lazy_load = false) {
   var self = this
   var views = self.views
-  //var data = self.data
 
   //console.log("Active Project: ")
   //console.log(self.session.getActiveProject())
-
-  
 
   /**
    * Refactor: 

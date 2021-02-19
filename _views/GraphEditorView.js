@@ -820,7 +820,6 @@ GraphEditorView.prototype.render = function(project){
       </div>
     </div>
   `
-  // <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"></svg>
   
   let elem = graph_view.getElementsByTagName('svg')[0]
   var svg = d3.select(elem)
@@ -829,8 +828,6 @@ GraphEditorView.prototype.render = function(project){
     console.log(elem)
 
   self.graph = project.getActiveGraph();
-  // console.log("updateGraph graph:")
-  // console.log(active_graph)
   
   self.init(svg)
 
