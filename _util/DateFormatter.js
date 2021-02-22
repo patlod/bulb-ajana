@@ -1,4 +1,4 @@
-var moment = require('moment')
+const moment = require('moment')
 
 var DateFormatter = {
 
@@ -47,6 +47,22 @@ var DateFormatter = {
     let d_str = m.format("DD. MMMM YYYY")
     let t_str = m.format("HH:MM")
     return d_str + " at " + t_str
+  }, 
+
+  /**
+   * Checks whether difference between given date in the past and "now"
+   * lays within delta.
+   * 
+   * @param {Date} date_past -- Date in the past
+   * @param {int} delta -- Number of days
+   */
+  checkDateDiffDaysPastNow: function(date_past, delta){
+    let now = moment(new Date());
+    let today = moment(now.format("DD-MM-YYYY"), "DD-MM-YYYY");
+    let p_date = moment(new Date(date_past));
+    let diff = today.diff(p_date, 'days', true);
+    
+    return diff <= delta;
   }
 }
 

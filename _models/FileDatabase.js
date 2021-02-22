@@ -212,14 +212,21 @@ FileDatabase.prototype.updateManyNotes = function(data){
  * Removes one to many notes
  * 
  * ATTENTION: JSON objects in data list have to be identical to
- * note json in DB. Otherwise no match.
+ * note json in DB. Otherwise no match. (E.g. Tags array should only
+ * contain uuid references..)
  * @param {[object]} data 
  */
 FileDatabase.prototype.deleteNotes = function(data){
   this.db.read()
 
-  let arr = data.map(function(x){ return { uuid: x.uuid } } )
+  let note = null,
+      arr = data.map(function(x){ return { uuid: x.uuid } } );
   for(var i in arr){
+    note = this.db.get('notes').find(arr[i]).value();
+    if(note !== null){
+      note.modified = Date.now();
+      this.db.get('trash').get('notes').push(note).write();
+    }
     this.db.get('notes').remove(arr[i]).write()
   }
 }
@@ -587,26 +594,50 @@ FileDatabase.prototype.insertEdge = function(graph_id, edge){
 
 FileDatabase.prototype.deleteEdges = function(graph_id, edges){
   // Empty database buffer
-  this.db.read()
+  this.db.read();
 
   let ed_ids = edges.map(function(ed){ return { uuid: ed.uuid } } )
   for(var i in ed_ids){
-    this.db.get('graphs').find({uuid: graph_id}).get('edges').remove(ed_ids[i]).write()
+    this.db.get('graphs').find({uuid: graph_id}).get('edges').remove(ed_ids[i]).write();
   }
 }
 
 FileDatabase.prototype.selectAllEdges = function(graph_id){
-  this.db.read()
-  return this.db.get('graphs').find({uuid: graph_id}).get('edges').value()
+  this.db.read();
+  return this.db.get('graphs').find({uuid: graph_id}).get('edges').value();
 }
 
+/* ================================================================= */
+/* Trash functions                                                   */
+/* ================================================================= */
+
+FileDatabase.prototype.emptyNotesTrash = function(delta){
+  this.db.read();
+
+  console.log("emptyNotesTrash with delta: " + delta);
+
+  this.db.get('trash').get('notes')
+   // mutates the trash.notes array..
+  .remove(note => DateFormatter.checkDateDiffDaysPastNow(note.modified, delta))
+  .write();
+}
+
+FileDatabase.prototype.emptyGraphsTrash = function(delta){
+  // TODO: Analog to emptyNotesTrash
+}
+
+FileDatabase.prototype.reviveDeletedNote = function(note_id){
+  // TODO
+  // ATTENTION: Check whether tag references are still valid, i.e.
+  // whether referenced tags are still existing.
+}
 
 /* ================================================================= */
 /* Helper functions                                                  */
 /* ================================================================= */
 
 FileDatabase.prototype.getPath = function(){
-  return this.path
+  return this.path;
 }
 
 /* ================================================================= */

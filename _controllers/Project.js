@@ -26,6 +26,8 @@ function Project(path, session, data = FileDatabaseManager.getEmptyProjectJSON()
   // Database interface object
   this.db = new FileDatabase(path)
 
+  this.DELTA_DAYS_GARBAGE_DISPOSAL = 30;
+
   // Project data
   this.uuid =     data.uuid
   this.created =  data.created
@@ -492,6 +494,34 @@ Project.prototype.searchAllNotesTextsAndTags = function(needle){
     }
   }
   return results;
+}
+
+/* ================================================================= */
+/* Trash functions                                                   */
+/*                                                                   */
+/* What do we do as sincere and orderly citizens?                    */
+/* Exactly...we bring out the trash on a regular basis               */
+/* and keep our heads low..                                          */
+/* ================================================================= */
+
+/**
+ * 
+ * Empties the trash (notes & graphs) which have been recently deleted.
+ * (Permanent Deletion)
+ * 
+ * NOTE: The word "recently" here is defined by the INTERVAL_GARBAGE_DISPOSAL
+ * variable which compares whether notes are older than INTERVAL_GARBAGE_DISPOSAL time 
+ * from now and deletes them.
+ * 
+ * Default is 30 days.
+ * 
+ */
+Project.prototype.garbageDisposal = function(){
+  // Empty notes trash.
+  this.db.emptyNotesTrash(this.DELTA_DAYS_GARBAGE_DISPOSAL);
+
+  // TODO: Empty graph trash
+  
 }
 
 

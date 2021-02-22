@@ -7,7 +7,7 @@ const { ipcRenderer } = require('electron')
 const app = require('electron').remote.app
 
 const yo = require('yo-yo')
-const d3 = require('d3')
+// const d3 = require('d3')
 
 // App Peripherals
 const ConfigManager = require('./_app/ConfigurationManager')
@@ -50,10 +50,6 @@ function App(el){
 
   self.session = new Session(self)     // The session stores all the open projects with notes
   self.appControls = new AppControls()
-
-
-
-  
 
   /* ====== Views ====== */
   // All view instance for different parts of the app's UI
@@ -188,13 +184,9 @@ function App(el){
    * instead of the values from the beginning.
    */
   function addScripts(to){
-    var script_el = document.createElement('script')
-    script_el.src = "./scripts/dropdown_semantic_ui.js"
-    to.appendChild(script_el)
-
-    /*script_el = document.createElement('script')
-    script_el.src = "graph-creator.js"
-    target.appendChild(script_el)*/
+    var script_el = document.createElement('script');
+    script_el.src = "./scripts/dropdown_semantic_ui.js";
+    to.appendChild(script_el);
   }
 
   addScripts(document.getElementById('layout'))
@@ -311,10 +303,16 @@ function App(el){
 
   self.on('openProjectDialog', function(){
     self.session.openProjectDialog(render);
+
+    // Empty trash of the opened if necessary
+    self.session.getActiveProject().garbageDisposal();
   })
 
   self.on('openRecentProject', function(path){
-    self.session.openProjectWithPath(path, render)
+    self.session.openProjectWithPath(path, render);
+
+    // Empty trash of the opened if necessary
+    self.session.getActiveProject().garbageDisposal();
   })
 
   self.on('closeProject', function(project_id){

@@ -8,7 +8,11 @@ var FileDatabaseManager = {
       name:       "",    
       tags:       [],
       notes:      [],
-      graphs:     []
+      graphs:     [],
+      trash: {
+        notes: [],
+        graphs: []
+      }
     }
     return empty_project
   },

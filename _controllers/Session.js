@@ -466,22 +466,3 @@ Session.prototype.deleteProject = function(project_id, callback){
   }
 }
 
-/**
- * Searches all notes of all open projects for a string.
- * 
- * @param {string} needle -- The string to search for.
- */
-// Session.prototype.searchAllNotes = function(needle){
-//   var i, cur,
-//       results = [];
-//   for(i in this.projects){
-//     cur = this.projects[i].searchAllNotes(needle);
-//     if(cur.length > 0){
-//       results.push({
-//         project_index: i,
-//         result: cur
-//       })
-//     }
-//   }
-//   return results;
-// }
