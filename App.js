@@ -271,6 +271,10 @@ function App(el){
    */
   self.on('render', render)
 
+  self.on('renderLazy', function(){
+    render(true);
+  })
+
   function transToGraphEditor(){
     let active_p = self.session.getActiveProject();
     if(!active_p.getGraphMode()){
@@ -552,6 +556,19 @@ function App(el){
   self.on('updateVertexPosition', function(){
     // PROBABLY NOT NEEDED.
   })
+
+  self.on('transitionGraph', function(){
+    console.log('transitionGraph');
+  });
+  self.on('transitionGraphAndEditor', function(){
+    console.log('transitionGraphAndEditor');
+  });
+  self.on('deleteSelectedGraphs', function(){
+    console.log("App.js: deleteSelectedGraphs");
+  });
+  self.on('createNewGraph', function(){
+    console.log("App.js: createNewGraph");
+  });
   
 
   function closeApp(){

@@ -6,8 +6,8 @@ const low = require('lowdb')
 const FileSync = require('lowdb/adapters/FileSync')
 
 const { v4: uuidv4 } = require('uuid')
-const FileDatabaseManager = require('./FileDatabaseManager')
-const { position } = require('custom-electron-titlebar/lib/common/dom')
+
+const DateFormatter = require('../_util/DateFormatter');
 
 /**
  * TODO Refactoring:

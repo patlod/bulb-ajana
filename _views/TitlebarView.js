@@ -52,46 +52,71 @@ TitlebarView.prototype.render = function (session) {
     }
 
     function clickCreateNewNote(e){
-        self.send('createNewNote')
+        self.send('createNewNote');
+    }
+
+    function clickCreateNewGraph(e){
+        console.log("clickCreateNewGraph")
+        self.send('createNewGraph');
     }
 
     function makeCreateNewBtn(project){
         if(!project){
             return
         }
-        let eN = project.getEmptyNotes()
-        if( eN === null){
-            console.error("ERROR inconsistencies in notes")
-            
-            // DELETE EMPTY NOTES
-            project.session.prepProjectForTrans(project)
-        }
-        if(eN.length === 0){ 
-            // No empty note: Return normal button
-            return yo`    
-            <button id="new-note-btn" class="tb-btn" onclick=${clickCreateNewNote}><i class="far fa-edit"></i></button>
-            `
-        }else{
-            if(eN.length === 1){
-                // Has empty note: Return disabled button
-                return yo`
-                <button id="new-note-btn" class="tb-btn disabled" onclick=${clickCreateNewNote} disabled><i class="far fa-edit"></i></button>
-                `
+        
+        if(project.session.app.views.notes.objectOfDisplay === "note"){
+            let eN = project.getEmptyNotes()
+            if( eN === null){
+                console.error("ERROR inconsistencies in notes")
+                
+                // DELETE EMPTY NOTES
+                project.session.prepProjectForTrans(project)
             }
+            if(eN.length === 0){ 
+                // No empty note: Return normal button
+                return yo`    
+                <button id="new-note-btn" class="tb-btn" onclick=${clickCreateNewNote}><i class="far fa-edit"></i></button>
+                `
+            }else{
+                if(eN.length === 1){
+                    // Has empty note: Return disabled button
+                    return yo`
+                    <button id="new-note-btn" class="tb-btn disabled" onclick=${clickCreateNewNote} disabled><i class="far fa-edit"></i></button>
+                    `
+                }
+            }    
+        }else{
+            return yo`
+            <button id="new-note-btn" class="tb-btn" onclick=${clickCreateNewGraph}><i class="far fa-edit"></i></button>
+            `
         }
+        
     }
 
     function clickDeleteSelectedNotes(e){
         self.send('deleteSelectedNotes')
     }
 
+    function clickDeleteSelectedGraphs(e){
+        self.send('deleteSelectedGraphs');
+    }
+
     function makeDeleteButton(project){
         if(!project){
             return
         }else{
-            return yo`
-                <button class="tb-btn" onclick=${clickDeleteSelectedNotes}><i class="fas fa-trash-alt"></i></button>
-            `
+             
+            if(project.session.app.views.notes.objectOfDisplay === "note"){
+                return yo`
+                    <button class="tb-btn" onclick=${clickDeleteSelectedNotes}><i class="fas fa-trash-alt"></i></button>
+                `
+            }else{
+                return yo`
+                    <button class="tb-btn" onclick=${clickDeleteSelectedGraphs}><i class="fas fa-trash-alt"></i></button>
+                `
+            }
+            
         }
     }
 

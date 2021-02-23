@@ -347,6 +347,29 @@ body {
   position: relative;
   height: 100%;
 }
+#note-list-ctrls-top {
+  position: relative;
+  font-size: 10px;
+  font-weight: 600;
+  display: block;
+}
+#note-list-ctrls-top > span {
+  cursor: pointer;
+  width: 50%;
+  text-align: center;
+  display: inline-block;
+  padding: 0.3em 0em;
+}
+#note-list-ctrls-top > span:first-child {
+  border-right: 1px solid #666666;
+}
+#note-list-ctrls-top > span.active {
+  background: #c5c5c5;
+}
+#note-list-ctrls-top > span.active {
+  background: #999;
+  color: #ddd;
+}
 #note-list-head {
   font-size: 10px;
   padding: 0.35em 0.5em;
@@ -359,14 +382,14 @@ body {
 #note-list-scroll {
   display: block;
   width: 100%;
-  height: 100%;
+  height: calc(100% - 23px);
   overflow-y: auto;
   scrollbar-width: thin;
 }
 #note-list-scroll.search-active {
   display: block;
   width: 100%;
-  height: calc(100% - 26.38px);
+  height: calc(100% - 26.38px - 23px);
   overflow-y: auto;
   scrollbar-width: thin;
 }

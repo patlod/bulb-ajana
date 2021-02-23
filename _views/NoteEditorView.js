@@ -611,7 +611,6 @@ NoteEditorView.prototype.render = function(project){
   }
   
   
-
   /**
    * Initialise tagify input on the UI fragment.
    */

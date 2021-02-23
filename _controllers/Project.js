@@ -295,6 +295,10 @@ Project.prototype.loadGraphs = function(){
   return graphs
 }
 
+Project.prototype.getAllGraphs = function(){
+  return this.graphs;
+}
+
 /**
  * Change project name
  * 

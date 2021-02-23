@@ -12,6 +12,9 @@ function NoteListView(target) {
   EventEmitterElement.call(this, target)
 
   this.scrollTop = 0;
+
+  this.objectOfDisplay = "note"; // or "graph"
+
 }
 inherits(NoteListView, EventEmitterElement)
 
@@ -82,117 +85,188 @@ NoteListView.prototype.render = function(project){
   if(!project){ return }
 
   // Could also check whether project is active here...
+  var thumbs;
+  if(self.objectOfDisplay === "note"){
 
-  // Get project notes
-  let notes;
-  if(project.search === null){
-    notes = project.getAllNotes();
-  }else{
-    notes = project.search.notes.map(function(x){
-      return x.note;
-    });
+    // Get project notes
+    let notes;
+    if(project.search === null){
+      notes = project.getAllNotes();
+    }else{
+      notes = project.search.notes.map(function(x){
+        return x.note;
+      });
 
-    let chk = notes.filter(function(x){
-      return x.compareTo(project.getActiveNote())
-    })
-    if(notes.length > 0 && chk.length === 0){
-      project.toggleActiveNote(notes[0]);
+      let chk = notes.filter(function(x){
+        return x.compareTo(project.getActiveNote())
+      })
+      if(notes.length > 0 && chk.length === 0){
+        project.toggleActiveNote(notes[0]);
+      }
+      
     }
     
-  }
-  
 
-  var notes_thmbs = notes.map(function(note){
-    
-    /* ====================================================================== */
-    /*  Event Handlers - Note Thumbnail                                       */
-    /* ====================================================================== */
+    thumbs = notes.map(function(note){
+      
+      /* ====================================================================== */
+      /*  Event Handlers - Note Thumbnail                                       */
+      /* ====================================================================== */
 
-    function clickNoteThmb(e){
-      self.send('transitionNote', project, note)
-    }
-
-    function dblclickNoteThmb(e){
-      console.log("Double click on..")
-      if(project.getGraphMode()){
-        // Project in graph mode so switch to NoteEditor and then focus on note
-        self.send('transitionNoteAndEditor', project, note)
-      }else{  // Same as single click
+      function clickNoteThmb(e){
         self.send('transitionNote', project, note)
       }
-    }
-    /* ====================================================================== */
-    /* ====================================================================== */
 
-    var className = (note.isActive()) ? 'active' : ''
-    
-    let note_thumb = yo`
-      <div class="note-thmb-wrap">
-        <div class="note-thmb ${className}" data-id=${note.uuid} onclick=${clickNoteThmb} ondblclick=${dblclickNoteThmb}>
-          <div class="flex-wrap">
-          <span class="color-pickr-circle-thmb" style="background-color: ${note.bg_color}"></span><span class="note-thmb-head">${note.getHeader()}</span>
-          </div>
-          <div class="flex-wrap">
-            <span class="note-thmb-datetime">${DateFormatter.formatDateNoteThmb(note.getCreated())}:</span> <span class="note-thmb-content">${note.getContentPreview()}</span>
-          </div>
-          <div class="flex-wrap">
-            ${self.tagsHTML(note)}
+      function dblclickNoteThmb(e){
+        console.log("Double click on..")
+        if(project.getGraphMode()){
+          // Project in graph mode so switch to NoteEditor and then focus on note
+          self.send('transitionNoteAndEditor', project, note)
+        }else{  // Same as single click
+          self.send('transitionNote', project, note)
+        }
+      }
+      /* ====================================================================== */
+      /* ====================================================================== */
+
+      var className = (note.isActive()) ? 'active' : ''
+      
+      let note_thumb = yo`
+        <div class="note-thmb-wrap">
+          <div class="note-thmb ${className}" data-id=${note.uuid} onclick=${clickNoteThmb} ondblclick=${dblclickNoteThmb}>
+            <div class="flex-wrap">
+            <span class="color-pickr-circle-thmb" style="background-color: ${note.bg_color}"></span><span class="note-thmb-head">${note.getHeader()}</span>
+            </div>
+            <div class="flex-wrap">
+              <span class="note-thmb-datetime">${DateFormatter.formatDateNoteThmb(note.getCreated())}:</span> <span class="note-thmb-content">${note.getContentPreview()}</span>
+            </div>
+            <div class="flex-wrap">
+              ${self.tagsHTML(note)}
+            </div>
           </div>
         </div>
-      </div>
-    `
-  
-    // Make note-thumbs draggable elements
-    $(note_thumb).draggable({
-      start: function(event,ui){
-        $('body').css("cursor", "no-drop")
-       },
-       stop: function(event,ui){
-        $('body').css("cursor", "initial");
-       },
-      revert: true, 
-      helper: function(e,ui){
-        //$($.parseHTML('<p style="background: pink">Copy!</p>'))
-        let clone = $(this).clone()
-        clone.children('.note-thmb').css({"background": "#f7f7f7", "border-bottom": "none"})
-        return clone
-      }, 
-      cursorAt: { left: 2, top: 2},
-      appendTo: '#layout',
-      distance: 20
+      `
+    
+      // Make note-thumbs draggable elements
+      $(note_thumb).draggable({
+        start: function(event,ui){
+          $('body').css("cursor", "no-drop")
+        },
+        stop: function(event,ui){
+          $('body').css("cursor", "initial");
+        },
+        revert: true, 
+        helper: function(e,ui){
+          //$($.parseHTML('<p style="background: pink">Copy!</p>'))
+          let clone = $(this).clone()
+          clone.children('.note-thmb').css({"background": "#f7f7f7", "border-bottom": "none"})
+          return clone
+        }, 
+        cursorAt: { left: 2, top: 2},
+        appendTo: '#layout',
+        distance: 20
+      })
+
+      return note_thumb
     })
 
-    return note_thumb
-  })
+  }else{
+    let graphs = project.getAllGraphs();
 
-  function scrollNoteList(){
+    thumbs = graphs.map(function(graph){
+      /* ====================================================================== */
+      /*  Event Handlers - Note Thumbnail                                       */
+      /* ====================================================================== */
+
+      function clickNoteThmb(e){
+        self.send('transitionGraph', project, graph)
+      }
+
+      function dblclickNoteThmb(e){
+        console.log("Double click on..")
+        if(project.getGraphMode()){
+          // Project in graph mode so switch to NoteEditor and then focus on note
+          self.send('transitionGraph', project, graph)
+        }else{  // Same as single click
+          self.send('transitionGraphAndEditor', project, graph)
+          
+        }
+      }
+
+      /* ====================================================================== */
+      /* ====================================================================== */
+
+      var className = (graph.isActive()) ? 'active' : ''
+      
+      let graph_thumb = yo`
+        <div class="note-thmb-wrap">
+          <div class="note-thmb ${className}" data-id=${graph.uuid} onclick=${clickNoteThmb} ondblclick=${dblclickNoteThmb}>
+            <div class="flex-wrap">
+              <span class="note-thmb-content">Graph name here..</span>
+            </div>
+            
+            <div class="flex-wrap">
+              <span class="note-thmb-datetime">DD-MM-YYYY:</span> <!-- <span class="note-thmb-content">Amount of notes here..</span> -->
+            </div>
+            
+          </div>
+        </div>
+      `
+      return graph_thumb
+    })
+  }
+
+  function scrollList(){
     /**
      * Save the scroll position in the NoteListView class here..
      */
     console.log("Scroll position: " + this.scrollTop);
     self.scrollTop = this.scrollTop;
   }
+
+  function clickSelectNotesList(){
+    console.log("clickSelectNotesList")
+    self.objectOfDisplay = "note";
+    self.send('renderLazy');
+  }
   
+  function clickSelectGraphsList(){
+    console.log("clickSelectGraphsList");
+    self.objectOfDisplay = "graph";
+    self.send('renderLazy');
+  }
   
   let notes_list = yo`
     <div>
       ${function(){
-        if(project.search !== null){
+        if(self.objectOfDisplay === "note"){
+          return yo`<div id="note-list-ctrls-top">
+              <span class="active" onclick=${clickSelectNotesList}>Notes</span><span onclick=${clickSelectGraphsList}>Graphs</span>
+            </div>`
+        }else{
+          return yo`<div id="note-list-ctrls-top">
+              <span onclick=${clickSelectNotesList}>Notes</span><span class="active" onclick=${clickSelectGraphsList}>Graphs</span>
+            </div>`
+        }
+      }()}
+      
+      ${function(){
+        if(self.objectOfDisplay === "note" && project.search !== null){
           return yo`
-          <div id="note-list-head" class="note-thmb-wrap">
+          <div id="note-list-head">
             <span class="note-thmb-head">Found ${notes.length} results</span> 
           </div>
           `
         }
       }()}
       ${function(){
-        if(project.search !== null){
-          return yo`<div id="note-list-scroll" class="search-active" onscroll=${scrollNoteList}>
-                      ${notes_thmbs}
+        if(self.objectOfDisplay === "note" && project.search !== null){
+          return yo`<div id="note-list-scroll" class="search-active" onscroll=${scrollList}>
+                      ${thumbs}
                     </div>`;
         }else{
-          return yo`<div id="note-list-scroll" onscroll=${scrollNoteList}>
-            ${notes_thmbs}
+          return yo`<div id="note-list-scroll" onscroll=${scrollList}>
+            ${thumbs}
           </div>`;
         }
         
