@@ -138,7 +138,7 @@ NoteListView.prototype.render = function(project){
             <span class="color-pickr-circle-thmb" style="background-color: ${note.bg_color}"></span><span class="note-thmb-head">${note.getHeader()}</span>
             </div>
             <div class="flex-wrap">
-              <span class="note-thmb-datetime">${DateFormatter.formatDateNoteThmb(note.getCreated())}:</span> <span class="note-thmb-content">${note.getContentPreview()}</span>
+              <span class="note-thmb-datetime">${DateFormatter.formatDateItemThmb(note.getCreated())}:</span> <span class="note-thmb-content">${note.getContentPreview()}</span>
             </div>
             <div class="flex-wrap">
               ${self.tagsHTML(note)}
@@ -202,11 +202,11 @@ NoteListView.prototype.render = function(project){
         <div class="note-thmb-wrap">
           <div class="note-thmb ${className}" data-id=${graph.uuid} onclick=${clickNoteThmb} ondblclick=${dblclickNoteThmb}>
             <div class="flex-wrap">
-              <span class="note-thmb-content">Graph name here..</span>
+              <span class="note-thmb-content">${graph.name}</span>
             </div>
             
             <div class="flex-wrap">
-              <span class="note-thmb-datetime">DD-MM-YYYY:</span> <!-- <span class="note-thmb-content">Amount of notes here..</span> -->
+              <span class="note-thmb-datetime">${DateFormatter.formatDateItemThmb(graph.getCreated())}</span> <!-- <span class="note-thmb-content">Amount of notes here..</span> -->
             </div>
             
           </div>

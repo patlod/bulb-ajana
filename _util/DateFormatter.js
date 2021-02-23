@@ -9,7 +9,7 @@ var DateFormatter = {
    * 
    * @param {Date()} date
    */
-  formatDateNoteThmb: function(date){
+  formatDateItemThmb: function(date){
     let now = moment(new Date())
     let today = moment(now.format("DD-MM-YYYY"), "DD-MM-YYYY")
     let n_date = moment(new Date(date))

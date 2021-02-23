@@ -34,7 +34,6 @@ function Project(path, session, data = FileDatabaseManager.getEmptyProjectJSON()
   this.name = data.name
   this.tags = data.tags
   this.notes = data.notes
-  //this.selected_notes = []
 
   this.active = false
 
@@ -45,6 +44,8 @@ function Project(path, session, data = FileDatabaseManager.getEmptyProjectJSON()
   this.graph_mode = false   // Default: Graph is off..
   this.graphs = data.graphs
 
+  // this.selected_items = null
+  
   // Load data on creation
   this.loadData()
   

@@ -520,10 +520,13 @@ FileDatabase.prototype.insertGraph = function(graph){
 
 FileDatabase.prototype.updateGraphPosition = function(graph_id, position){
   this.db.read();
-  this.db.get('graphs').find({uuid: graph_id}).assign({position: {
-    translate: { x: position.translate.x, y: position.translate.y},
-    scale: position.scale
-  }}).write()
+  this.db.get('graphs').find({uuid: graph_id}).assign({
+    position: {
+      translate: { x: position.translate.x, y: position.translate.y},
+      scale: position.scale
+    },
+    modified: Date.now(),
+  }).write()
 }
 
 FileDatabase.prototype.selectAllGraphs = function(){
@@ -539,6 +542,7 @@ FileDatabase.prototype.insertVertex = function(graph_id, vertex){
   if(!s){ // Not existing, so create..
     this.db.get('graphs')
     .find({uuid: graph_id})
+    .assign({ modified: Date.now() })
     .get('vertices')
     .push({
       uuid:     vertex.uuid,
@@ -550,6 +554,7 @@ FileDatabase.prototype.insertVertex = function(graph_id, vertex){
   }else{  // Exists, so update its position..
     this.db.get('graphs')
     .find({uuid: graph_id})
+    .assign({ modified: Date.now() })
     .get('vertices')
     .find({uuid: vertex.uuid})
     .assign({
@@ -565,7 +570,7 @@ FileDatabase.prototype.deleteVertices = function(graph_id, vertices){
   
   let v_ids = vertices.map(function(v){ return { uuid: v.uuid } } )
   for(var i in v_ids){
-    this.db.get('graphs').find({uuid: graph_id}).get('vertices').remove(v_ids[i]).write()
+    this.db.get('graphs').find({uuid: graph_id}).assign({ modified: Date.now() }).get('vertices').remove(v_ids[i]).write()
   }
 }
 
@@ -582,6 +587,7 @@ FileDatabase.prototype.insertEdge = function(graph_id, edge){
   if(!s){
     this.db.get('graphs')
     .find({uuid: graph_id})
+    .assign({ modified: Date.now() })
     .get('edges')
     .push({
       uuid: edge.uuid,
@@ -598,7 +604,7 @@ FileDatabase.prototype.deleteEdges = function(graph_id, edges){
 
   let ed_ids = edges.map(function(ed){ return { uuid: ed.uuid } } )
   for(var i in ed_ids){
-    this.db.get('graphs').find({uuid: graph_id}).get('edges').remove(ed_ids[i]).write();
+    this.db.get('graphs').find({uuid: graph_id}).assign({ modified: Date.now() }).get('edges').remove(ed_ids[i]).write();
   }
 }
 

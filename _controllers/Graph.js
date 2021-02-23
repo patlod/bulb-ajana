@@ -12,7 +12,8 @@ function Graph(project, data = FileDatabaseManager.getEmptyGraphJSON())
   // Graph data
   this.uuid = data.uuid
   this.created = data.created
-  // this.modified = data.modified
+  this.modified = data.modified
+  this.name = data.name
   this.position = data.position
   this.vertices = data.vertices
   this.edges = data.edges
@@ -259,13 +260,23 @@ Graph.prototype.getVerticesBoundingBox = function(){
   }
 }
 
+/**
+ * Returns date of creation
+ * @param {function} callback 
+ */
+Graph.prototype.getCreated = function(){
+  return this.created
+}
+
 
 Graph.prototype.getGraphJSON = function(){
   return {
     uuid:       this.uuid,
     created:    this.created,
+    modified:   this.modified,
+    name:       this.name,
     position:   this.position,
-    vertices:   this.vertices,
-    edges:      this.edges
+    vertices:   this.vertices.map(function(v){ return v.getVertexJSON()}),
+    edges:      this.edges.map(function(ed){ return ed.getEdgeJSON()})
   }
 }
