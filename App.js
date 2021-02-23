@@ -99,7 +99,7 @@ function App(el){
   self.appControls.addRole('default', 'Edit', 'cut')
   self.appControls.addRole('default', 'Edit', 'copy')
   self.appControls.addRole('default', 'Edit', 'paste')
-  self.appControls.addSpacer('default', 'Edit', 'deleter')
+  self.appControls.addSpacer('default', 'Edit', 'delete')
   self.appControls.add('default', 'Edit', 'Delete Selection', () => { console.log("Delete Selected Objects") }, 'CmdOrCtrl+Backspace')
   // self.appControls.addRole('default', 'Edit', 'delete')
   // self.appControls.addRole('default', 'Edit', 'selectall')
@@ -397,9 +397,7 @@ function App(el){
      * For now: 
      *  - Selection of multiple notes not possible.
      *     - Thus: Only delete the currently active note. 
-     *  - Notes are completely deleted
-     *     - Better save them in some sort of a trash been, so that they can
-     *       be potentially revived.
+     *  - The deleted graph is moved to trash been for defined period of time
      */
     if(self.session.getActiveProject() === null){
       console.log("App listener createNewNote -- No active project.")
@@ -557,18 +555,98 @@ function App(el){
     // PROBABLY NOT NEEDED.
   })
 
-  self.on('transitionGraph', function(){
+  // TODO
+  self.on('transitionGraph', function(project, graph, trigger='note-thumb'){
     console.log('transitionGraph');
+
+    // let active_graph = project.getActiveGraph()
+    // // Toggle active project & update UI in case switched to different note
+    // if(active_graph.uuid.localeCompare(graph.uuid) === 0){
+    //   return
+    // }
+
+    // // TODO: REFACTOR this part..
+    // if(!project.getGraphMode()){
+    //   self.session.prepProjectForTrans(project)
+    // }
+    
+    // project.toggleActiveGraph(graph)
+
+    // if(project.getGraphMode() && trigger.localeCompare('note-thumb') === 0){
+    //   console.log("Set selected node here.")
+    //   self.views.graph.updateGraph(project.getActiveGraph())
+    // }
+
+    // render(true)
   });
-  self.on('transitionGraphAndEditor', function(){
+
+  // TODO
+  self.on('transitionGraphAndEditor', function(project, graph){
     console.log('transitionGraphAndEditor');
+
+    // let active_graph = project.getActiveGraph()
+
+    // console.log(project.getGraphMode())
+    // if(project.getGraphMode()){
+    //   project.toggleActiveGraph(graph)
+    //   project.setGraphMode(false)
+    //   self.views.graph.takedown()
+    //   render()
+    // }else{
+    //   if(active_graph.uuid.localeCompare(graph.uuid) === 0){
+    //     return
+    //   }
+    //   self.session.prepProjectForTrans(project)
+    //   project.toggleActiveGraph(graph)
+    //   render(true)
+    // }
   });
-  self.on('deleteSelectedGraphs', function(){
-    console.log("App.js: deleteSelectedGraphs");
-  });
+
   self.on('createNewGraph', function(){
     console.log("App.js: createNewGraph");
+
+    if(self.session.getActiveProject() === null){
+      console.log("App listener createNewNote -- No active project.")
+      return 
+    }
+
+    let nG = self.session.getActiveProject().createNewGraph()
+    nG.saveData() // REFACTOR: Maybe better move this in createNewNote()
+
+    //render(true)
+    if(self.session.getGraphMode()){
+      self.views.graph.forceClearContentDOMEl();
+    }
+    render();
   });
+
+  self.on('deleteSelectedGraphs', function(){
+    console.log("App.js: deleteSelectedGraphs");
+
+    /**
+     * For now: 
+     *  - Selection of multiple graphs not possible.
+     *     - Thus: Only delete the currently active graph. 
+     *  - The deleted graph is moved to trash been for defined period of time
+     */
+    if(self.session.getActiveProject() === null){
+      console.log("App listener createNewNote -- No active project.")
+      return 
+    }
+    let active_p = self.session.getActiveProject()
+    let active_g = active_p.getActiveGraph()
+    console.log(active_g)
+    if(active_g !== null ){
+      active_p.deleteGraph(active_g)
+    }
+
+    if(active_p.getGraphMode()){
+      self.views.graph.forceClearContentDOMEl();
+    }
+    render()
+  });
+
+  
   
 
   function closeApp(){

@@ -29,11 +29,11 @@ function Project(path, session, data = FileDatabaseManager.getEmptyProjectJSON()
   this.DELTA_DAYS_GARBAGE_DISPOSAL = 30;
 
   // Project data
-  this.uuid =     data.uuid
-  this.created =  data.created
-  this.name = data.name
-  this.tags = data.tags
-  this.notes = data.notes
+  this.uuid     = data.uuid
+  this.created  = data.created
+  this.name     = data.name
+  this.tags     = data.tags
+  this.notes    = data.notes
 
   this.active = false
 
@@ -45,7 +45,7 @@ function Project(path, session, data = FileDatabaseManager.getEmptyProjectJSON()
   this.graphs = data.graphs
 
   // this.selected_items = null
-  
+
   // Load data on creation
   this.loadData()
   
@@ -182,7 +182,7 @@ Project.prototype.toggleActiveGraph = function(target = null){
   if(target){
     target.activate()
     return target
-  } // else no note will be activated
+  } // else no graph will be activated
 }
 
 /**
@@ -299,6 +299,51 @@ Project.prototype.loadGraphs = function(){
 Project.prototype.getAllGraphs = function(){
   return this.graphs;
 }
+
+/**
+ * Create new graph
+ */
+Project.prototype.createNewGraph = function(){
+  // Create empty note instance
+  let nG = new Graph(this, FileDatabaseManager.getEmptyGraphJSON())
+  // Store in fleeting storage
+  this.graphs.unshift(nG)
+  // Write to database
+  //this.db.insertNote(FileDatabaseManager.getEmptyNoteJSON())
+  // Toggle active note 
+  this.toggleActiveGraph(nG)
+  return nG
+}
+
+/**
+ * Delete either single note or selection of notes
+ * 
+ *  @param {Graph} graph 
+ */ 
+Project.prototype.deleteGraph = function(graph){
+  let graph_ids = this.graphs.map(function(g) { return g.uuid; })
+  let idx = graph_ids.indexOf(graph.uuid);
+  if(idx < 0 ){
+    console.log("Project.deleteGraph() -- Graph with id " + graph.uuid + " is not existing.")
+    return
+  }
+  // Remove note from cache array at idx
+  this.graphs.splice(idx, 1)
+  
+  // Delete note from database file
+  g_arr = []
+  g_arr.push(graph.getGraphJSON())
+  this.db.deleteGraphs(g_arr)
+
+  // Toggle active note
+  if( idx <= this.graphs.length - 1 ){
+    this.toggleActiveGraph(this.graphs[idx])
+  }
+  if( idx > (this.graphs.length - 1 )){
+    this.toggleActiveGraph(this.graphs[idx - 1])
+  }
+}
+
 
 /**
  * Change project name
@@ -522,11 +567,10 @@ Project.prototype.searchAllNotesTextsAndTags = function(needle){
  * 
  */
 Project.prototype.garbageDisposal = function(){
-  // Empty notes trash.
+  // Empty notes trash
   this.db.emptyNotesTrash(this.DELTA_DAYS_GARBAGE_DISPOSAL);
-
-  // TODO: Empty graph trash
-  
+  // Empty graph trash
+  this.db.emptyGraphsTrash(this.DELTA_DAYS_GARBAGE_DISPOSAL);
 }
 
 

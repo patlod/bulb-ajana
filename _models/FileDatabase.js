@@ -211,10 +211,8 @@ FileDatabase.prototype.updateManyNotes = function(data){
 /**
  * Removes one to many notes
  * 
- * ATTENTION: JSON objects in data list have to be identical to
- * note json in DB. Otherwise no match. (E.g. Tags array should only
- * contain uuid references..)
  * @param {[object]} data 
+ * 
  */
 FileDatabase.prototype.deleteNotes = function(data){
   this.db.read()
@@ -564,6 +562,26 @@ FileDatabase.prototype.insertVertex = function(graph_id, vertex){
   }
 }
 
+/**
+ * Removes one to many graphs
+ * 
+ * @param {[object]} data 
+ */
+FileDatabase.prototype.deleteGraphs = function(data){
+  this.db.read()
+
+  let graph = null,
+      arr = data.map(function(x){ return { uuid: x.uuid } } );
+  for(var i in arr){
+    graph = this.db.get('graphs').find(arr[i]).value();
+    if(graph !== null){
+      graph.modified = Date.now();
+      this.db.get('trash').get('graphs').push(graph).write();
+    }
+    this.db.get('graphs').remove(arr[i]).write()
+  }
+}
+
 FileDatabase.prototype.deleteVertices = function(graph_id, vertices){
   // Empty database buffer
   this.db.read()
@@ -629,7 +647,13 @@ FileDatabase.prototype.emptyNotesTrash = function(delta){
 }
 
 FileDatabase.prototype.emptyGraphsTrash = function(delta){
-  // TODO: Analog to emptyNotesTrash
+  this.db.read();
+
+  console.log("emptyGraphsTrash with delta: " + delta);
+  // Analog to emptyNotesTrash
+  this.db.get('trash').get('graphs')
+  .remove(graph => DateFormatter.checkDateDiffDaysPastNow(graph.modified, delta))
+  .write();
 }
 
 FileDatabase.prototype.reviveDeletedNote = function(note_id){
