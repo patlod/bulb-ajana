@@ -158,7 +158,7 @@ NoteListView.prototype.render = function(project){
       
       let note_thumb = yo`
         <div class="item-thmb-wrap">
-          <div class="item-thmb ${className}" data-id=${note.uuid} onclick=${clickNoteThmb} ondblclick=${dblclickNoteThmb}>
+          <div class="item-thmb ${className}" data-object="note" data-id=${note.uuid} onclick=${clickNoteThmb} ondblclick=${dblclickNoteThmb}>
             <div class="flex-wrap">
             <span class="color-pickr-circle-thmb" style="background-color: ${note.bg_color}"></span><span class="item-thmb-head">${note.getHeader()}</span>
             </div>
@@ -225,7 +225,7 @@ NoteListView.prototype.render = function(project){
       
       let graph_thumb = yo`
         <div class="item-thmb-wrap">
-          <div class="item-thmb ${className}" data-id=${graph.uuid} onclick=${clickNoteThmb} ondblclick=${dblclickNoteThmb}>
+          <div class="item-thmb ${className}" data-object="graph" data-id=${graph.uuid} onclick=${clickNoteThmb} ondblclick=${dblclickNoteThmb}>
             <div class="flex-wrap">
             <span class="item-thmb-head">${graph.getHeader()}</span>
             </div>
