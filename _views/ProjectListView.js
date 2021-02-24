@@ -2,8 +2,11 @@ module.exports = ProjectListView
 
 const EventEmitterElement = require('../_app/EventEmitterElement')
 var inherits = require('util').inherits
+const remote = require('electron').remote;
+const Menu = require('electron').remote.Menu;
 
 var yo = require('yo-yo')
+
 
 
 
@@ -15,27 +18,6 @@ function ProjectListView(target) {
 }
 inherits(ProjectListView, EventEmitterElement)
 
-
-
-
-/**
- * TODO:
- *  - Create new project from '+' button and dropdown
- *      - The event name input should be submitted when pressing enter or clicking somewhere else
- *      - Writing directly to JSON file.
- * - Implement all the functions from the dropdown:
- *    - Dropdown 1:
- *      - Rename project
- *      - Close project
- *      - Sort the notes of the project 
- *      - Delete project
- *      - Make a copy
- *      - Open the folder in finder
- *    - Dropdown 2:
- *      - New project
- *      - Sort project list
- *      - List recent projects
- */
 
 ProjectListView.prototype.createPrjctThmbDropdown = function(){
   var self = this
@@ -205,6 +187,34 @@ ProjectListView.prototype.render = function(projects, recents){
       self.send('switchProject', project)      
     }
 
+    function contextMenuPrjctThmb(e){
+      let template = [
+        {
+        label: 'Rename Project',
+        click: () => {
+          console.log("Context-Menu - Rename Project clicked on element:")
+          console.log(this)
+        }
+      },
+      {
+        label: 'Delete Project',
+        click: () => {
+          console.log("Context-Menu - Delete Project clicked on element:")
+          console.log(this)
+        }
+      },
+      { type: 'separator'},
+      {
+        label: 'New Project',
+        click: () => {
+          console.log("Context-Menu - New Project clicked on element:")
+          console.log(this)
+        }
+      }];
+      const menu = Menu.buildFromTemplate(template);
+      menu.popup(remote.getCurrentWindow());
+    }
+
     function blurHandlerInput(e){
       // Check whether input is .hidden 
       // (i.e. event was already treated by keyup handler)
@@ -271,7 +281,7 @@ ProjectListView.prototype.render = function(projects, recents){
           }
         }
       }
-    } 
+    }
 
     /* ====================================================================== */
     /* ====================================================================== */
@@ -280,7 +290,9 @@ ProjectListView.prototype.render = function(projects, recents){
     var className = project.isActive() ? 'active' : ''
 
     let project_thumb = yo`
-      <div class="prjct-thmb ${className}" onclick="${clickPrjctThmb}" data-id="${project.uuid}">
+      <div class="prjct-thmb ${className}" data-id="${project.uuid}"
+      onclick="${clickPrjctThmb}"
+      oncontextmenu="${contextMenuPrjctThmb}">
         <!-- <div class="fw-prjct-thmb-name"> -->
           <input class="prjct-name-input hidden" type="text" value="${project.getName()}" onblur=${blurHandlerInput} onkeyup=${keyupHandlerInput}>
           <span class="prjct-thmb-name">${project.getName()}</span>

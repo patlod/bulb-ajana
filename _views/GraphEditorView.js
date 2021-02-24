@@ -2,6 +2,8 @@ module.exports = GraphEditorView
 
 const EventEmitterElement = require('../_app/EventEmitterElement')
 var inherits = require('util').inherits
+const remote = require('electron').remote;
+const Menu = require('electron').remote.Menu;
 
 const yo = require('yo-yo')
 const d3 = require("d3")
@@ -284,6 +286,7 @@ GraphEditorView.prototype.removeSelectFromEdge = function(){
 };
 
 GraphEditorView.prototype.pathMouseDown = function(d3path, d){
+  if(d3.event.button !== 0){ return; }
   var self = this,
       state = self.state;
   d3.event.stopPropagation();
@@ -303,11 +306,11 @@ GraphEditorView.prototype.pathMouseDown = function(d3path, d){
 
 // mousedown on node
 GraphEditorView.prototype.circleMouseDown = function(d3node, d){
+  if(d3.event.button !== 0){ return; }
   var self = this,
       state = self.state;
   d3.event.stopPropagation();
   state.mouseDownNode = d;
-
 
   if (d3.event.shiftKey){
     state.shiftNodeDrag = d3.event.shiftKey;
@@ -321,9 +324,11 @@ GraphEditorView.prototype.circleMouseDown = function(d3node, d){
 
 // mouseup on nodes
 GraphEditorView.prototype.circleMouseUp = function(d3node, d){
+  if(d3.event.button !== 0){ return; }
   var self = this,
       state = self.state,
       consts = self.consts;
+
   // reset the states
   state.shiftNodeDrag = false;
   d3node.classed(consts.connectClass, false);
@@ -480,7 +485,20 @@ GraphEditorView.prototype.applyProjectSearch = function(search){
   })
 
   // Check whether search is active and whether note is contained in search result
-  
+}
+
+GraphEditorView.prototype.showVertexContextMenu = function(){
+  let template = [
+    {
+      label: 'Open Note Editor',
+      click: () => {
+        console.log("Context-Menu - Open Note Editor clicked on element:")
+        console.log(this)
+      }
+    }
+  ];
+  let menu = Menu.buildFromTemplate(template);
+  menu.popup(remote.getCurrentWindow());
 }
 
 // Call to propagate changes to graph
@@ -571,6 +589,9 @@ GraphEditorView.prototype.updateGraph = function(graph = null){
     })
     .on("mouseup", function(d){
       self.circleMouseUp.call(self, d3.select(this), d);
+    })
+    .on("contextmenu", function(d){
+      self.showVertexContextMenu();
     })
     .call(self.drag);
   });

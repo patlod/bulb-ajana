@@ -1,10 +1,14 @@
 "use strict"
 
-var EventEmitter = require('events').EventEmitter
+var EventEmitter = require('events').EventEmitter;
 
-const inherits = require('util').inherits
-const { ipcRenderer } = require('electron')
-const app = require('electron').remote.app
+const inherits = require('util').inherits;
+const { ipcRenderer } = require('electron');
+const remote = require('electron').remote;
+const Menu = require('electron').remote.Menu;
+const MenuItem = require('electron').remote.MenuItem;
+
+
 
 const yo = require('yo-yo')
 // const d3 = require('d3')
@@ -158,10 +162,16 @@ function App(el){
   self.appControls.add('default', 'Graph', 'Scroll East', () => { console.log("Scroll East") }, '')
 
   self.appControls.commit()
-  
 
 
- 
+  // function makeContextMenus(){
+  //   remote.app.makeContextMenus();
+  // }
+
+  // ipcRenderer.on('contextMenuReply', (event) => {
+  //   console.log("Received reply from context menu main.js")
+  //  })
+
 
   
 
@@ -246,7 +256,7 @@ function App(el){
 
           // For now dropping graphs into graphs is not supported..
           if(data_object !== "note"){ return }
-          item_id = item_thmb.attr('data-id');
+          item_id = $item_thmb.attr('data-id');
 
           let active_project = self.session.getActiveProject(),
               active_graph = active_project.getActiveGraph();
@@ -404,7 +414,7 @@ function App(el){
     
   })
 
-  self.on('deleteSelectedNotes', function(){
+  self.on('deleteSelectedNotes', function(notes){
     console.log("App received: DELETE SELECTED NOTES")
     /**
      * For now: 
@@ -416,23 +426,28 @@ function App(el){
       console.log("App listener createNewNote -- No active project.")
       return 
     }
-    let active_p = self.session.getActiveProject()
-    let active_g = active_p.getActiveGraph()
-    let active_note = active_p.getActiveNote()
-    console.log(active_g)
-    if(active_g !== null ){
-      active_g.deleteVerticesForNote(active_note)
-      if(self.views.graph.graph !== null){
-        self.views.graph.updateGraph(active_g)
-      }
+    let i,
+        active_project = self.session.getActiveProject(),
+        active_note = active_project.getActiveNote(),
+        // active_graph = active_project.getActiveGraph(),
+        all_graphs = active_project.getAllGraphs();
+    
+    // Delete the note from all graphs here
+    for(i in all_graphs){
+      all_graphs[i].deleteVerticesForNote(active_note)
+      // if(all_graphs[i].uuid.localeCompare(active_graph.uuid) === 0 
+      //     && self.views.graph.graph !== null){
+      //   self.views.graph.updateGraph(active_graph)
+      // }
     }
-    active_p.deleteNote(active_note)
+    active_project.deleteNote(active_note)
 
+    self.views.graph.forceClearContentDOMEl();
     render()
   })
 
   
-  self.on('updateByEditorContent', function(active_note){
+  self.on('updateByNoteEditorContent', function(active_note){
     console.log("App received: LIVE UPDATE TEXT OF NOTE THUMB")
     
     self.views.titlebar.updateCreateNewBtn(el, active_note)
@@ -695,6 +710,8 @@ function App(el){
   ipcRenderer.on('saveEdits', (event) => {
    closeApp()
   })
+
+  
 
 }
 

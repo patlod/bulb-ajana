@@ -352,6 +352,7 @@ body {
   font-size: 10px;
   font-weight: 600;
   display: block;
+  border-bottom: 1px solid #c5c5c5;
 }
 #item-list-ctrls-top > span {
   cursor: pointer;
@@ -361,14 +362,10 @@ body {
   padding: 0.3em 0em;
 }
 #item-list-ctrls-top > span:first-child {
-  border-right: 1px solid #666666;
+  border-right: 1px solid #c5c5c5;
 }
 #item-list-ctrls-top > span.active {
-  background: #c5c5c5;
-}
-#item-list-ctrls-top > span.active {
-  background: #999;
-  color: #ddd;
+  background: #e4e4e4;
 }
 #item-list-head {
   font-size: 10px;
@@ -417,12 +414,6 @@ body {
 .item-thmb:hover {
   background: #E4E4E4;
   cursor: pointer;
-}
-.item-thmb-name {
-  display: block;
-  width: 100%;
-  margin-right: 3em;
-  font-weight: 600;
 }
 .flex-wrap {
   display: flex;
@@ -476,16 +467,6 @@ body {
   margin-top: 0.25em;
   margin-left: 0.1em;
   margin-right: 0.2em;
-}
-.item-thmb-ctrls {
-  /* position: absolute -- Makes dropdown function correctly on expense of 
-     name truncating. "Relative" makes truncating work but dropdown not.. */
-  position: absolute;
-  right: 0.3em;
-  top: 0em;
-  display: block;
-  margin-left: auto;
-  white-space: nowrap;
 }
 /* ======================================= */
 /*   Note Editor                           */

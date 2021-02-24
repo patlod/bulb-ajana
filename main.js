@@ -1,15 +1,6 @@
-const { app, ipcMain, BrowserWindow, Menu } = require('electron')
+const { app, ipcMain, BrowserWindow, Menu, MenuItem } = require('electron')
 const electronConnect = require('electron-connect');
 const path = require('path');
-
-// Enable live reload for Electron too
-//require('electron-reload')(__dirname);
-/*, {
-  // Note that the path to electron may vary according to the main file
-  electron: require(`${__dirname}/node_modules/electron`)
-});*/
-
-
 
 var client = null;
 
@@ -33,11 +24,6 @@ function createWindow () {
   })
 
   win.on('close', function(e){
-    /**
-     * TODO: Store application data here
-     * - For now just the text of active note from NoteEditorView..
-     */
-
     if(!force_quit){
       if (win) {
         e.preventDefault();
@@ -75,19 +61,20 @@ function createWindow () {
 
   client = electronConnect.client.create(win);
 
-  /** Reload of the page does not refresh html and css..
-  
-  client.on('reload', function(){
-    console.log("Client: Received reload event");
-    win.reload();
-    win.webContents.session.clearCache(function(){
-      console.log("cleared browserwindow cache")
-      })
-    
-  })*/
+  // const ctxMenu = new Menu();
+  // ctxMenu.append(new MenuItem({
+  //   label: 'Hello'
+  // }))
+
+  // win.webContents.on('context-menu', function(e, params){
+  //   ctxMenu.popup(win, params.x, params.y);
+  //   // ipcMain.send('openedContextMenu', )
+  // })
 }
 
-app.whenReady().then(createWindow)
+app.whenReady().then(function(){
+  createWindow();
+})
 
 app.on('close', () => {
   if (process.platform !== 'darwin') {

@@ -3,6 +3,11 @@ module.exports = NoteListView
 const EventEmitterElement = require('../_app/EventEmitterElement')
 var inherits = require('util').inherits
 
+const remote = require('electron').remote;
+const Menu = require('electron').remote.Menu;
+// const MenuItem = require('electron').remote.MenuItem;
+
+
 const yo = require('yo-yo')
 const DateFormatter = require('../_util/DateFormatter')
 
@@ -151,6 +156,29 @@ NoteListView.prototype.render = function(project){
           self.send('transitionNote', project, note)
         }
       }
+
+      function oncontextmenuClickNoteThmb(e){
+        $(this).attr('data-id')
+        const template = [
+          {
+            label: 'Delete',
+            click: () => {
+              console.log("Context-Menu - Delete clicked on element:")
+              console.log(item_id)
+            }
+          },
+          { type: 'separator'},
+          {
+            label: 'New Note',
+            click: () => {
+              console.log("Context-Menu - New Note clicked on element:")
+              console.log(item_id)
+            }
+          }
+        ]
+        const menu = Menu.buildFromTemplate(template);
+        menu.popup(remote.getCurrentWindow())
+      }
       /* ====================================================================== */
       /* ====================================================================== */
 
@@ -158,7 +186,11 @@ NoteListView.prototype.render = function(project){
       
       let note_thumb = yo`
         <div class="item-thmb-wrap">
-          <div class="item-thmb ${className}" data-object="note" data-id=${note.uuid} onclick=${clickNoteThmb} ondblclick=${dblclickNoteThmb}>
+          <div class="item-thmb ${className}" data-object="note" data-id=${note.uuid} 
+            onclick=${clickNoteThmb} 
+            ondblclick=${dblclickNoteThmb}
+            oncontextmenu=${oncontextmenuClickNoteThmb}>
+
             <div class="flex-wrap">
             <span class="color-pickr-circle-thmb" style="background-color: ${note.bg_color}"></span><span class="item-thmb-head">${note.getHeader()}</span>
             </div>
