@@ -240,12 +240,19 @@ function App(el){
         drop: function(event,ui){
           console.log("Dropped note in graph at position...")
 
-          let active_project = self.session.getActiveProject()
-          let active_graph = active_project.getActiveGraph()
+          let $item_thmb = ui.draggable.find('.item-thmb'),
+              data_object = $item_thmb.attr('data-object'),
+              item_id = null;
 
-          let note_id = ui.draggable.find('.item-thmb').attr('data-id')
+          // For now dropping graphs into graphs is not supported..
+          if(data_object !== "note"){ return }
+          item_id = item_thmb.attr('data-id');
+
+          let active_project = self.session.getActiveProject(),
+              active_graph = active_project.getActiveGraph();
+
           // Get note from project
-          let note = active_project.getNoteByUUID(note_id)
+          let note = active_project.getNoteByUUID(item_id)
           console.log(note)
 
           console.log("calcDropZone coordinates...")

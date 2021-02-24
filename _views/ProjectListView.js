@@ -295,50 +295,58 @@ ProjectListView.prototype.render = function(projects, recents){
     `
 
     // Make project-thumbs droppable elements
-    $(project_thumb).droppable({
-      accept:'.item-thmb-wrap',
-      tolerance: 'pointer',
-      classes: {
-        "ui-droppable-active": "prjct-thmb-drppbl-active",
-        "ui-droppable-hover": "prjct-thmb-drppbl-hover"
-      },
-      over: function(event, ui) {
-        $('body').css("cursor", "copy")
-      },
-      out: function(event, ui) {
-        $('body').css("cursor", "no-drop")
-      },
-      drop: function(event,ui){
-        console.log("Dropped note on project thmb...")
+    // $(project_thumb).droppable({
+    //   accept:'.item-thmb-wrap',
+    //   tolerance: 'pointer',
+    //   classes: {
+    //     "ui-droppable-active": "prjct-thmb-drppbl-active",
+    //     "ui-droppable-hover": "prjct-thmb-drppbl-hover"
+    //   },
+    //   over: function(event, ui) {
+    //     $('body').css("cursor", "copy")
+    //   },
+    //   out: function(event, ui) {
+    //     $('body').css("cursor", "no-drop")
+    //   },
+    //   drop: function(event,ui){
+    //     console.log("Dropped note on project thmb...")
 
-        // TODO:
-        // Check whether its not the current project
-        // Check insert note into other project.
+    //     let $item_thmb = ui.draggable.find('.item-thmb'),
+    //         data_object = $note_thmb.attr('data-object'),
+    //         item_id = $item_thmb.attr('data-id');
 
-        // let active_project = self.session.getActiveProject()
-        // let active_graph = active_project.getActiveGraph()
+    //     let active_project = project.session.getActiveProject();
+    //     if(project.uuid.localCompare(active_project.uuid) !== 0){ 
+    //       // Project dropped on is equal to the current project.
+    //       return; 
+    //     }
 
-        // let note_id = ui.draggable.find('.item-thmb').attr('data-id')
-        // // Get note from project
-        // let note = active_project.getNoteByUUID(note_id)
-        // console.log(note)
+    //     // Add note or graph to project
+    //     if(data_object !== "note"){ 
+    //       // Get note instance
+    //       let note = active_project.getNoteByUUID(note_id)
+    //       console.log(note)
+          
+    //       // TODO:
+    //       // Check whether note already exists in other project.
+    //       //    If not, insert
+    //       //       If inserted => render()
+          
 
-        // console.log("calcDropZone coordinates...")
-        // let coords = self.views.graph.calcRelativeDropZone(ui.position)
-        
-        // if(note !== null){
-        //   console.log("..it exists, so add it...")
-        //   let nV = active_graph.createNewVertexForNote(coords, note)
-        //   if(nV){
-        //     nV.saveData()
-        //     self.views.graph.updateGraph(active_graph)
-        //     render(true)
-        //   }else{
-        //     console.log("Vertex for this note already exists..")
-        //   }
-        // }
-      }
-    });
+    //     }else{
+    //       if(data_object !== "graph"){
+    //         // Get graph instance
+    //         let graph = active_project.getGraphByUUID(note_id)
+    //         console.log(graph)
+            
+    //         // TODO:
+    //         // Check whether graph already exists in other project.
+    //         //    If not, insert
+    //         //       If inserted => render()
+    //       }
+    //     }
+    //   }
+    // });
 
     return project_thumb
   })
