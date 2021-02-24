@@ -258,7 +258,7 @@ function App(el){
               nV.saveData();
               self.views.graph.updateGraph(active_graph);
               // Update the create new graph button
-              self.views.titlebar.updateCreateNewBtn(active_graph);
+              self.views.titlebar.updateCreateNewBtn(el, active_graph);
               render(true);
             }else{
               console.log("Vertex for this note already exists..")
@@ -507,7 +507,7 @@ function App(el){
     nV.saveData() // REFACTOR: Maybe move to createNewVertexForNote()
 
     // Update the create new graph button
-    self.views.titlebar.updateCreateNewBtn(active_graph);
+    self.views.titlebar.updateCreateNewBtn(el, active_graph);
     self.views.notes.updateActiveGraphNoteCount(el, active_graph);
     
     self.views.graph.updateGraph(active_graph)
@@ -529,8 +529,8 @@ function App(el){
     self.views.graph.removeSelectFromNode();
 
     // Update the create new graph button
-    self.views.titlebar.updateCreateNewBtn(active_graph);
-    self.views.notes.updateActiveGraphNoteCount(el, active_graph);
+    self.views.titlebar.updateCreateNewBtn(el, g);
+    self.views.notes.updateActiveGraphNoteCount(el, g);
 
     self.views.graph.updateGraph(g);
   })
@@ -709,6 +709,7 @@ App.prototype.renderContentArea = function(lazy_load = false){
     let content = yo`
       <div id="content" class="graph-active">
       ${self.views.graph.render(self.session.getActiveProject())}
+      ${self.renderRightSideMenu()}
       </div>
     `
     console.log("======== renderContentArea: ===========")
@@ -767,7 +768,7 @@ App.prototype.render = function (lazy_load = false) {
           <!-- Content Area -->
           ${self.renderContentArea(lazy_load)}
 
-          ${self.renderRightSideMenu()}
+          
 
         </div>
         
@@ -795,7 +796,7 @@ App.prototype.render = function (lazy_load = false) {
           ${self.renderContentArea()}
 
           
-          ${self.renderRightSideMenu()}
+          
         </div>
         
       </div>

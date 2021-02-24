@@ -810,6 +810,19 @@ GraphEditorView.prototype.toggleRightSideMenu = function(){
       overlay.classList.add('hidden');
       self.openSidemenu = false;
     }
+  // let el = $('#right-side-menu'), 
+  //     overlay = $('#graph-shadow-overlay');
+  // if(el.hasClass('hidden')){
+  //   el.toggleClass('hidden', 500);
+  //   overlay.toggleClass('hidden', 500);
+  //   self.openSidemenu = true;
+  //   el.find('textarea')[0].focus();
+  // }else{
+  //   el.toggleClass('hidden', 500);
+  //   overlay.toggleClass('hidden', 500);
+  //   self.openSidemenu = false;
+  // }
+  
 }
 
 /**
@@ -920,7 +933,7 @@ GraphEditorView.prototype.renderRightSideMenu = function(){
 
   return yo`<div id="right-side-menu" class="${hiddenClass}">
         <div id="right-menu-toggle" onclick=${clickRightMenuToggle}><i class="fas fa-chevron-right"></i></div>
-        <div id="right-menu-content">
+        <div id="right-menu-content" class="side-menu-content">
           <span>Graph Description</span>
           <textarea id="graph-description" wrap="soft" 
           placeholder="Title & description..."

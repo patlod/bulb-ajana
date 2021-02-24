@@ -61,7 +61,7 @@ NoteListView.prototype.updateActiveNoteThumb = function(dom_el, active_note){
 
 NoteListView.prototype.updateActiveGraphThumb = function(dom_el, active_graph){
   var self = this;
-
+  if(self.objectOfDisplay === "note"){ return; }
   // Get active graph thumb..
   let active_graph_thmb = dom_el.getElementsByClassName('note-thmb active')[0]
   //console.log(dom_el.getElementsByClassName('note-thmb active'))
@@ -69,17 +69,20 @@ NoteListView.prototype.updateActiveGraphThumb = function(dom_el, active_graph){
   active_graph_thmb.getElementsByClassName('note-thmb-head')[0].textContent = active_graph.getHeader();
   let nThmb_content = active_graph_thmb.getElementsByClassName('note-thmb-content')
   nThmb_content[0].textContent = active_graph.getContentPreview();
-  nThmb_content[1].textContent = active.graph.getNumberOfNotes() + "Notes linked";
+  nThmb_content[1].textContent = active_graph.getNumberOfNotes() + "Notes linked";
 }
 
 NoteListView.prototype.updateActiveGraphNoteCount = function(dom_el, active_graph){
   var self = this;
+  if(self.objectOfDisplay === "note"){ return; }
 
   // Get active graph thumb..
   let active_graph_thmb = dom_el.getElementsByClassName('note-thmb active')[0],
-      nThmb_content = active_graph_thmb.getElementsByClassName('note-thmb-content')
+      nThmb_content = active_graph_thmb.getElementsByClassName('note-thmb-content');
   
-  nThmb_content[1].textContent = active.graph.getNumberOfNotes() + "Notes linked";
+  console.log(nThmb_content);
+  
+  nThmb_content[1].textContent = active_graph.getNumberOfNotes() + "Notes linked";
 }
 
 NoteListView.prototype.updateNoteThmbColor = function(note){

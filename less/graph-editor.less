@@ -122,16 +122,30 @@ foreignObject.selected {
 }
 
 #right-side-menu {
-    position: absolute;
-    top: @titlebar-height;
-    right: 0px;
-    height: calc(100% - @titlebar-height);
-    width: 342.1px;
     z-index: 100;
-    /*background: #f7f7f7;*/
+    position: absolute;
+    top: 0; /*@titlebar-height*/
+    right: 0px;
+    height: 100%; /* calc(100% - @titlebar-height);*/
+    width: 342.1px;
+    /*transition: right 1s ease;*/
+    & > .side-menu-content {
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        font-size: 11px !important;
+        display: inline-block;
+        height: 100%;
+        width: 313px;
+        background: #E4E4E4;
+        padding: 0.63em;
+    }
+    & > .side-menu-content > span {
+        font-weight: 600;
+        padding: 0.56em 0.34em;
+    }
 }
 #right-side-menu.hidden {
     right: -313px;
+    /*width: 28.1px;*/
 }
 #right-menu-toggle{
     float: left;
@@ -144,20 +158,6 @@ foreignObject.selected {
 #right-menu-toggle:hover {
     cursor: pointer;
 }
-#right-menu-content {
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-    font-size: 11px !important;
-    display: inline-block;
-    height: 100%;
-    width: 313px;
-    background: #E4E4E4;
-    padding: 0.63em;
-}
-#right-menu-content > span {
-    font-weight: 600;
-    padding: 0.56em 0.34em;
-}
-
 
 #graph-description{
   /*border-style: none;*/
