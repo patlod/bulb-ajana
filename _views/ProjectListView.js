@@ -296,7 +296,7 @@ ProjectListView.prototype.render = function(projects, recents){
 
     // Make project-thumbs droppable elements
     $(project_thumb).droppable({
-      accept:'.note-thmb-wrap',
+      accept:'.item-thmb-wrap',
       tolerance: 'pointer',
       classes: {
         "ui-droppable-active": "prjct-thmb-drppbl-active",
@@ -318,7 +318,7 @@ ProjectListView.prototype.render = function(projects, recents){
         // let active_project = self.session.getActiveProject()
         // let active_graph = active_project.getActiveGraph()
 
-        // let note_id = ui.draggable.find('.note-thmb').attr('data-id')
+        // let note_id = ui.draggable.find('.item-thmb').attr('data-id')
         // // Get note from project
         // let note = active_project.getNoteByUUID(note_id)
         // console.log(note)

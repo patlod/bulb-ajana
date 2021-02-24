@@ -225,7 +225,7 @@ function App(el){
       UIAssistant.resizeElementByContent($('#graph-description')[0])
       // Make the #content container of the graph a droppable element for the notes
       $('#content').droppable({
-        accept:'.note-thmb-wrap',
+        accept:'.item-thmb-wrap',
         tolerance: 'pointer',
         classes: {
           "ui-droppable-active": "graph-droppable-active",
@@ -243,7 +243,7 @@ function App(el){
           let active_project = self.session.getActiveProject()
           let active_graph = active_project.getActiveGraph()
 
-          let note_id = ui.draggable.find('.note-thmb').attr('data-id')
+          let note_id = ui.draggable.find('.item-thmb').attr('data-id')
           // Get note from project
           let note = active_project.getNoteByUUID(note_id)
           console.log(note)
@@ -335,7 +335,7 @@ function App(el){
     self.session.deleteProject(project_id, render)
   })
 
-  self.on('transitionNote', function(project, note, trigger='note-thumb'){
+  self.on('transitionNote', function(project, note, trigger='item-thumb'){
     let active_note = project.getActiveNote()
     // Toggle active project & update UI in case switched to different note
     if(active_note.uuid.localeCompare(note.uuid) === 0){
@@ -348,7 +348,7 @@ function App(el){
     
     project.toggleActiveNote(note)
 
-    if(project.getGraphMode() && trigger.localeCompare('note-thumb') === 0){
+    if(project.getGraphMode() && trigger.localeCompare('item-thumb') === 0){
       // Update the graph to highlight the new active note
       self.views.graph.updateGraph(/*project.getActiveGraph()*/)
     }
@@ -570,7 +570,7 @@ function App(el){
   })
 
   // TODO
-  self.on('transitionGraph', function(project, graph, trigger='note-thumb'){
+  self.on('transitionGraph', function(project, graph, trigger='item-thumb'){
     console.log('transitionGraph');
 
     let active_graph = project.getActiveGraph()
@@ -588,7 +588,7 @@ function App(el){
     
     project.toggleActiveGraph(graph)
 
-    if(project.getGraphMode() && trigger.localeCompare('note-thumb') === 0){
+    if(project.getGraphMode() && trigger.localeCompare('item-thumb') === 0){
       self.views.graph.forceClearContentDOMEl();
     }
     render()

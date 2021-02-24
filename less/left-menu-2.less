@@ -4,7 +4,7 @@
 
 /* === Variables: left-menu-2 === */
 @left-menu-2-width: 150px;
-@note-list-header: 26.38px;
+@item-list-header: 26.38px;
 @list-ctrls-top: 23px;
 
 #left-menu-2{
@@ -20,31 +20,31 @@
   height: 100%;
 }
 
-#note-list-ctrls-top {
+#item-list-ctrls-top {
   position: relative;
   font-size: 10px;
   font-weight: 600;
   display: block;
 }
-#note-list-ctrls-top > span{
+#item-list-ctrls-top > span{
   cursor: pointer;
   width: 50%;
   text-align: center;
   display: inline-block;
   padding: 0.3em 0em;
 }
-#note-list-ctrls-top > span:first-child{
+#item-list-ctrls-top > span:first-child{
   border-right: 1px solid #666666;
 }
-#note-list-ctrls-top > span.active{
+#item-list-ctrls-top > span.active{
   background: #c5c5c5;
 }
-#note-list-ctrls-top > span.active{
+#item-list-ctrls-top > span.active{
   background: #999;
   color: #ddd;
 }
 
-#note-list-head {
+#item-list-head {
   font-size: 10px;
   padding: .35em .5em;
   border-bottom: 1px solid #DDD;
@@ -54,21 +54,21 @@
   font-weight: bolder;
 }
 
-#note-list-scroll {
+#item-list-scroll {
   display: block;
   width: 100%;
   height: calc(100% - @list-ctrls-top);
   overflow-y: auto;
   scrollbar-width: thin;
 }
-#note-list-scroll.search-active {
+#item-list-scroll.search-active {
   display: block;
   width: 100%;
-  height: calc(100% - @note-list-header - @list-ctrls-top);
+  height: calc(100% - @item-list-header - @list-ctrls-top);
   overflow-y: auto;
   scrollbar-width: thin;
 }
-#note-list-scroll:after{ 
+#item-list-scroll:after{ 
   clear:both;                 
   content:" ";
   display:block;
@@ -82,17 +82,17 @@
 
 
 /* ===== Note list thumbnail ===== */
-.note-thmb{
+.item-thmb{
   font-size: 10px;
   float: right;
   width: 90%;
   padding: 5px 10px;
   border-bottom: 1px solid #DDD;
 }
-.note-thmb.active{
+.item-thmb.active{
   background: #E4E4E4;
 }
-.note-thmb:hover {
+.item-thmb:hover {
   background: #E4E4E4;
   cursor: pointer;
 }
@@ -109,7 +109,7 @@
   width: 100%;
 }
 
-.note-thmb-head {
+.item-thmb-head {
   flex: 1;
   display: block;
   font-weight: bolder;
@@ -118,29 +118,29 @@
   overflow: hidden; 
   white-space: nowrap;
 }
-.note-thmb-mid {
+.item-thmb-mid {
   min-width: 0px;
   text-overflow: ellipsis;
   overflow: hidden; 
   white-space: nowrap;
 }
-.note-thmb-datetime {
+.item-thmb-datetime {
   padding-right: 7px;
   font-weight: 500;
 }
-.note-thmb-content {
+.item-thmb-content {
   min-width: 0px;
   text-overflow: ellipsis;
   overflow: hidden; 
   white-space: nowrap;
 }
-.note-thmb-tags {
+.item-thmb-tags {
   min-width: 0px;
   text-overflow: ellipsis;
   overflow: hidden; 
   white-space: nowrap;
 }
-.note-thmb-tags > span {
+.item-thmb-tags > span {
   padding: 2px 4px;
   background: #D6D7F1;
   /*opacity: 0.3;*/

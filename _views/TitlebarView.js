@@ -16,7 +16,7 @@ inherits(TitlebarView, EventEmitterElement)
 
 TitlebarView.prototype.updateCreateNewBtn = function(dom_el, active_item){
     // let create_new_btn = dom_el.getElementsByClassName('')[0]
-    let btn = document.getElementById('new-note-btn'),
+    let btn = document.getElementById('new-item-btn'),
         disable = false;
     if(typeof active_item === "Note"){
         if(active_item.getContent().length === 0){
@@ -88,13 +88,13 @@ TitlebarView.prototype.render = function (session) {
             if(eN.length === 0){ 
                 // No empty note: Return normal button
                 return yo`    
-                <button id="new-note-btn" class="tb-btn" onclick=${clickCreateNewNote}><i class="far fa-edit"></i></button>
+                <button id="new-item-btn" class="tb-btn" onclick=${clickCreateNewNote}><i class="far fa-edit"></i></button>
                 `
             }else{
                 if(eN.length === 1){
                     // Has empty note: Return disabled button
                     return yo`
-                    <button id="new-note-btn" class="tb-btn disabled" onclick=${clickCreateNewNote} disabled><i class="far fa-edit"></i></button>
+                    <button id="new-item-btn" class="tb-btn disabled" onclick=${clickCreateNewNote} disabled><i class="far fa-edit"></i></button>
                     `
                 }
             }    
@@ -109,13 +109,13 @@ TitlebarView.prototype.render = function (session) {
             if(eG.length === 0){ 
                 // No empty graph: Return normal button
                 return yo`    
-                <button id="new-note-btn" class="tb-btn" onclick=${clickCreateNewGraph}><i class="far fa-edit"></i></button>
+                <button id="new-item-btn" class="tb-btn" onclick=${clickCreateNewGraph}><i class="far fa-edit"></i></button>
                 `
             }else{
                 if(eG.length === 1){
                     // Has empty graph: Return disabled button
                     return yo`
-                    <button id="new-note-btn" class="tb-btn disabled" onclick=${clickCreateNewGraph} disabled><i class="far fa-edit"></i></button>
+                    <button id="new-item-btn" class="tb-btn disabled" onclick=${clickCreateNewGraph} disabled><i class="far fa-edit"></i></button>
                     `
                 }
             }    

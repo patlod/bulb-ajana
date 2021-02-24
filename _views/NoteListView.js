@@ -24,7 +24,7 @@ NoteListView.prototype.tagsHTML = function(note, pureHTML = false){
   //console.log(note.getTags())
   if(pureHTML){
     let div =  document.createElement("div")
-    div.classList = "note-thmb-tags"
+    div.classList = "item-thmb-tags"
     note.getTags().map(function(tag){
       let span = document.createElement("span")
       span.textContent = tag.name
@@ -39,7 +39,7 @@ NoteListView.prototype.tagsHTML = function(note, pureHTML = false){
     })
   
     return yo`
-      <div class="note-thmb-tags">     
+      <div class="item-thmb-tags">     
         ${tags}
       </div>
     `
@@ -51,23 +51,23 @@ NoteListView.prototype.updateActiveNoteThumb = function(dom_el, active_note){
   var self = this;
 
   // Get active note thumb..
-  let active_note_thmb = dom_el.getElementsByClassName('note-thmb active')[0]
-  //console.log(dom_el.getElementsByClassName('note-thmb active'))
+  let active_note_thmb = dom_el.getElementsByClassName('item-thmb active')[0]
+  //console.log(dom_el.getElementsByClassName('item-thmb active'))
   // ..update data.
-  active_note_thmb.getElementsByClassName('note-thmb-head')[0].textContent = active_note.getHeader()
-  active_note_thmb.getElementsByClassName('note-thmb-content')[0].textContent = active_note.getContentPreview()
-  active_note_thmb.getElementsByClassName('note-thmb-tags')[0].replaceWith(self.tagsHTML(active_note, true))
+  active_note_thmb.getElementsByClassName('item-thmb-head')[0].textContent = active_note.getHeader()
+  active_note_thmb.getElementsByClassName('item-thmb-content')[0].textContent = active_note.getContentPreview()
+  active_note_thmb.getElementsByClassName('item-thmb-tags')[0].replaceWith(self.tagsHTML(active_note, true))
 }
 
 NoteListView.prototype.updateActiveGraphThumb = function(dom_el, active_graph){
   var self = this;
   if(self.objectOfDisplay === "note"){ return; }
   // Get active graph thumb..
-  let active_graph_thmb = dom_el.getElementsByClassName('note-thmb active')[0]
-  //console.log(dom_el.getElementsByClassName('note-thmb active'))
+  let active_graph_thmb = dom_el.getElementsByClassName('item-thmb active')[0]
+  //console.log(dom_el.getElementsByClassName('item-thmb active'))
   // ..update data.
-  active_graph_thmb.getElementsByClassName('note-thmb-head')[0].textContent = active_graph.getHeader();
-  let nThmb_content = active_graph_thmb.getElementsByClassName('note-thmb-content')
+  active_graph_thmb.getElementsByClassName('item-thmb-head')[0].textContent = active_graph.getHeader();
+  let nThmb_content = active_graph_thmb.getElementsByClassName('item-thmb-content')
   nThmb_content[0].textContent = active_graph.getContentPreview();
   nThmb_content[1].textContent = active_graph.getNumberOfNotes() + "Notes linked";
 }
@@ -77,8 +77,8 @@ NoteListView.prototype.updateActiveGraphNoteCount = function(dom_el, active_grap
   if(self.objectOfDisplay === "note"){ return; }
 
   // Get active graph thumb..
-  let active_graph_thmb = dom_el.getElementsByClassName('note-thmb active')[0],
-      nThmb_content = active_graph_thmb.getElementsByClassName('note-thmb-content');
+  let active_graph_thmb = dom_el.getElementsByClassName('item-thmb active')[0],
+      nThmb_content = active_graph_thmb.getElementsByClassName('item-thmb-content');
   
   console.log(nThmb_content);
   
@@ -86,7 +86,7 @@ NoteListView.prototype.updateActiveGraphNoteCount = function(dom_el, active_grap
 }
 
 NoteListView.prototype.updateNoteThmbColor = function(note){
-  let target = document.getElementsByClassName('note-thmb active')[0]
+  let target = document.getElementsByClassName('item-thmb active')[0]
   let c = target.getElementsByClassName('color-pickr-circle-thmb')[0]
 
   c.style.backgroundColor = note.bg_color
@@ -157,13 +157,13 @@ NoteListView.prototype.render = function(project){
       var className = (note.isActive()) ? 'active' : ''
       
       let note_thumb = yo`
-        <div class="note-thmb-wrap">
-          <div class="note-thmb ${className}" data-id=${note.uuid} onclick=${clickNoteThmb} ondblclick=${dblclickNoteThmb}>
+        <div class="item-thmb-wrap">
+          <div class="item-thmb ${className}" data-id=${note.uuid} onclick=${clickNoteThmb} ondblclick=${dblclickNoteThmb}>
             <div class="flex-wrap">
-            <span class="color-pickr-circle-thmb" style="background-color: ${note.bg_color}"></span><span class="note-thmb-head">${note.getHeader()}</span>
+            <span class="color-pickr-circle-thmb" style="background-color: ${note.bg_color}"></span><span class="item-thmb-head">${note.getHeader()}</span>
             </div>
             <div class="flex-wrap">
-              <span class="note-thmb-datetime">${DateFormatter.formatDateItemThmb(note.getCreated())}:</span> <span class="note-thmb-content">${note.getContentPreview()}</span>
+              <span class="item-thmb-datetime">${DateFormatter.formatDateItemThmb(note.getCreated())}:</span> <span class="item-thmb-content">${note.getContentPreview()}</span>
             </div>
             <div class="flex-wrap">
               ${self.tagsHTML(note)}
@@ -172,7 +172,7 @@ NoteListView.prototype.render = function(project){
         </div>
       `
     
-      // Make note-thumbs draggable elements
+      // Make item-thumbs draggable elements
       $(note_thumb).draggable({
         start: function(event,ui){
           $('body').css("cursor", "no-drop")
@@ -184,7 +184,7 @@ NoteListView.prototype.render = function(project){
         helper: function(e,ui){
           //$($.parseHTML('<p style="background: pink">Copy!</p>'))
           let clone = $(this).clone()
-          clone.children('.note-thmb').css({"background": "#f7f7f7", "border-bottom": "none"})
+          clone.children('.item-thmb').css({"background": "#f7f7f7", "border-bottom": "none"})
           return clone
         }, 
         cursorAt: { left: 2, top: 2},
@@ -224,16 +224,16 @@ NoteListView.prototype.render = function(project){
       var className = (graph.isActive()) ? 'active' : ''
       
       let graph_thumb = yo`
-        <div class="note-thmb-wrap">
-          <div class="note-thmb ${className}" data-id=${graph.uuid} onclick=${clickNoteThmb} ondblclick=${dblclickNoteThmb}>
+        <div class="item-thmb-wrap">
+          <div class="item-thmb ${className}" data-id=${graph.uuid} onclick=${clickNoteThmb} ondblclick=${dblclickNoteThmb}>
             <div class="flex-wrap">
-            <span class="note-thmb-head">${graph.getHeader()}</span>
+            <span class="item-thmb-head">${graph.getHeader()}</span>
             </div>
             <div class="flex-wrap">
-              <span class="note-thmb-datetime">${DateFormatter.formatDateItemThmb(graph.getCreated())}:</span> <span class="note-thmb-content">${graph.getContentPreview()}</span>
+              <span class="item-thmb-datetime">${DateFormatter.formatDateItemThmb(graph.getCreated())}:</span> <span class="item-thmb-content">${graph.getContentPreview()}</span>
             </div>
             <div class="flex-wrap">
-              <span class="note-thmb-content">${graph.getNumberOfNotes()} Notes linked</span>
+              <span class="item-thmb-content">${graph.getNumberOfNotes()} Notes linked</span>
             </div>
           </div>
         </div>
@@ -284,11 +284,11 @@ NoteListView.prototype.render = function(project){
     <div>
       ${function(){
         if(self.objectOfDisplay === "note"){
-          return yo`<div id="note-list-ctrls-top">
+          return yo`<div id="item-list-ctrls-top">
               <span class="active" onclick=${clickSelectNotesList}>Notes</span><span onclick=${clickSelectGraphsList}>Graphs</span>
             </div>`
         }else{
-          return yo`<div id="note-list-ctrls-top">
+          return yo`<div id="item-list-ctrls-top">
               <span onclick=${clickSelectNotesList}>Notes</span><span class="active" onclick=${clickSelectGraphsList}>Graphs</span>
             </div>`
         }
@@ -297,19 +297,19 @@ NoteListView.prototype.render = function(project){
       ${function(){
         if(self.objectOfDisplay === "note" && project.search !== null){
           return yo`
-          <div id="note-list-head">
-            <span class="note-thmb-head">Found ${notes.length} results</span> 
+          <div id="item-list-head">
+            <span class="item-thmb-head">Found ${notes.length} results</span> 
           </div>
           `
         }
       }()}
       ${function(){
         if(self.objectOfDisplay === "note" && project.search !== null){
-          return yo`<div id="note-list-scroll" class="search-active" onscroll=${scrollList}>
+          return yo`<div id="item-list-scroll" class="search-active" onscroll=${scrollList}>
                       ${thumbs}
                     </div>`;
         }else{
-          return yo`<div id="note-list-scroll" onscroll=${scrollList}>
+          return yo`<div id="item-list-scroll" onscroll=${scrollList}>
             ${thumbs}
           </div>`;
         }
