@@ -527,6 +527,14 @@ FileDatabase.prototype.updateGraphPosition = function(graph_id, position){
   }).write()
 }
 
+FileDatabase.prototype.updateGraphDescription = function(graph_id, description){
+  this.db.read();
+  this.db.get('graphs').find({uuid: graph_id}).assign({
+    description: description,
+    modified: Date.now()
+  }).write();
+}
+
 FileDatabase.prototype.selectAllGraphs = function(){
   this.db.read()
   return this.db.get('graphs').value()

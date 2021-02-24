@@ -216,35 +216,6 @@ Note.prototype.getTags = function(){
 }
 
 /**
- * Returns array of text split at \newlines
- * Removes carriage returns \r
- */
-Note.prototype.splitTextAtNewline = function(){
-  return this.text.replace(/\r/g, "").split(/\n/g)
-}
-
-/**
- * Returns array with indices of text lines 
- * (lines without text are removed)
- * 
- * Takes array of strings (text paragraphs)
- * 
- * @param {[String]} arr 
- */
-Note.prototype.getParagraphIndices = function(arr){
-  //let txt_lines = 0
-  let indices = []
-  // Skip empty lines and calculate the cursor index..
-  for(var i in arr){
-    if(arr[i].length > 0){
-      indices.push(i)
-    }
-
-  }
-  return indices
-}
-
-/**
  * Determines whether an update of the note thumbnail is necessary while 
  * editing text in the editor
  * 
@@ -254,7 +225,7 @@ Note.prototype.getParagraphIndices = function(arr){
  * @param {int} selectionEnd - End of text selection
  */
 Note.prototype.needThumbUpdate = function(selectionStart, selectionEnd){
-  let arr = this.splitTextAtNewline()
+  let arr = StringFormatter.splitAtNewLine(this.text)
   if( selectionStart === selectionEnd ){
     if( arr.length === 1 && selectionStart <= 300 ){
       /**
@@ -266,7 +237,7 @@ Note.prototype.needThumbUpdate = function(selectionStart, selectionEnd){
       return true // [0]
     }else{
       if(arr.length >= 2){
-        let indices = this.getParagraphIndices(arr)
+        let indices = StringFormatter.getParagraphIndices(arr)
         if(indices.length === 1){
           if(selectionStart >= indices[0] && selectionStart <= indices[0] + 300/*arr[indices[0]].length*/){
             return true // [indices[0]]
@@ -301,8 +272,8 @@ Note.prototype.needThumbUpdate = function(selectionStart, selectionEnd){
  *   thumbnail.
  */
 Note.prototype.getHeader = function(){
-  let arr = this.splitTextAtNewline()
-  let txt_is = this.getParagraphIndices(arr)
+  let arr = StringFormatter.splitAtNewLine(this.text)
+  let txt_is = StringFormatter.getParagraphIndices(arr)
   if(txt_is.length >= 1){
     if(arr[txt_is[0]].length > 0){
       if(arr[txt_is[0]].length > 150){
@@ -322,8 +293,8 @@ Note.prototype.getHeader = function(){
  * For thumbnail: Returns preview of text truncated with "..."
  */
 Note.prototype.getContentPreview = function(){
-  let arr = this.splitTextAtNewline()
-  let txt_is = this.getParagraphIndices(arr)
+  let arr = StringFormatter.splitAtNewLine(this.text)
+  let txt_is = StringFormatter.getParagraphIndices(arr)
   if(txt_is.length >= 1){
     if(arr[txt_is[0]].length > 150){
       return arr[txt_is[0]].substr(151, arr[txt_is[0]].length - 1)

@@ -158,6 +158,29 @@ Project.prototype.getEmptyNotes = function(){
 }
 
 /**
+ * Returns empty graph without vertices
+ * 
+ * ATTENTION: This should only maximally find one empty graph
+ * if more are stored in project there are inconsistencies as 
+ * empty graphs should be deleted on regular basis..
+ * 
+ */
+Project.prototype.getEmptyGraphs = function(){
+  let empties = []
+  for(var i in this.graphs){
+    if(this.graphs[i].isEmpty()){
+      empties.push(this.graphs[i])
+    }
+  }
+  //console.log(empties)
+  if(empties.length > 1){
+    console.error("ERROR: More than one empty graph in project")
+    return null
+  }
+  return empties
+}
+
+/**
  * Returns the active graph of this project
  * 
  * NOTE: For now just returns the graph variable that is initialised with only one graph

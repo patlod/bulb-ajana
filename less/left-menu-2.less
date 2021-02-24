@@ -2,7 +2,7 @@
 /*   Left-Side-Menu 2 -- Notes List        */
 /* ======================================= */
 
-/* === Variables === */
+/* === Variables: left-menu-2 === */
 @left-menu-2-width: 150px;
 @note-list-header: 26.38px;
 @list-ctrls-top: 23px;
@@ -68,6 +68,16 @@
   overflow-y: auto;
   scrollbar-width: thin;
 }
+#note-list-scroll:after{ 
+  clear:both;                 
+  content:" ";
+  display:block;
+  font-size:0;
+  height:0;
+  line-height:0;
+  visibility:hidden;
+  width:0;
+}
 
 
 
@@ -87,10 +97,18 @@
   cursor: pointer;
 }
 
+.item-thmb-name {
+  display: block;
+  width: 100%;
+  margin-right: 3.0em;
+  font-weight: 600;
+}
+
 .flex-wrap {
   display: flex;
   width: 100%;
 }
+
 .note-thmb-head {
   flex: 1;
   display: block;
@@ -139,4 +157,18 @@
   margin-top: 0.25em;
   margin-left: 0.1em;
   margin-right: 0.2em;
+}
+
+.item-thmb-ctrls{
+  /* position: absolute -- Makes dropdown function correctly on expense of 
+     name truncating. "Relative" makes truncating work but dropdown not.. */
+  position: absolute; 
+  right: 0.3em;
+  top: 0.0em;
+  display: block;
+  margin-left: auto;
+  white-space: nowrap;
+}
+.item-thmb-dropdown{
+
 }

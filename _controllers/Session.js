@@ -173,6 +173,7 @@ Session.prototype.prepProjectForTrans = function(project){
       }
     }
 
+    // Clear search
     project.search = null;
   }
 }

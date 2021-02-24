@@ -52,7 +52,7 @@ var FileDatabaseManager = {
       uuid:       uuidv4(),
       created:    Date.now(),
       modified:   Date.now(),
-      name: "",
+      description: "",
       position:  {
         translate: {
           x: 0,

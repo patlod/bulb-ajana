@@ -5,6 +5,7 @@ var inherits = require('util').inherits;
 
 const yo = require('yo-yo');
 const Tagify = require('@yaireo/tagify');
+const UIAssistant = require('../_util/UIAssistant');
 const DateFormatter = require('../_util/DateFormatter');
 const UnitConverter = require('../_util/UnitConverter');
 const CSSProcessor = require('../_util/CSSProcessor');
@@ -65,7 +66,7 @@ NoteEditorView.prototype.addTag = function(e, tagify, note){
   console.log(tagify.settings.whitelist)
 
   // Trigger update of notes list
-  self.send("updateByEditorContent", self.active_note)
+  self.send("updateByNoteEditorContent", self.active_note)
 }
 
 NoteEditorView.prototype.removeTag = function(e, tagify, note){
@@ -87,7 +88,7 @@ NoteEditorView.prototype.removeTag = function(e, tagify, note){
   console.log(tagify.settings.whitelist)
   
   // Trigger update of notes list
-  self.send("updateByEditorContent", self.active_note)
+  self.send("updateByNoteEditorContent", self.active_note)
 }
 
 NoteEditorView.prototype.updateTag = function(e, tagify, note){
@@ -110,7 +111,7 @@ NoteEditorView.prototype.updateTag = function(e, tagify, note){
   console.log(tagify.settings.whitelist)
 
   // Trigger update of notes list
-  self.send("updateByEditorContent", self.active_note)
+  self.send("updateByNoteEditorContent", self.active_note)
 }
 
 /**
@@ -124,18 +125,18 @@ NoteEditorView.prototype.makeTagifyValues = function(tags){
   return JSON.stringify(tags.map(function(tag){ return { "value": tag.name } })) 
 }
 
-NoteEditorView.prototype.resizeElementByContent = function(el){
-  if(!el){
-    return
-  }
+// NoteEditorView.prototype.resizeElementByContent = function(el){
+//   if(!el){
+//     return
+//   }
 
-  let default_height = 26;
-  /*console.log("Input event notepad textarea: " + this.scrollHeight)
-  console.log("Normal height: " + getComputedStyle(this).height)
-  console.log("normal width: " + getComputedStyle(this).width)*/
-  el.style.height = default_height.toString() + "px"
-  el.style.height = el.scrollHeight.toString() + "px"
-}
+//   let default_height = 26;
+//   /*console.log("Input event notepad textarea: " + this.scrollHeight)
+//   console.log("Normal height: " + getComputedStyle(this).height)
+//   console.log("normal width: " + getComputedStyle(this).width)*/
+//   el.style.height = default_height.toString() + "px"
+//   el.style.height = el.scrollHeight.toString() + "px"
+// }
 
 /**
  * Functions related to note editor local search.
@@ -332,7 +333,7 @@ NoteEditorView.prototype.render = function(project){
   /* ====================================================================== */
 
   function inputHandlerNotepad(e){
-    self.resizeElementByContent(this)
+    UIAssistant.resizeElementByContent(this)
   }
 
   function keyupHandlerNotepad(e){
@@ -348,7 +349,7 @@ NoteEditorView.prototype.render = function(project){
     // Remove carriage returns and split at \newlines
     let chk = self.active_note.needThumbUpdate(self.selectionStart, self.selectionEnd)
     if(chk){
-      self.send("updateByEditorContent", self.active_note)
+      self.send("updateByNoteEditorContent", self.active_note)
     }
 
     // Set dirty bit of note

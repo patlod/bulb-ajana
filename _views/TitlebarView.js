@@ -14,10 +14,22 @@ function TitlebarView(target){
 }
 inherits(TitlebarView, EventEmitterElement)
 
-TitlebarView.prototype.updateCreateNewBtn = function(dom_el, active_note){
+TitlebarView.prototype.updateCreateNewBtn = function(dom_el, active_item){
     // let create_new_btn = dom_el.getElementsByClassName('')[0]
-    let btn = document.getElementById('new-note-btn')
-    if(active_note.getContent().length === 0){
+    let btn = document.getElementById('new-note-btn'),
+        disable = false;
+    if(typeof active_item === "Note"){
+        if(active_item.getContent().length === 0){
+            disable = true;
+        }
+    }else{
+        if(typeof active_item === "Graph"){
+            if(active_item.vertices.length === 0){
+                disable = true;
+            }
+        }
+    } 
+    if(disable){
         btn.disabled = true
         if(!btn.classList.contains("disabled")){
             btn.classList.add("disabled")
@@ -87,9 +99,26 @@ TitlebarView.prototype.render = function (session) {
                 }
             }    
         }else{
-            return yo`
-            <button id="new-note-btn" class="tb-btn" onclick=${clickCreateNewGraph}><i class="far fa-edit"></i></button>
-            `
+            let eG = project.getEmptyGraphs()
+            if( eG === null){
+                console.error("ERROR inconsistencies in graphs")
+                
+                // DELETE EMPTY GRAPHS
+                project.session.prepProjectForTrans(project)
+            }
+            if(eG.length === 0){ 
+                // No empty graph: Return normal button
+                return yo`    
+                <button id="new-note-btn" class="tb-btn" onclick=${clickCreateNewGraph}><i class="far fa-edit"></i></button>
+                `
+            }else{
+                if(eG.length === 1){
+                    // Has empty graph: Return disabled button
+                    return yo`
+                    <button id="new-note-btn" class="tb-btn disabled" onclick=${clickCreateNewGraph} disabled><i class="far fa-edit"></i></button>
+                    `
+                }
+            }    
         }
         
     }

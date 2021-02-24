@@ -1,8 +1,10 @@
 module.exports = Graph
 
-const FileDatabaseManager = require('../_models/FileDatabaseManager')
-const Vertex = require('./Vertex')
-const Edge = require('./Edge')
+
+const FileDatabaseManager = require('../_models/FileDatabaseManager');
+const StringFormatter = require('../_util/StringFormatter');
+const Vertex = require('./Vertex');
+const Edge = require('./Edge');
 
 
 function Graph(project, data = FileDatabaseManager.getEmptyGraphJSON()) 
@@ -13,7 +15,7 @@ function Graph(project, data = FileDatabaseManager.getEmptyGraphJSON())
   this.uuid = data.uuid
   this.created = data.created
   this.modified = data.modified
-  this.name = data.name
+  this.description = data.description
   this.position = data.position
   this.vertices = data.vertices
   this.edges = data.edges
@@ -31,12 +33,18 @@ Graph.prototype.loadData = function(){
 }
 
 Graph.prototype.saveData = function(){
-  this.getDB().insertGraph(this.getGraphJSON())
+  console.log("Graph - saveData");
+  this.getDB().insertGraph(this.getGraphJSON());
 }
 
 Graph.prototype.savePosition = function(){
-  console.log("Graph - savePosition")
+  console.log("Graph - savePosition");
   this.getDB().updateGraphPosition(this.uuid, this.position);
+}
+
+Graph.prototype.saveDescription = function(){
+  console.log("Graph - saveDescription");
+  this.getDB().updateGraphDescription(this.uuid, this.description);
 }
 
 Graph.prototype.getVertices = function(){
@@ -211,6 +219,10 @@ Graph.prototype.deactivate = function(){
   this.active = false
 }
 
+Graph.prototype.isEmpty = function(){
+  return (this.vertices.length > 0) ? false : true
+}
+
 Graph.prototype.getDB = function(){
   return this.project.db
 }
@@ -268,15 +280,121 @@ Graph.prototype.getCreated = function(){
   return this.created
 }
 
+/**
+ * Determines whether an update of the note thumbnail is necessary while 
+ * editing text in the editor
+ * 
+ * Works on this.text
+ * 
+ * @param {int} selectionStart - Start of text selection
+ * @param {int} selectionEnd - End of text selection
+ */
+Graph.prototype.needThumbUpdate = function(selectionStart, selectionEnd){
+  let arr = StringFormatter.splitAtNewLine(this.description)
+  if( selectionStart === selectionEnd ){
+    if( arr.length === 1 && selectionStart <= 300 ){
+      /**
+       *  This is quite slow...
+       *  I think I should maybe write into the dom element directly..
+       *  Maybe create an instance method in NotesListView which can be
+       *  called from App to write into the element
+       */ 
+      return true // [0]
+    }else{
+      if(arr.length >= 2){
+        let indices = StringFormatter.getParagraphIndices(arr)
+        if(indices.length === 1){
+          if(selectionStart >= indices[0] && selectionStart <= indices[0] + 300/*arr[indices[0]].length*/){
+            return true // [indices[0]]
+          }
+        }else if( indices.length >= 2 ){
+          //let distance = indices[1] - indices[0]
+          if( (selectionStart >= indices[0] && selectionStart <= indices[0] + 300 )
+            || (selectionStart >= indices[1] && selectionStart <= indices[1] + 300) ) {   // arr[indices[0]].length + arr[indices[1]].length + distance
+              return true //[indices[0], indices[1]]
+          }else{
+            return false 
+          }
+        }else{
+          if(selectionStart === arr.length-1)
+          return true
+        }
+      }
+    }
+  }
+  
+}
+
+/**
+ * For thumbnail: Returns header (first sentence) of the text
+ * up until the first \newline.
+ */
+Graph.prototype.getHeader = function(){
+  let arr = StringFormatter.splitAtNewLine(this.description)
+  let txt_is = StringFormatter.getParagraphIndices(arr)
+  if(txt_is.length >= 1){
+    if(arr[txt_is[0]].length > 0){
+      if(arr[txt_is[0]].length > 150){
+        return arr[txt_is[0]].substr(0,150)
+      }else{
+        return arr[txt_is[0]]
+      }
+    } else{
+      return "New Graph"
+    }
+  }else{
+    return "New Graph"
+  }
+}
+
+/**
+ * For thumbnail: Returns preview of text truncated with "..."
+ */
+Graph.prototype.getContentPreview = function(){
+  let arr = StringFormatter.splitAtNewLine(this.description)
+  let txt_is = StringFormatter.getParagraphIndices(arr)
+  if(txt_is.length >= 1){
+    if(arr[txt_is[0]].length > 150){
+      return arr[txt_is[0]].substr(151, arr[txt_is[0]].length - 1)
+    }else{
+      if(txt_is.length == 1){
+        return "No additional text"
+      }else{
+        return arr[txt_is[1]]
+      }
+    }
+  }else{
+    return "No additional text"
+  }
+  //return (this.text.length > 0) ? this.text : "No additional text"
+}
+
+/**
+ * Returns the complete description of the graph
+ */
+Graph.prototype.getContent = function(){
+  return this.description
+}
+
+Graph.prototype.getNumberOfNotes = function(){
+  let notes = []
+  for(var i in this.vertices){
+    if(notes.indexOf(this.vertices[i].note.uuid) < 0){
+      notes.push(this.vertices[i].note.uuid)
+    }
+  }
+  return notes.length;
+}
+
 
 Graph.prototype.getGraphJSON = function(){
   return {
-    uuid:       this.uuid,
-    created:    this.created,
-    modified:   this.modified,
-    name:       this.name,
-    position:   this.position,
-    vertices:   this.vertices.map(function(v){ return v.getVertexJSON()}),
-    edges:      this.edges.map(function(ed){ return ed.getEdgeJSON()})
+    uuid:         this.uuid,
+    created:      this.created,
+    modified:     this.modified,
+    description:  this.description,
+    position:     this.position,
+    vertices:     this.vertices.map(function(v){ return v.getVertexJSON()}),
+    edges:        this.edges.map(function(ed){ return ed.getEdgeJSON()})
   }
 }

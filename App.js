@@ -26,6 +26,8 @@ const NoteEditorView = require('./_views/NoteEditorView')
 const GraphEditorView = require('./_views/GraphEditorView')
 const AppControls = require('./_controllers/AppControls')
 
+// Utils
+const UIAssistant = require('./_util/UIAssistant');
 
 inherits(App, EventEmitter)
 
@@ -215,10 +217,12 @@ function App(el){
       silent: true
     });
 
-    // Adjust height of the textarea in NoteEditorView to fit content
     if(!self.session.getGraphMode()){
-      self.views.editor.resizeElementByContent($('#notepad')[0])
+      // Adjust height of the textarea in NoteEditorView to fit content
+      UIAssistant.resizeElementByContent($('#notepad')[0])
     }else{
+      // Adjust height of the textarea in right-side-menu to fit content
+      UIAssistant.resizeElementByContent($('#graph-description')[0])
       // Make the #content container of the graph a droppable element for the notes
       $('#content').droppable({
         accept:'.note-thmb-wrap',
@@ -251,9 +255,11 @@ function App(el){
             console.log("..it exists, so add it...")
             let nV = active_graph.createNewVertexForNote(coords, note)
             if(nV){
-              nV.saveData()
-              self.views.graph.updateGraph(active_graph)
-              render(true)
+              nV.saveData();
+              self.views.graph.updateGraph(active_graph);
+              // Update the create new graph button
+              self.views.titlebar.updateCreateNewBtn(active_graph);
+              render(true);
             }else{
               console.log("Vertex for this note already exists..")
             }
@@ -343,8 +349,8 @@ function App(el){
     project.toggleActiveNote(note)
 
     if(project.getGraphMode() && trigger.localeCompare('note-thumb') === 0){
-      console.log("Set selected node here.")
-      self.views.graph.updateGraph(project.getActiveGraph())
+      // Update the graph to highlight the new active note
+      self.views.graph.updateGraph(/*project.getActiveGraph()*/)
     }
 
     render(true)
@@ -499,6 +505,10 @@ function App(el){
     
     let nV = active_graph.createNewVertexForNote( coords, nn )
     nV.saveData() // REFACTOR: Maybe move to createNewVertexForNote()
+
+    // Update the create new graph button
+    self.views.titlebar.updateCreateNewBtn(active_graph);
+    self.views.notes.updateActiveGraphNoteCount(el, active_graph);
     
     self.views.graph.updateGraph(active_graph)
 
@@ -517,6 +527,10 @@ function App(el){
     g.deleteVertex(selectedVertex)
 
     self.views.graph.removeSelectFromNode();
+
+    // Update the create new graph button
+    self.views.titlebar.updateCreateNewBtn(active_graph);
+    self.views.notes.updateActiveGraphNoteCount(el, active_graph);
 
     self.views.graph.updateGraph(g);
   })
@@ -559,47 +573,49 @@ function App(el){
   self.on('transitionGraph', function(project, graph, trigger='note-thumb'){
     console.log('transitionGraph');
 
-    // let active_graph = project.getActiveGraph()
-    // // Toggle active project & update UI in case switched to different note
-    // if(active_graph.uuid.localeCompare(graph.uuid) === 0){
-    //   return
-    // }
+    let active_graph = project.getActiveGraph()
+    // Toggle active project & update UI in case switched to different note
+    if(active_graph.uuid.localeCompare(graph.uuid) === 0){
+      return
+    }
 
-    // // TODO: REFACTOR this part..
+    // TODO: 
+    //   - In case graph is empty delte it in prepProjectForTrans
+    //   - Save the description text in case timer is not finsihed.
     // if(!project.getGraphMode()){
     //   self.session.prepProjectForTrans(project)
     // }
     
-    // project.toggleActiveGraph(graph)
+    project.toggleActiveGraph(graph)
 
-    // if(project.getGraphMode() && trigger.localeCompare('note-thumb') === 0){
-    //   console.log("Set selected node here.")
-    //   self.views.graph.updateGraph(project.getActiveGraph())
-    // }
-
-    // render(true)
+    if(project.getGraphMode() && trigger.localeCompare('note-thumb') === 0){
+      self.views.graph.forceClearContentDOMEl();
+    }
+    render()
   });
 
   // TODO
   self.on('transitionGraphAndEditor', function(project, graph){
     console.log('transitionGraphAndEditor');
 
-    // let active_graph = project.getActiveGraph()
+    let active_graph = project.getActiveGraph()
 
-    // console.log(project.getGraphMode())
-    // if(project.getGraphMode()){
-    //   project.toggleActiveGraph(graph)
-    //   project.setGraphMode(false)
-    //   self.views.graph.takedown()
-    //   render()
-    // }else{
-    //   if(active_graph.uuid.localeCompare(graph.uuid) === 0){
-    //     return
-    //   }
-    //   self.session.prepProjectForTrans(project)
-    //   project.toggleActiveGraph(graph)
-    //   render(true)
-    // }
+    if(!project.getGraphMode()){
+      project.toggleActiveGraph(graph)
+      project.setGraphMode(true)
+      render()
+    }else{
+      if(active_graph.uuid.localeCompare(graph.uuid) === 0){
+        return
+      }
+
+      // TODO: Save changes in graph or delete if empty
+      //self.session.prepProjectForTrans(project)
+
+      project.toggleActiveGraph(graph);
+      self.views.graph.forceClearContentDOMEl();
+      render();
+    }
   });
 
   self.on('createNewGraph', function(){
@@ -613,9 +629,11 @@ function App(el){
     let nG = self.session.getActiveProject().createNewGraph()
     nG.saveData() // REFACTOR: Maybe better move this in createNewNote()
 
-    //render(true)
     if(self.session.getGraphMode()){
       self.views.graph.forceClearContentDOMEl();
+    }else{
+      // Not in graph mode so transition to..
+      self.session.setGraphMode(true);
     }
     render();
   });
@@ -646,8 +664,14 @@ function App(el){
     render()
   });
 
-  
-  
+  self.on('updateByGraphEditorContent', function(active_graph){
+    console.log("App received: LIVE UPDATE TEXT OF NOTE THUMB")
+    
+    // self.views.titlebar.updateCreateNewBtn(el, active_note)
+    if(self.views.notes.objectOfDisplay === "graph"){
+      self.views.notes.updateActiveGraphThumb(el, active_graph)
+    }
+  })
 
   function closeApp(){
      // TODO: Check for graph or regular view
@@ -700,6 +724,14 @@ App.prototype.renderContentArea = function(lazy_load = false){
   }
 }
 
+App.prototype.renderRightSideMenu = function(lazy_load = false){
+  var self = this;
+  if(!self.session.getGraphMode()){
+    return;
+  }
+  return self.views.graph.renderRightSideMenu();
+}
+
 App.prototype.render = function (lazy_load = false) {
   var self = this
   var views = self.views
@@ -735,8 +767,10 @@ App.prototype.render = function (lazy_load = false) {
           <!-- Content Area -->
           ${self.renderContentArea(lazy_load)}
 
-        </div>
+          ${self.renderRightSideMenu()}
 
+        </div>
+        
       </div>
     `
   }else{
@@ -760,8 +794,10 @@ App.prototype.render = function (lazy_load = false) {
           <!-- Content Area -->
           ${self.renderContentArea()}
 
+          
+          ${self.renderRightSideMenu()}
         </div>
-
+        
       </div>
     `
   }

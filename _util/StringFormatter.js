@@ -38,6 +38,27 @@ var StringFormatter = {
    */
   splitAtNewLine: function(string){
     return string.replace(/\r/g, "").split(/\n/g)
+  },
+
+  /**
+   * Returns array with indices of text lines 
+   * (lines without text are removed)
+   * 
+   * Takes array of strings (text paragraphs)
+   * 
+   * @param {[String]} arr 
+   */
+  getParagraphIndices: function(arr){
+    //let txt_lines = 0
+    let indices = []
+    // Skip empty lines and calculate the cursor index..
+    for(var i in arr){
+      if(arr[i].length > 0){
+        indices.push(i)
+      }
+
+    }
+    return indices
   }
 }
 

@@ -4,7 +4,7 @@ var Split1 = require("split.js")
 var Split2 = require("split.js")
 
 function SplitManager(app, aInit = 20, bInit = 22, cInit = 58, 
-            aMinSize = 140, bMinSize = 120, cMinSize = 30){
+            aMinSize = 140, bMinSize = 140, cMinSize = 408){
 
   var self = this
 

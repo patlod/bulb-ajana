@@ -40,7 +40,7 @@ body {
 /* ======================================= */
 /*    Titlebar                             */
 /* ======================================= */
-/* === Variables === */
+/* === Variables: Titlebar === */
 #titlebar {
   display: block;
   position: fixed;
@@ -177,7 +177,7 @@ body {
 /* ======================================= */
 /*   Left-Side-Menu 1 -- Project List      */
 /* ======================================= */
-/* === Variables === */
+/* === Variables: left-menu-1 === */
 #left-menu-1 {
   float: left;
   /* Combine float and position: relative (to its flow) */
@@ -335,7 +335,7 @@ body {
 /* ======================================= */
 /*   Left-Side-Menu 2 -- Notes List        */
 /* ======================================= */
-/* === Variables === */
+/* === Variables: left-menu-2 === */
 #left-menu-2 {
   float: left;
   position: relative;
@@ -393,6 +393,16 @@ body {
   overflow-y: auto;
   scrollbar-width: thin;
 }
+#note-list-scroll:after {
+  clear: both;
+  content: " ";
+  display: block;
+  font-size: 0;
+  height: 0;
+  line-height: 0;
+  visibility: hidden;
+  width: 0;
+}
 /* ===== Note list thumbnail ===== */
 .note-thmb {
   font-size: 10px;
@@ -407,6 +417,12 @@ body {
 .note-thmb:hover {
   background: #E4E4E4;
   cursor: pointer;
+}
+.item-thmb-name {
+  display: block;
+  width: 100%;
+  margin-right: 3em;
+  font-weight: 600;
 }
 .flex-wrap {
   display: flex;
@@ -460,6 +476,16 @@ body {
   margin-top: 0.25em;
   margin-left: 0.1em;
   margin-right: 0.2em;
+}
+.item-thmb-ctrls {
+  /* position: absolute -- Makes dropdown function correctly on expense of 
+     name truncating. "Relative" makes truncating work but dropdown not.. */
+  position: absolute;
+  right: 0.3em;
+  top: 0em;
+  display: block;
+  margin-left: auto;
+  white-space: nowrap;
 }
 /* ======================================= */
 /*   Note Editor                           */
@@ -740,6 +766,69 @@ foreignObject {
 }
 foreignObject.selected {
   box-shadow: 0 0 0 3px #000;
+}
+#right-side-menu {
+  position: absolute;
+  top: 35px;
+  right: 0px;
+  height: calc(100% - 35px);
+  width: 342.1px;
+  z-index: 100;
+  /*background: #f7f7f7;*/
+}
+#right-side-menu.hidden {
+  right: -313px;
+}
+#right-menu-toggle {
+  float: left;
+  display: inline-block;
+  margin-top: 1.5em;
+  padding: 1.3em 0.9em;
+  background: #E4E4E4;
+  border-radius: 3px 0px 0px 3px;
+}
+#right-menu-toggle:hover {
+  cursor: pointer;
+}
+#right-menu-content {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 11px !important;
+  display: inline-block;
+  height: 100%;
+  width: 313px;
+  background: #E4E4E4;
+  padding: 0.63em;
+}
+#right-menu-content > span {
+  font-weight: 600;
+  padding: 0.56em 0.34em;
+}
+#graph-description {
+  /*border-style: none;*/
+  border: 1px solid #666;
+  resize: none;
+  outline: none;
+  overflow: hidden;
+  display: block;
+  position: relative;
+  height: 26px;
+  padding: 0.63em;
+  width: 100%;
+  background-color: #fff;
+  line-height: 1.1em;
+}
+#graph-shadow-overlay {
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  opacity: 0.7;
+}
+#graph-shadow-overlay.hidden {
+  display: none;
 }
 /**
  * Color collections for the note backgrounds. Inspired by Post-It color collections.

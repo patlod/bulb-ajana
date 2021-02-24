@@ -6,7 +6,8 @@ var inherits = require('util').inherits
 const yo = require('yo-yo')
 const d3 = require("d3")
 
-const DateFormatter = require('../_util/DateFormatter')
+const DateFormatter = require('../_util/DateFormatter');
+const UIAssistant = require('../_util/UIAssistant');
 
 
 /**
@@ -23,6 +24,12 @@ function GraphEditorView(target) {
   this.POSITION_SAVE_INTERVAL = 3000;   // Save repositioning the vertices every 3s
   this.zoomTimeout = null;
   this.ZOOM_TIMER_INTERVAL = 500;
+  this.descriptionTimeout = null;
+  this.DESCRIPTION_TIMER_INTERVAL = 3000;
+
+  this.openSidemenu = false;
+  this.descInputSelectionStart = 0;
+  this.descInputSelectionEnd = 0;
 
   // this.dirty_bit = false
   this.dirty_vertices = []
@@ -789,6 +796,22 @@ GraphEditorView.prototype.forceClearContentDOMEl = function(){
 /* ============================================================================== */
 /* ============================================================================== */
 
+GraphEditorView.prototype.toggleRightSideMenu = function(){
+  let self = this;
+  let el = document.getElementById('right-side-menu'),
+        overlay = document.getElementById('graph-shadow-overlay')
+    if(el.classList.contains('hidden')){
+      el.classList.remove('hidden');
+      overlay.classList.remove('hidden');
+      self.openSidemenu = true;
+      el.getElementsByTagName('textarea')[0].focus();
+    }else{
+      el.classList.add('hidden');
+      overlay.classList.add('hidden');
+      self.openSidemenu = false;
+    }
+}
+
 /**
  * Renders the GraphEditorView for a given graph
  * @param {Graph} graph 
@@ -805,15 +828,23 @@ GraphEditorView.prototype.render = function(project){
     self.resetZoom();
   }
 
+  function clickGraphShadowOverlay(e){
+    self.toggleRightSideMenu();
+  }
+
   var style = getComputedStyle(document.getElementById('content'))
   var width = style.width
   var height = style.height
 
+  var hiddenClass = (self.openSidemenu) ? '' : 'hidden';
+
   var graph_view = yo`
-    <div id="graph-editor" >
-    <svg xmlns="http://www.w3.org/2000/svg" ></svg>
     
-    <div id="toolbox">
+    <div id="graph-editor">
+      <div id="graph-shadow-overlay" class="shadow-overlay ${hiddenClass}" onclick=${clickGraphShadowOverlay}></div>
+      <svg xmlns="http://www.w3.org/2000/svg" ></svg>
+    
+      <div id="toolbox">
         <span onclick=${clickResetZoom}>
           <i class="fas fa-compress-arrows-alt"></i>
         </span>
@@ -837,4 +868,65 @@ GraphEditorView.prototype.render = function(project){
   }, 20);
 
   return graph_view
+}
+
+GraphEditorView.prototype.renderRightSideMenu = function(){
+  let self = this;
+
+  function clickRightMenuToggle(e){
+    console.log("clickRightMenuToggle");
+    
+    self.toggleRightSideMenu();
+  }
+
+  function clickDescriptionTextarea(e){
+    self.descInputSelectionStart = this.selectionStart;
+    self.descInputSelectionEnd = this.selectionEnd;
+  }
+  function inputDescriptionTextarea(e){
+    UIAssistant.resizeElementByContent(this);
+  }
+  function keyupDescriptionTextarea(e){
+    // Store cursor position..
+    self.descInputSelectionStart = this.selectionStart;
+    self.descInputSelectionEnd = this.selectionEnd;
+
+    // Save text to graph object
+    self.graph.description = this.value;
+
+    // Remove carriage returns and split at \newlines
+    let chk = self.graph.needThumbUpdate(self.descInputSelectionStart,
+      self.descInputSelectionEnd);
+    if(chk){
+      console.log("WOULD UPDATE GRAPH THUMBNAIL");
+      self.send('updateByGraphEditorContent', self.graph);
+    }
+
+    if(self.descriptionTimeout !== null){
+      clearTimeout(self.descriptionTimeout);
+    }
+    self.descriptionTimeout = setTimeout(function(){
+      self.descriptionTimeout = null;
+
+      // Persist to database
+      if(self.graph){
+        self.graph.saveDescription();
+        console.log("TIMEOUT: Write graph description to database.");
+      }
+    }, self.DESCRIPTION_TIMER_INTERVAL);
+  }
+  
+  var hiddenClass = (self.openSidemenu) ? '' : 'hidden'; 
+
+  return yo`<div id="right-side-menu" class="${hiddenClass}">
+        <div id="right-menu-toggle" onclick=${clickRightMenuToggle}><i class="fas fa-chevron-right"></i></div>
+        <div id="right-menu-content">
+          <span>Graph Description</span>
+          <textarea id="graph-description" wrap="soft" 
+          placeholder="Title & description..."
+          onclick=${clickDescriptionTextarea}
+          oninput=${inputDescriptionTextarea}
+          onkeyup=${keyupDescriptionTextarea}>${self.graph.getContent()}</textarea>
+        </div>
+      </div>`;
 }

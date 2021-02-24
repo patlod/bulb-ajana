@@ -48,7 +48,7 @@ NoteListView.prototype.tagsHTML = function(note, pureHTML = false){
 
 
 NoteListView.prototype.updateActiveNoteThumb = function(dom_el, active_note){
-  var self = this
+  var self = this;
 
   // Get active note thumb..
   let active_note_thmb = dom_el.getElementsByClassName('note-thmb active')[0]
@@ -57,6 +57,29 @@ NoteListView.prototype.updateActiveNoteThumb = function(dom_el, active_note){
   active_note_thmb.getElementsByClassName('note-thmb-head')[0].textContent = active_note.getHeader()
   active_note_thmb.getElementsByClassName('note-thmb-content')[0].textContent = active_note.getContentPreview()
   active_note_thmb.getElementsByClassName('note-thmb-tags')[0].replaceWith(self.tagsHTML(active_note, true))
+}
+
+NoteListView.prototype.updateActiveGraphThumb = function(dom_el, active_graph){
+  var self = this;
+
+  // Get active graph thumb..
+  let active_graph_thmb = dom_el.getElementsByClassName('note-thmb active')[0]
+  //console.log(dom_el.getElementsByClassName('note-thmb active'))
+  // ..update data.
+  active_graph_thmb.getElementsByClassName('note-thmb-head')[0].textContent = active_graph.getHeader();
+  let nThmb_content = active_graph_thmb.getElementsByClassName('note-thmb-content')
+  nThmb_content[0].textContent = active_graph.getContentPreview();
+  nThmb_content[1].textContent = active.graph.getNumberOfNotes() + "Notes linked";
+}
+
+NoteListView.prototype.updateActiveGraphNoteCount = function(dom_el, active_graph){
+  var self = this;
+
+  // Get active graph thumb..
+  let active_graph_thmb = dom_el.getElementsByClassName('note-thmb active')[0],
+      nThmb_content = active_graph_thmb.getElementsByClassName('note-thmb-content')
+  
+  nThmb_content[1].textContent = active.graph.getNumberOfNotes() + "Notes linked";
 }
 
 NoteListView.prototype.updateNoteThmbColor = function(note){
@@ -85,11 +108,10 @@ NoteListView.prototype.render = function(project){
   if(!project){ return }
 
   // Could also check whether project is active here...
-  var thumbs;
+  var thumbs, notes;
   if(self.objectOfDisplay === "note"){
 
     // Get project notes
-    let notes;
     if(project.search === null){
       notes = project.getAllNotes();
     }else{
@@ -202,19 +224,38 @@ NoteListView.prototype.render = function(project){
         <div class="note-thmb-wrap">
           <div class="note-thmb ${className}" data-id=${graph.uuid} onclick=${clickNoteThmb} ondblclick=${dblclickNoteThmb}>
             <div class="flex-wrap">
-              <span class="note-thmb-content">${graph.name}</span>
+            <span class="note-thmb-head">${graph.getHeader()}</span>
             </div>
-            
             <div class="flex-wrap">
-              <span class="note-thmb-datetime">${DateFormatter.formatDateItemThmb(graph.getCreated())}</span> <!-- <span class="note-thmb-content">Amount of notes here..</span> -->
+              <span class="note-thmb-datetime">${DateFormatter.formatDateItemThmb(graph.getCreated())}:</span> <span class="note-thmb-content">${graph.getContentPreview()}</span>
             </div>
-            
+            <div class="flex-wrap">
+              <span class="note-thmb-content">${graph.getNumberOfNotes()} Notes linked</span>
+            </div>
           </div>
         </div>
       `
       return graph_thumb
     })
   }
+
+
+  // <div class="item-thmb-ctrls">
+  //   <div class="item-thmb-dropdown ui dropdown floated right btn-options">
+  //     <i class="fas fa-ellipsis-h"></i>
+  //     <div class="menu">
+  //       <div class="item" >
+  //         <span class="description">ctrl + r</span>
+  //         Rename
+  //       </div>
+  //       <div class="item" >Close</div>
+  //       <div class="item" >
+  //         <i class="trash icon"></i>
+  //         Delete Project
+  //       </div>
+  //     </div>
+  //   </div>  
+  // </div>
 
   function scrollList(){
     /**

@@ -166,7 +166,6 @@ ProjectListView.prototype.createLeftMenuDropdown = function(recents){
         </div>
       </div>          
     </div>
-    
   `
 
   return left_menu_dp
