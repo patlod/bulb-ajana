@@ -1,4 +1,4 @@
-module.exports = NoteListView
+module.exports = ItemListView
 
 const EventEmitterElement = require('../_app/EventEmitterElement')
 var inherits = require('util').inherits
@@ -11,7 +11,7 @@ const Menu = require('electron').remote.Menu;
 const yo = require('yo-yo')
 const DateFormatter = require('../_util/DateFormatter')
 
-function NoteListView(target) {
+function ItemListView(target) {
   var self = this
 
   EventEmitterElement.call(this, target)
@@ -21,10 +21,10 @@ function NoteListView(target) {
   this.objectOfDisplay = "note"; // or "graph"
 
 }
-inherits(NoteListView, EventEmitterElement)
+inherits(ItemListView, EventEmitterElement)
 
 
-NoteListView.prototype.tagsHTML = function(note, pureHTML = false){
+ItemListView.prototype.tagsHTML = function(note, pureHTML = false){
   // TODO: Limit the amount of tags shown.
   //console.log(note.getTags())
   if(pureHTML){
@@ -52,7 +52,7 @@ NoteListView.prototype.tagsHTML = function(note, pureHTML = false){
 }
 
 
-NoteListView.prototype.updateActiveNoteThumb = function(dom_el, active_note){
+ItemListView.prototype.updateActiveNoteThumb = function(dom_el, active_note){
   var self = this;
 
   // Get active note thumb..
@@ -64,7 +64,7 @@ NoteListView.prototype.updateActiveNoteThumb = function(dom_el, active_note){
   active_note_thmb.getElementsByClassName('item-thmb-tags')[0].replaceWith(self.tagsHTML(active_note, true))
 }
 
-NoteListView.prototype.updateActiveGraphThumb = function(dom_el, active_graph){
+ItemListView.prototype.updateActiveGraphThumb = function(dom_el, active_graph){
   var self = this;
   if(self.objectOfDisplay === "note"){ return; }
   // Get active graph thumb..
@@ -77,7 +77,7 @@ NoteListView.prototype.updateActiveGraphThumb = function(dom_el, active_graph){
   nThmb_content[1].textContent = active_graph.getNumberOfNotes() + "Notes linked";
 }
 
-NoteListView.prototype.updateActiveGraphNoteCount = function(dom_el, active_graph){
+ItemListView.prototype.updateActiveGraphNoteCount = function(dom_el, active_graph){
   var self = this;
   if(self.objectOfDisplay === "note"){ return; }
 
@@ -90,7 +90,7 @@ NoteListView.prototype.updateActiveGraphNoteCount = function(dom_el, active_grap
   nThmb_content[1].textContent = active_graph.getNumberOfNotes() + "Notes linked";
 }
 
-NoteListView.prototype.updateNoteThmbColor = function(note){
+ItemListView.prototype.updateNoteThmbColor = function(note){
   let target = document.getElementsByClassName('item-thmb active')[0]
   let c = target.getElementsByClassName('color-pickr-circle-thmb')[0]
 
@@ -110,7 +110,7 @@ NoteListView.prototype.updateNoteThmbColor = function(note){
  * 
  * @param {Project} project - Should be the currently active project
  */
-NoteListView.prototype.render = function(project){
+ItemListView.prototype.render = function(project){
   var self = this
   
   if(!project){ return }
@@ -294,7 +294,7 @@ NoteListView.prototype.render = function(project){
 
   function scrollList(){
     /**
-     * Save the scroll position in the NoteListView class here..
+     * Save the scroll position in the ItemListView class here..
      */
     console.log("Scroll position: " + this.scrollTop);
     self.scrollTop = this.scrollTop;

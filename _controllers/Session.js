@@ -194,7 +194,7 @@ Session.prototype.transToProject = function(project, callback){
   let cur_active_project = self.getActiveProject()
   cur_active_project.setActiveNoteAtIndex(0)
   // Reset the scroll position of NotesListView
-  //self.app.views.notes.scrollTop = 0
+  //self.app.views.items.scrollTop = 0
 
   if(typeof callback === "function"){
     if(prior_project_gm && cur_active_project.getGraphMode()){

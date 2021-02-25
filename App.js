@@ -25,7 +25,7 @@ const SplitManager = require('./scripts/split-screen.js')
 // Views
 const TitlebarView = require('./_views/TitlebarView')
 const ProjectListView = require('./_views/ProjectListView')
-const NoteListView = require('./_views/NoteListView')
+const ItemListView = require('./_views/ItemListView')
 const NoteEditorView = require('./_views/NoteEditorView')
 const GraphEditorView = require('./_views/GraphEditorView')
 const AppControls = require('./_controllers/AppControls')
@@ -62,7 +62,7 @@ function App(el){
   self.views = {
     titlebar: new TitlebarView(self),
     projects: new ProjectListView(self),
-    notes: new NoteListView(self),
+    items: new ItemListView(self),
     editor: new NoteEditorView(self),
     graph: new GraphEditorView(self)
   }
@@ -451,7 +451,7 @@ function App(el){
     console.log("App received: LIVE UPDATE TEXT OF NOTE THUMB")
     
     self.views.titlebar.updateCreateNewBtn(el, active_note)
-    self.views.notes.updateActiveNoteThumb(el, active_note)
+    self.views.items.updateActiveNoteThumb(el, active_note)
   })
 
   self.on('toggleEditorDate', function(){
@@ -467,7 +467,7 @@ function App(el){
     note.bg_color = targetColor
     note.saveData()
 
-    self.views.notes.updateNoteThmbColor(note)
+    self.views.items.updateNoteThmbColor(note)
   })
 
   self.on('updateGlobalSearch', function(needle){
@@ -517,7 +517,7 @@ function App(el){
 
     // Check whether empty note exists already
     let empty_notes = active_project.getEmptyNotes()
-    if(empty_notes === null || empty_notes.length === 1){
+    if(empty_notes === null || empty_items.length === 1){
       console.log("Still empty note found...")
       return
     }
@@ -530,7 +530,7 @@ function App(el){
 
     // Update the create new graph button
     self.views.titlebar.updateCreateNewBtn(el, active_graph);
-    self.views.notes.updateActiveGraphNoteCount(el, active_graph);
+    self.views.items.updateActiveGraphNoteCount(el, active_graph);
     
     self.views.graph.updateGraph(active_graph)
 
@@ -552,7 +552,7 @@ function App(el){
 
     // Update the create new graph button
     self.views.titlebar.updateCreateNewBtn(el, g);
-    self.views.notes.updateActiveGraphNoteCount(el, g);
+    self.views.items.updateActiveGraphNoteCount(el, g);
 
     self.views.graph.updateGraph(g);
   })
@@ -690,8 +690,8 @@ function App(el){
     console.log("App received: LIVE UPDATE TEXT OF NOTE THUMB")
     
     // self.views.titlebar.updateCreateNewBtn(el, active_note)
-    if(self.views.notes.objectOfDisplay === "graph"){
-      self.views.notes.updateActiveGraphThumb(el, active_graph)
+    if(self.views.items.objectOfDisplay === "graph"){
+      self.views.items.updateActiveGraphThumb(el, active_graph)
     }
   })
 
@@ -786,7 +786,7 @@ App.prototype.render = function (lazy_load = false) {
 
           <!-- Notes Menu -->
           <div id="left-menu-2">
-            ${views.notes.render(self.session.getActiveProject())}
+            ${views.items.render(self.session.getActiveProject())}
           </div>
 
           <!-- Content Area -->
@@ -813,7 +813,7 @@ App.prototype.render = function (lazy_load = false) {
 
           <!-- Notes Menu -->
           <div id="left-menu-2">
-            ${views.notes.render(self.session.getActiveProject())}
+            ${views.items.render(self.session.getActiveProject())}
           </div>
 
           <!-- Content Area -->
