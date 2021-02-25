@@ -175,7 +175,7 @@ ItemListView.prototype.render = function(project){
       /* ====================================================================== */
       /* ====================================================================== */
 
-      var className = (note.isActive()) ? 'active' : ''
+      var className = (note.isActive()) ? 'selected' : ''
       
       let note_thumb = yo`
         <div class="item-thmb-wrap">
@@ -246,7 +246,7 @@ ItemListView.prototype.render = function(project){
       /* ====================================================================== */
       /* ====================================================================== */
 
-      var className = (graph.isActive()) ? 'active' : ''
+      var className = (graph.isActive()) ? 'selected' : ''
       
       let graph_thumb = yo`
         <div class="item-thmb-wrap">

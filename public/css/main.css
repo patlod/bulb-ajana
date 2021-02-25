@@ -232,7 +232,7 @@ body {
 .prjct-thmb:hover {
   background: #E4E4E4;
 }
-.prjct-thmb.active {
+.prjct-thmb.selected {
   background: #E4E4E4;
 }
 .prjct-thmb-drppbl-active {
@@ -408,7 +408,7 @@ body {
   padding: 5px 10px;
   border-bottom: 1px solid #DDD;
 }
-.item-thmb.active {
+.item-thmb.selected {
   background: #E4E4E4;
 }
 .item-thmb:hover {

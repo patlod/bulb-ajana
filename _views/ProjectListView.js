@@ -290,7 +290,7 @@ ProjectListView.prototype.render = function(projects, recents){
     /* ====================================================================== */
     
     
-    var className = project.isActive() ? 'active' : ''
+    var className = project.isActive() ? 'selected' : ''
 
     let project_thumb = yo`
       <div class="prjct-thmb ${className}" data-id="${project.uuid}"
