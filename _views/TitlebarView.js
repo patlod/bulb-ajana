@@ -5,10 +5,11 @@ var inherits = require('util').inherits
 
 var yo = require('yo-yo')
 
-function TitlebarView(target){
-    var self = this
+function TitlebarView(target, focus_manager){
+    var self = this;
+    EventEmitterElement.call(this, target);
 
-    EventEmitterElement.call(this, target)
+    this.focus_manager = focus_manager;
 
     this.current_search = "";
 }

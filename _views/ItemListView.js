@@ -11,15 +11,16 @@ const Menu = require('electron').remote.Menu;
 const yo = require('yo-yo')
 const DateFormatter = require('../_util/DateFormatter')
 
-function ItemListView(target) {
-  var self = this
+function ItemListView(target, focus_manager) {
+  var self = this;
 
-  EventEmitterElement.call(this, target)
+  EventEmitterElement.call(this, target);
 
   this.scrollTop = 0;
 
   this.objectOfDisplay = "note"; // or "graph"
 
+  this.focus_manager = focus_manager;
 }
 inherits(ItemListView, EventEmitterElement)
 
@@ -96,14 +97,6 @@ ItemListView.prototype.updateNoteThmbColor = function(note){
 
   c.style.backgroundColor = note.bg_color
 }
-
-/**
- * TODO:
- *  - Click on a note thumb should mark the thumb and open the note
- *  - When note is marked pressing cmd-backspace should delete the note (move to trash)
- *  - 
- */
-
 
 /**
  * Renders the UI for the Notes list with yo-yo.

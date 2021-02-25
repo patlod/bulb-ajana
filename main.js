@@ -60,16 +60,6 @@ function createWindow () {
   win.webContents.openDevTools();
 
   client = electronConnect.client.create(win);
-
-  // const ctxMenu = new Menu();
-  // ctxMenu.append(new MenuItem({
-  //   label: 'Hello'
-  // }))
-
-  // win.webContents.on('context-menu', function(e, params){
-  //   ctxMenu.popup(win, params.x, params.y);
-  //   // ipcMain.send('openedContextMenu', )
-  // })
 }
 
 app.whenReady().then(function(){

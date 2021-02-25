@@ -10,11 +10,14 @@ var yo = require('yo-yo')
 
 
 
-function ProjectListView(target) {
-    var self = this
-    EventEmitterElement.call(this, target)
+function ProjectListView(target, focus_manager) {
+    var self = this;
+    EventEmitterElement.call(this, target);
 
     this.scrollTop = 0;
+
+    this.focus_manager = focus_manager;
+    this.selected_items = null;
 }
 inherits(ProjectListView, EventEmitterElement)
 

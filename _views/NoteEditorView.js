@@ -13,21 +13,23 @@ const StringFormatter = require('../_util/StringFormatter');
 const TextSearchIterator = require('../_util/TextSearchIterator');
 
 
-function NoteEditorView(target) {
-  var self = this
-  EventEmitterElement.call(this, target)
+function NoteEditorView(target, focus_manager) {
+  var self = this;
+  EventEmitterElement.call(this, target);
 
-  this.active_note = null
+  this.focus_manager = focus_manager;
+
+  this.active_note = null;
 
   this.selectionStart = 0;
   this.selectionEnd = 0;
 
-  this.globalTimeout = null
-  this.SAVE_INTERVAL = 3000   // Save text content every 3s
+  this.globalTimeout = null;
+  this.SAVE_INTERVAL = 3000;   // Save text content every 3s
 
-  this.tagify = null
+  this.tagify = null;
 
-  this.dirty_bit = false
+  this.dirty_bit = false;
 
   this.search = null;
   // this.iterator = iterator;

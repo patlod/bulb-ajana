@@ -8,27 +8,28 @@ const remote = require('electron').remote;
 const Menu = require('electron').remote.Menu;
 const MenuItem = require('electron').remote.MenuItem;
 
+const FocusManager = require('./_views/FocusManager');
 
-
-const yo = require('yo-yo')
+const yo = require('yo-yo');
 // const d3 = require('d3')
 
 // App Peripherals
-const ConfigManager = require('./_app/ConfigurationManager')
+const ConfigManager = require('./_app/ConfigurationManager');
 // const UserPreferences = require('./_models/UserPreferences')
-const GlobalData = require('./_models/GlobalData') 
+const GlobalData = require('./_models/GlobalData');
 
 // Controllers
-const Session = require('./_controllers/Session.js')
-const SplitManager = require('./scripts/split-screen.js')
+const Session = require('./_controllers/Session.js');
+const SplitManager = require('./scripts/split-screen.js');
 
 // Views
-const TitlebarView = require('./_views/TitlebarView')
-const ProjectListView = require('./_views/ProjectListView')
-const ItemListView = require('./_views/ItemListView')
-const NoteEditorView = require('./_views/NoteEditorView')
-const GraphEditorView = require('./_views/GraphEditorView')
-const AppControls = require('./_controllers/AppControls')
+const AppView = require('./_views/AppView');
+const TitlebarView = require('./_views/TitlebarView');
+const ProjectListView = require('./_views/ProjectListView');
+const ItemListView = require('./_views/ItemListView');
+const NoteEditorView = require('./_views/NoteEditorView');
+const GraphEditorView = require('./_views/GraphEditorView');
+const AppControls = require('./_controllers/AppControls');
 
 // Utils
 const UIAssistant = require('./_util/UIAssistant');
@@ -57,16 +58,19 @@ function App(el){
   self.session = new Session(self)     // The session stores all the open projects with notes
   self.appControls = new AppControls()
 
+  self.focusManager = new FocusManager.constructor(el);
   /* ====== Views ====== */
   // All view instance for different parts of the app's UI
   self.views = {
-    titlebar: new TitlebarView(self),
-    projects: new ProjectListView(self),
-    items: new ItemListView(self),
-    editor: new NoteEditorView(self),
-    graph: new GraphEditorView(self)
+    app: new AppView(self, self.focusManager),
+    titlebar: new TitlebarView(self, self.focusManager),
+    projects: new ProjectListView(self, self.focusManager),
+    items: new ItemListView(self, self.focusManager),
+    editor: new NoteEditorView(self, self.focusManager),
+    graph: new GraphEditorView(self, self.focusManager)
   }
 
+  
 
   // --- Menu ---
   // App
@@ -179,6 +183,7 @@ function App(el){
   var tree = self.render()
   console.log(tree)
   el.appendChild(tree)
+  self.views.app.render();
   /* ============================================= */
 
   // Initialise the split screen manager object

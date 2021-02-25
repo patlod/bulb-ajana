@@ -18,9 +18,11 @@ const UIAssistant = require('../_util/UIAssistant');
  * 
  * @param {DOMElement} target - The DOM element of the UI for EventEmitter
  */
-function GraphEditorView(target) {
+function GraphEditorView(target, focus_manager) {
   var self = this
   EventEmitterElement.call(this, target)
+
+  this.focus_manager = focus_manager;
 
   this.dragTimeout = null;
   this.POSITION_SAVE_INTERVAL = 3000;   // Save repositioning the vertices every 3s
