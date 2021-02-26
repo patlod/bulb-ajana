@@ -333,6 +333,9 @@ NoteEditorView.prototype.render = function(project){
   /* ====================================================================== */
   /*  Event Handlers                                                        */
   /* ====================================================================== */
+  function clickNoteEditor(e){
+    self.focus_manager.setFocusObject(self.focus_manager.NOTE_EDITOR);
+  }
 
   function inputHandlerNotepad(e){
     UIAssistant.resizeElementByContent(this)
@@ -495,67 +498,67 @@ NoteEditorView.prototype.render = function(project){
     }else{
       if(!project.getGraphMode()){
 
-          let colorCollection = CSSProcessor.getNoteBackgroundColors()
+        let colorCollection = CSSProcessor.getNoteBackgroundColors()
 
-          function clickColorDPItem(e){
-            let style = window.getComputedStyle(this.getElementsByTagName('span')[0])
-            let color_str = UnitConverter.rgbToHex( style.getPropertyValue('background-color') )
-            
-            // let targetColor = colorCollection.filter(function(x){
-            //   return x.color.localeCompare(color_str) === 0
-            // })
+        function clickColorDPItem(e){
+          let style = window.getComputedStyle(this.getElementsByTagName('span')[0])
+          let color_str = UnitConverter.rgbToHex( style.getPropertyValue('background-color') )
+          
+          // let targetColor = colorCollection.filter(function(x){
+          //   return x.color.localeCompare(color_str) === 0
+          // })
 
-            // Set background of the note-editor
-            document.getElementsByClassName('note-content-wrap')[0].style.backgroundColor = color_str
+          // Set background of the note-editor
+          document.getElementsByClassName('note-content-wrap')[0].style.backgroundColor = color_str
 
-            
-            self.send('updateNoteColor', active_note, color_str)
+          
+          self.send('updateNoteColor', active_note, color_str)
+        }
+
+        let items_html = []
+        let el = null
+        colorCollection.map(function(x, idx){
+          if(active_note.bg_color.localeCompare(x.color) === 0){
+            el = yo` 
+            <div class="item active" onclick=${clickColorDPItem}>
+                <span class="color-pickr-circle ${x.selector.substring(1)}"></span>
+            </div>
+          ` 
+          }else{
+            el = yo` 
+            <div class="item" onclick=${clickColorDPItem}>
+                <span class="color-pickr-circle ${x.selector.substring(1)}"></span>
+            </div>
+          ` 
           }
-
-          let items_html = []
-          let el = null
-          colorCollection.map(function(x, idx){
-            if(active_note.bg_color.localeCompare(x.color) === 0){
-              el = yo` 
-              <div class="item active" onclick=${clickColorDPItem}>
-                  <span class="color-pickr-circle ${x.selector.substring(1)}"></span>
-              </div>
-            ` 
-            }else{
-              el = yo` 
-              <div class="item" onclick=${clickColorDPItem}>
-                  <span class="color-pickr-circle ${x.selector.substring(1)}"></span>
-              </div>
-            ` 
+          
+            items_html.push(el)
+            if((idx + 1) % 5 === 0){
+                items_html.push(yo`<div class="divider"></div>`)
             }
             
-              items_html.push(el)
-              if((idx + 1) % 5 === 0){
-                  items_html.push(yo`<div class="divider"></div>`)
-              }
-              
-          })
+        })
+        
           
+        return yo`
+        <div id="note-color-dp" class="ui floated dropdown">
+            <i class="fas fa-palette"></i>
+            <i class="dropdown icon"></i>
             
-          return yo`
-          <div id="note-color-dp" class="ui floated dropdown">
-              <i class="fas fa-palette"></i>
-              <i class="dropdown icon"></i>
-              
-              <div class="menu">
-                  <div class="header">
-                      <i class="fas fa-paint-roller"></i>
-                      Note Color
-                  </div>
-                  <div class="menu scrolling">
-                      ${items_html}
-                  </div>
-              </div>
-          </div>
-          `
-        }
+            <div class="menu">
+                <div class="header">
+                    <i class="fas fa-paint-roller"></i>
+                    Note Color
+                </div>
+                <div class="menu scrolling">
+                    ${items_html}
+                </div>
+            </div>
+        </div>
+        `
       }
     }
+  }
 
   let project_search = self.active_note.project.search;
   if(project_search !== null && project_search.notes.length === 0){
@@ -563,7 +566,7 @@ NoteEditorView.prototype.render = function(project){
   }
 
   var editor_view = yo`
-    <div id="note-editor" >
+    <div id="note-editor" onclick=${clickNoteEditor}>
       <div class="note-header">
         <div class="datetime">
           <span id="dt-created">Created: ${DateFormatter.formatDateEditor(self.active_note.getCreated())}</span>

@@ -57,7 +57,7 @@ ItemListView.prototype.updateActiveNoteThumb = function(dom_el, active_note){
   var self = this;
 
   // Get active note thumb..
-  let active_note_thmb = dom_el.getElementsByClassName('item-thmb active')[0]
+  let active_note_thmb = dom_el.getElementsByClassName('item-thmb selected')[0]
   //console.log(dom_el.getElementsByClassName('item-thmb active'))
   // ..update data.
   active_note_thmb.getElementsByClassName('item-thmb-head')[0].textContent = active_note.getHeader()
@@ -69,7 +69,7 @@ ItemListView.prototype.updateActiveGraphThumb = function(dom_el, active_graph){
   var self = this;
   if(self.objectOfDisplay === "note"){ return; }
   // Get active graph thumb..
-  let active_graph_thmb = dom_el.getElementsByClassName('item-thmb active')[0]
+  let active_graph_thmb = dom_el.getElementsByClassName('item-thmb selected')[0]
   //console.log(dom_el.getElementsByClassName('item-thmb active'))
   // ..update data.
   active_graph_thmb.getElementsByClassName('item-thmb-head')[0].textContent = active_graph.getHeader();
@@ -133,14 +133,22 @@ ItemListView.prototype.render = function(project){
     thumbs = notes.map(function(note){
       
       /* ====================================================================== */
-      /*  Event Handlers - Note Thumbnail                                       */
+      /*  Event Handlers - Note Item Thumbnail                                       */
       /* ====================================================================== */
 
-      function clickNoteThmb(e){
+      function clickItemThmb(e){
+        // Check for Shift and CtrlOrCmd
+        // if(cmd){
+        
+        // }else if(shift){
+
+        // }else{
+
+        // }
         self.send('transitionNote', project, note)
       }
 
-      function dblclickNoteThmb(e){
+      function dblclickItemThmb(e){
         console.log("Double click on..")
         if(project.getGraphMode()){
           // Project in graph mode so switch to NoteEditor and then focus on note
@@ -150,7 +158,7 @@ ItemListView.prototype.render = function(project){
         }
       }
 
-      function oncontextmenuClickNoteThmb(e){
+      function rightclickItemThmb(e){
         $(this).attr('data-id')
         const template = [
           {
@@ -180,9 +188,9 @@ ItemListView.prototype.render = function(project){
       let note_thumb = yo`
         <div class="item-thmb-wrap">
           <div class="item-thmb ${className}" data-object="note" data-id=${note.uuid} 
-            onclick=${clickNoteThmb} 
-            ondblclick=${dblclickNoteThmb}
-            oncontextmenu=${oncontextmenuClickNoteThmb}>
+            onclick=${clickItemThmb} 
+            ondblclick=${dblclickItemThmb}
+            oncontextmenu=${rightclickItemThmb}>
 
             <div class="flex-wrap">
             <span class="color-pickr-circle-thmb" style="background-color: ${note.bg_color}"></span><span class="item-thmb-head">${note.getHeader()}</span>
@@ -225,14 +233,14 @@ ItemListView.prototype.render = function(project){
 
     thumbs = graphs.map(function(graph){
       /* ====================================================================== */
-      /*  Event Handlers - Note Thumbnail                                       */
+      /*  Event Handlers - Graph Item Thumbnail                                       */
       /* ====================================================================== */
 
-      function clickNoteThmb(e){
+      function clickItemThmb(e){
         self.send('transitionGraph', project, graph)
       }
 
-      function dblclickNoteThmb(e){
+      function dblclickItemThmb(e){
         console.log("Double click on..")
         if(project.getGraphMode()){
           // Project in graph mode so switch to NoteEditor and then focus on note
@@ -243,6 +251,29 @@ ItemListView.prototype.render = function(project){
         }
       }
 
+      function rightClickGraphThmb(e){
+        $(this).attr('data-id')
+        const template = [
+          {
+            label: 'Delete',
+            click: () => {
+              console.log("Context-Menu - Delete clicked on element:")
+              console.log(item_id)
+            }
+          },
+          { type: 'separator'},
+          {
+            label: 'New Graph',
+            click: () => {
+              console.log("Context-Menu - New Graph clicked on element:")
+              console.log(item_id)
+            }
+          }
+        ]
+        const menu = Menu.buildFromTemplate(template);
+        menu.popup(remote.getCurrentWindow())
+      }
+
       /* ====================================================================== */
       /* ====================================================================== */
 
@@ -250,7 +281,10 @@ ItemListView.prototype.render = function(project){
       
       let graph_thumb = yo`
         <div class="item-thmb-wrap">
-          <div class="item-thmb ${className}" data-object="graph" data-id=${graph.uuid} onclick=${clickNoteThmb} ondblclick=${dblclickNoteThmb}>
+          <div class="item-thmb ${className}" data-object="graph" data-id=${graph.uuid} 
+            onclick=${clickItemThmb} 
+            ondblclick=${dblclickItemThmb}
+            oncontextmenu=${rightClickGraphThmb}>
             <div class="flex-wrap">
             <span class="item-thmb-head">${graph.getHeader()}</span>
             </div>
@@ -285,6 +319,10 @@ ItemListView.prototype.render = function(project){
   //   </div>  
   // </div>
 
+  function clickItemList(){
+    self.focus_manager.setFocusObject(self.focus_manager.ITEM_LIST);
+  }
+
   function scrollList(){
     /**
      * Save the scroll position in the ItemListView class here..
@@ -306,7 +344,7 @@ ItemListView.prototype.render = function(project){
   }
   
   let notes_list = yo`
-    <div>
+    <div onclick=${clickItemList}>
       ${function(){
         if(self.objectOfDisplay === "note"){
           return yo`<div id="item-list-ctrls-top">

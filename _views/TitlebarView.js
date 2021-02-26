@@ -1,9 +1,12 @@
 module.exports = TitlebarView
 
 const EventEmitterElement = require('../_app/EventEmitterElement')
-var inherits = require('util').inherits
+const inherits = require('util').inherits
 
-var yo = require('yo-yo')
+const yo = require('yo-yo')
+
+const Note = require('../_controllers/Note');
+const Graph = require('../_controllers/Graph');
 
 function TitlebarView(target, focus_manager){
     var self = this;
@@ -19,12 +22,12 @@ TitlebarView.prototype.updateCreateNewBtn = function(dom_el, active_item){
     // let create_new_btn = dom_el.getElementsByClassName('')[0]
     let btn = document.getElementById('new-item-btn'),
         disable = false;
-    if(typeof active_item === "Note"){
+    if(active_item instanceof Note){
         if(active_item.getContent().length === 0){
             disable = true;
         }
     }else{
-        if(typeof active_item === "Graph"){
+        if(active_item instanceof Graph){
             if(active_item.vertices.length === 0){
                 disable = true;
             }
@@ -150,6 +153,10 @@ TitlebarView.prototype.render = function (session) {
         }
     }
 
+    function focusGlobalSearch(){
+        self.focus_manager.setFocusObject(focus_manager.TITLEBAR_SEARCH);
+    }
+
     function keyupGlobalSearch(e){
         console.log("keyupGlobalSearch");
         // Change visibility of clear button
@@ -188,7 +195,7 @@ TitlebarView.prototype.render = function (session) {
             return yo`
                 <div id="global-search">
                     <i class="fas fa-search"></i>
-                    <input class="" type="text" placeholder="Search..." onkeyup=${keyupGlobalSearch}>
+                    <input class="" type="text" placeholder="Search..." onkeyup=${keyupGlobalSearch} onfocus=${focusGlobalSearch}>
                     ${function(){
                         if(self.current_search.length > 0){
                             return yo`<i class="fas fa-times-circle" onclick=${clickClearSearch}></i>`;

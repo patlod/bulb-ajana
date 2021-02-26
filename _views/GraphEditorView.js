@@ -859,8 +859,12 @@ GraphEditorView.prototype.render = function(project){
   // self.resetEditorState()
 
   //if(!session){ return }
+  
+  function clickGraphEditor(e){
+    self.focus_manager.setFocusObject(self.focus_manager.GRAPH_EDITOR);
+  }
 
-  function clickResetZoom(){
+  function clickResetZoom(e){
     self.resetZoom();
   }
 
@@ -868,15 +872,13 @@ GraphEditorView.prototype.render = function(project){
     self.toggleRightSideMenu();
   }
 
-  var style = getComputedStyle(document.getElementById('content'))
-  var width = style.width
-  var height = style.height
+  var style = getComputedStyle(document.getElementById('content')),
+      width = style.width,
+      height = style.height;
 
   var hiddenClass = (self.openSidemenu) ? '' : 'hidden';
-
   var graph_view = yo`
-    
-    <div id="graph-editor">
+    <div id="graph-editor" onclick=${clickGraphEditor}>
       <div id="graph-shadow-overlay" class="shadow-overlay ${hiddenClass}" onclick=${clickGraphShadowOverlay}></div>
       <svg xmlns="http://www.w3.org/2000/svg" ></svg>
     
@@ -909,12 +911,15 @@ GraphEditorView.prototype.render = function(project){
 GraphEditorView.prototype.renderRightSideMenu = function(){
   let self = this;
 
+
+  function clickRightMenu(e){
+    self.focus_manager.setFocusObject(self.focus_manager.RIGHT_MENU);
+  }
   function clickRightMenuToggle(e){
     console.log("clickRightMenuToggle");
     
     self.toggleRightSideMenu();
   }
-
   function clickDescriptionTextarea(e){
     self.descInputSelectionStart = this.selectionStart;
     self.descInputSelectionEnd = this.selectionEnd;
@@ -954,7 +959,7 @@ GraphEditorView.prototype.renderRightSideMenu = function(){
   
   var hiddenClass = (self.openSidemenu) ? '' : 'hidden'; 
 
-  return yo`<div id="right-side-menu" class="${hiddenClass}">
+  return yo`<div id="right-side-menu" class="${hiddenClass}" onclick=${clickRightMenu}>
         <div id="right-menu-toggle" onclick=${clickRightMenuToggle}><i class="fas fa-chevron-right"></i></div>
         <div id="right-menu-content" class="side-menu-content">
           <span>Graph Description</span>

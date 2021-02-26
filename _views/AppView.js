@@ -28,16 +28,16 @@ AppView.prototype.shiftActive = function(){
 AppView.prototype.render = function(){
   var self = this;
   window.addEventListener('keydown', function(e){
-    console.log("event:");
-    console.log(e);
-    console.log("e.key");
-    console.log(e.key);
-    console.log("e.keyCode");
-    console.log(e.keyCode);
-    console.log("e.metaKey");
-    console.log(e.metaKey);
-    console.log("e.shiftKey");
-    console.log(e.shiftKey);
+    // console.log("event:");
+    // console.log(e);
+    // console.log("e.key");
+    // console.log(e.key);
+    // console.log("e.keyCode");
+    // console.log(e.keyCode);
+    // console.log("e.metaKey");
+    // console.log(e.metaKey);
+    // console.log("e.shiftKey");
+    // console.log(e.shiftKey);
     if(e.key === "Shift"){
       self.shiftKey_active = true;
     }
@@ -52,23 +52,38 @@ AppView.prototype.render = function(){
         }
       }
     }
+    if(e.key === "ArrowUp"){
+      if(self.shiftKey_active){
+        self.send('arrowShiftSelectUp');
+      }else{
+        self.send('arrowNavigationUp');
+      }
+    }else if(e.key === "ArrowDown"){
+      if(self.shiftKey_active){
+        self.send('arrowShiftSelectDown');
+      }else{
+        self.send('arrowNavigationDown');
+      }
+    }else{
+      // Nothing
+    }
+  });
+
+  window.addEventListener('keypress', function(e){
     
   });
 
   window.addEventListener('keyup', function(e){
-    // if(){
-    //   self.CmdOrCtrl_active = false;
-    // }
-    console.log("event:");
-    console.log(e);
-    console.log("e.key");
-    console.log(e.key);
-    console.log("e.keyCode");
-    console.log(e.keyCode);
-    console.log("e.metaKey");
-    console.log(e.metaKey);
-    console.log("e.shiftKey");
-    console.log(e.shiftKey);
+    // console.log("event:");
+    // console.log(e);
+    // console.log("e.key");
+    // console.log(e.key);
+    // console.log("e.keyCode");
+    // console.log(e.keyCode);
+    // console.log("e.metaKey");
+    // console.log(e.metaKey);
+    // console.log("e.shiftKey");
+    // console.log(e.shiftKey);
     if(e.key === "Shift"){
       self.shiftKey_active = false;
     }

@@ -21,39 +21,61 @@ function Project(path, session, data = FileDatabaseManager.getEmptyProjectJSON()
   /*if(typeof path !== String)
     return null;*/
 
-  var self = this
+  var self = this;
 
   // Database interface object
-  this.db = new FileDatabase(path)
+  this.db = new FileDatabase(path);
 
   this.DELTA_DAYS_GARBAGE_DISPOSAL = 30;
 
   // Project data
-  this.uuid     = data.uuid
-  this.created  = data.created
-  this.name     = data.name
-  this.tags     = data.tags
-  this.notes    = data.notes
+  this.uuid     = data.uuid;
+  this.created  = data.created;
+  this.name     = data.name;
+  this.tags     = data.tags;
+  this.notes    = data.notes;
 
-  this.active = false
+  this.active = false;
 
-  this.session = session
+  this.session = session;
 
   this.search = null;
 
-  this.graph_mode = false   // Default: Graph is off..
-  this.graphs = data.graphs
+  this.graph_mode = false;   // Default: Graph is off..
+  this.graphs = data.graphs;
 
-  // this.selected_items = null
+  this.item_selection = null;
 
   // Load data on creation
-  this.loadData()
+  this.loadData();
   
 }
 
-Project.prototype.printSessionProjects = function(){
-  //console.log("Access session from project.")
-  console.log(this.session.prjcts)
+
+/**
+ * Change project name
+ * 
+ * @param {string} name - Project name without .json file extension
+ */
+Project.prototype.renameProject = function(name){
+  console.log("renameProject():")
+  // Save name in project instance
+  this.name = name + ".json"
+  // Form paths
+  let new_path = this.getDir() + this.name
+  let old_path = this.getPath()
+  // Delete FileDatabase instance on old path
+  this.db = null
+  // Rename file
+  try{
+    fs.renameSync(old_path, new_path)
+  } catch(err) {
+    console.error(err)
+  }
+  // Create FileDatabase instance on new path
+  this.db = new FileDatabase(new_path)
+  // Insert name into database
+  this.db.updateDBName(this.name)
 }
 
 /**
@@ -79,16 +101,12 @@ Project.prototype.loadTags = function(){
   this.tags = this.db.getProjectTags()
 }
 
-
-
 /**
  * Method that is called after initialisation to get data from
  * database.
  */
 Project.prototype.saveData = function(){
-
   // TODO
-
 }
 
 /**
@@ -367,33 +385,6 @@ Project.prototype.deleteGraph = function(graph){
   }
 }
 
-
-/**
- * Change project name
- * 
- * @param {string} name - Project name without .json file extension
- */
-Project.prototype.renameProject = function(name){
-  console.log("renameProject():")
-  // Save name in project instance
-  this.name = name + ".json"
-  // Form paths
-  let new_path = this.getDir() + this.name
-  let old_path = this.getPath()
-  // Delete FileDatabase instance on old path
-  this.db = null
-  // Rename file
-  try{
-    fs.renameSync(old_path, new_path)
-  } catch(err) {
-    console.error(err)
-  }
-  // Create FileDatabase instance on new path
-  this.db = new FileDatabase(new_path)
-  // Insert name into database
-  this.db.updateDBName(this.name)
-}
-
 /**
  * Create new note
  */
@@ -519,6 +510,12 @@ Project.prototype.getAllTags = function(){
   return this.tags
 }
 
+
+/* ================================================================= */
+/* Search functions in project domain                                */
+/*                                                                   */
+/* ================================================================= */
+
 /**
  * Searches all notes of the project for given string parameter.
  * 
@@ -567,6 +564,84 @@ Project.prototype.searchAllNotesTextsAndTags = function(needle){
     }
   }
   return results;
+}
+
+
+/* ================================================================= */
+/* Selection functions                                               */
+/*                                                                   */
+/* ================================================================= */
+Project.prototype.getItemSelection = function(){
+  return this.item_selection;
+}
+Project.prototype.startSelectionWithAnchor = function(item){
+  if(item instanceof Note){
+    this.item_selection = {
+      object: Note,
+      last_idx: this.notes.indexOf(item),
+      anchor: this.notes.indexOf(item),
+      shadows: this.notes.map(function(x){
+        if(x === item){
+          return true;
+        }else{
+          return false;
+        }
+      })
+    }
+  }else{
+    if(item instanceof Graph){
+      this.item_selection = {
+        object: Graph,
+        last_idx: this.graphs.indexOf(item),
+        anchor: this.notes.indexOf(item),
+        shadows: this.graphs.map(function(x){
+          if(x === item){
+            return true;
+          }else{
+            return false;
+          }
+        })
+      }
+    }
+  }
+}
+
+Project.prototype.toggleSelectionAnchor = function(item){
+  if(!this.item_selection){ return; }
+  if(this.item_selection.object === Note && item instanceof Graph ){ return; }
+  if(this.item_selection.object === Graph && item instanceof Note ){ return; }
+
+  let target_idx;
+  if()
+  if(this.item_selection.shadows[target_idx] = (this.item_selection.shadows[target_idx]) ? false : true; 
+}
+
+Project.prototype.shiftSelectTowardsHead = function(){
+  console.log("Project.js => expandSelectionToHead");
+  if(!this.item_selection){ return; }
+  if(this.item_selection.last_idx === 0){ return; }
+
+  if(this.item_selection.last_idx < this.item_selection.anchor){
+    // Swallow Selected && Select Unselected
+  }else{
+    if(this.item_selection.last_idx > this.item_selection.anchor){
+      // Unselect the selected
+    }
+  }
+}
+
+Project.prototype.sshiftSelectTowardsTail = function(){
+  console.log("Project.js => expandSelectionToTail");
+  if(!this.item_selection){ return; }
+  if(this.item_selection.last_idx >= this.item_selection.shadows.length - 1){ return; }
+
+  if(this.item_selection.last_idx < this.item_selection.anchor){
+    // Unselect the selected
+  }else{
+    if(this.item_selection.last_idx > this.item_selection.anchor){
+     // Swallow Selected && Select Unselected 
+    }
+  }
 }
 
 /* ================================================================= */
@@ -634,10 +709,6 @@ Project.prototype.getName = function(){
   var path_split = this.db.getPath().split('/')
   var file_name_split = path_split[path_split.length - 1].split('.')
   return file_name_split[0]
-}
-
-Project.prototype.setName = function(name){
-  
 }
 
 Project.prototype.countNotes = function(){

@@ -2,12 +2,12 @@ const EventEmitterElement = require('../_app/EventEmitterElement')
 var inherits = require('util').inherits
 
 
-const TB_SEARCH_FIELD   = 0;
-const PROJECT_THUMB     = 1;
-const NOTES_THUMB       = 2;
-const GRAPH_THUMB       = 3;
-const NOTE_EDITOR       = 4;
-const GRAPH_EDITOR      = 5; 
+const TITLEBAR_SEARCH   = 0;
+const PROJECT_LIST      = 1;
+const ITEM_LIST         = 2;
+const NOTE_EDITOR       = 3;
+const GRAPH_EDITOR      = 4;
+const RIGHT_MENU        = 5;
 
 function FocusManager(target, focus_object = null){
     var self = this
@@ -35,11 +35,11 @@ FocusManager.prototype.clearFocusObject = function(){
 }
 
 module.exports = {
-  TB_SEARCH_FIELD:  TB_SEARCH_FIELD,
-  PROJECT_THUMB:    PROJECT_THUMB,
-  NOTES_THUMB:      NOTES_THUMB,
-  GRAPH_THUMB:      GRAPH_THUMB,
+  TITLEBAR_SEARCH:  TITLEBAR_SEARCH,
+  PROJECT_LIST:     PROJECT_LIST,
+  ITEM_LIST:        ITEM_LIST,
   NOTE_EDITOR:      NOTE_EDITOR,
   GRAPH_EDITOR:     GRAPH_EDITOR,
+  RIGHT_MENU:       RIGHT_MENU,
   constructor:      FocusManager
 }

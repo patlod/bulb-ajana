@@ -366,10 +366,12 @@ ProjectListView.prototype.render = function(projects, recents){
     return project_thumb
   })
 
-  //console.log("Project thumbnails..")
-  //console.log(project_thmbs)
+  
+  function clickProjectList(e){
+    self.focus_manager.setFocusObject(self.focus_manager.PROJECT_LIST);
+  }
 
-  function clickPrjctAdd(){
+  function clickPrjctAdd(e){
     // Trigger file prompt
     // Scroll down to the bottom of the projct list
     console.log('Send newProject event')
@@ -382,7 +384,7 @@ ProjectListView.prototype.render = function(projects, recents){
   }
 
   return yo`
-    <div>
+    <div onclick=${clickProjectList}>
       <div id="prjct-list-head">
         <span>Projects</span>
       </div>

@@ -303,6 +303,49 @@ function App(el){
     render(true);
   })
 
+  self.on('arrowNavigationUp', function(){
+    console.log("App.js => arrowNavigationUp");
+    switch(self.focusManager.getFocusObject()){
+      case self.focusManager.PROJECT_LIST:
+        // self.views.projects.navListSelectorUp();
+        // Instead just toggle the active project
+        break;
+      case self.focusManager.ITEM_LIST:
+        // self.views.items.navListSelectorUp();
+        // Instead just toggle the active item
+        break;
+    }
+  });
+  self.on('arrowNavigationDown', function(){
+    console.log("App.js => arrowNavigationDown");
+    switch(self.focusManager.getFocusObject()){
+      case self.focusManager.PROJECT_LIST:
+        // self.views.projects.navListSelectorDown();
+        // Instead just toggle the active project
+        break;
+      case self.focusManager.ITEM_LIST:
+        // self.views.items.navListSelectorDown();
+        // Instead just toggle the active item
+        break;
+    }
+  });
+  self.on('arrowShiftSelectUp', function(){
+    console.log("App.js => arrowShiftSelectUp");
+    switch(self.focusManager.getFocusObject()){
+      case self.focusManager.ITEM_LIST:
+        self.session.getActiveProject().expandSelectionTowardsHead();
+        break;
+    }
+  });
+  self.on('arrowShiftSelectDown', function(){
+    console.log("App.js => arrowShiftSelectDown");
+    switch(self.focusManager.getFocusObject()){
+      case self.focusManager.ITEM_LIST:
+        self.session.getActiveProject().expandSelectionTowardsTail();
+        break;
+    }
+  });
+
   function transToGraphEditor(){
     let active_p = self.session.getActiveProject();
     if(!active_p.getGraphMode()){
@@ -369,6 +412,8 @@ function App(el){
     }
     
     project.toggleActiveNote(note)
+    project.startSelectionWith(note);
+    console.log(project.getItemSelection());
 
     if(project.getGraphMode() && trigger.localeCompare('item-thumb') === 0){
       // Update the graph to highlight the new active note
