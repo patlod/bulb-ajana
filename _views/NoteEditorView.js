@@ -17,6 +17,8 @@ function NoteEditorView(target, focus_manager) {
   var self = this;
   EventEmitterElement.call(this, target);
 
+  this.app = target;
+
   this.focus_manager = focus_manager;
 
   this.active_note = null;
@@ -403,13 +405,16 @@ NoteEditorView.prototype.render = function(project){
   function keyupLocalSearch(e){
     console.log("keyupLocalSearch");
     // Change visibility of the x-cancel icon
-    if(e.key === "Enter"){
+    if(e.key === "Enter" && this.value.length > 0){
       this.select();
-      if(e.getModifierState("Shift")){
+      if(self.app.views.app.shiftKey_active){
         clickSearchPrev();
       }else{
         clickSearchNext();
       }
+      return;
+    }
+    if(e.key === "Shift"){
       return;
     }
     let search_in_el = document.getElementById('local-search');

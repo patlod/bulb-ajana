@@ -119,6 +119,14 @@ Project.prototype.getActiveNote = function(){
   }
 }
 
+Project.prototype.activateNote = function(note){
+  note.activate();
+  // In case no selection exists set one with the current note
+  if(!this.item_selection || this.item_selection.object !== Note){
+    this.startSelectionWith(note);
+  }
+}
+
 /**
  * Activates the handed target note and deactivates the current active note.
  * 
@@ -129,13 +137,16 @@ Project.prototype.getActiveNote = function(){
 Project.prototype.toggleActiveNote = function(target = null){
   if(this.notes.length === 0) return null;
   for(var i in this.notes){
-    // Did not work with getActiveProject, probably because the return hands back a value..
     if(this.notes[i].isActive()) this.notes[i].deactivate()
   }
   if(target){
-    target.activate()
+    this.activateNote(target);
     return target
-  } // else no note will be activated
+  }else{  // else no note will be activated
+    if(this.item_selection){
+      this.item_selection = null;
+    }
+  }
 }
 
 /**
@@ -211,6 +222,14 @@ Project.prototype.getActiveGraph = function(){
   }
 }
 
+Project.prototype.activateGraph = function(graph){
+  graph.activate();
+  // In case no selection exists set one with the current note
+  if(!this.item_selection || this.item_selection.object !== Graph){
+    this.startSelectionWith(graph);
+  }
+}
+
 /**
  * TODO
  */
@@ -221,9 +240,13 @@ Project.prototype.toggleActiveGraph = function(target = null){
     if(this.graphs[i].isActive()) this.graphs[i].deactivate()
   }
   if(target){
-    target.activate()
-    return target
-  } // else no graph will be activated
+    this.activateGraph(target);
+    return target;
+  }else{  // else no graph will be activated
+    if(this.item_selection){
+      this.item_selection = null;
+    }
+  }
 }
 
 /**
@@ -332,9 +355,13 @@ Project.prototype.loadGraphs = function(){
   }
   graphs.sort(descend_DateCreated)
   if(graphs.length > 0){
-    graphs[0].activate()
+    this.activateGraph(graphs[0]);
   }
   return graphs
+}
+
+Project.prototype.getGraphByIndex = function(index){
+  return this.graphs[index];
 }
 
 Project.prototype.getAllGraphs = function(){
@@ -446,10 +473,22 @@ Project.prototype.loadNotes = function(){
   }
   notes.sort(descend_DateCreated)
   if(notes.length > 0){
-    notes[0].activate()
+    this.activateNote(notes[0]);
   }
   return notes
 }
+
+/**
+ * 
+ */
+Project.prototype.prepNoteForTrans = function(note){
+  if(note && note.isDirty()){
+    note.saveText()
+    note.setDirtyBit(false)
+    console.log("App - prepProjectForTrans - Writing text to database.")
+  }
+}
+
 
 /**
  * Returns all Note object of this project
@@ -471,6 +510,10 @@ Project.prototype.getNoteByUUID = function(note_id){
     return chks[0]
   }
   return null
+}
+
+Project.prototype.getNoteByIndex = function(index){
+  return this.notes[index];
 }
 
 /**
@@ -574,26 +617,41 @@ Project.prototype.searchAllNotesTextsAndTags = function(needle){
 Project.prototype.getItemSelection = function(){
   return this.item_selection;
 }
-Project.prototype.startSelectionWithAnchor = function(item){
+Project.prototype.startSelectionWith = function(item){
+
+  // TODO: Check for search here if yes clone the search array
+
   if(item instanceof Note){
     this.item_selection = {
       object: Note,
-      last_idx: this.notes.indexOf(item),
-      anchor: this.notes.indexOf(item),
-      shadows: this.notes.map(function(x){
-        if(x === item){
-          return true;
-        }else{
-          return false;
-        }
-      })
+      last_idx: (this.search) ? this.search.notes.map(function(x){ return x.note }).indexOf(item) : this.notes.indexOf(item),
+      anchor: (this.search) ? this.search.notes.map(function(x){ return x.note }).indexOf(item) : this.notes.indexOf(item),
+      shadows: (this.search) 
+            ? this.search.notes.map(function(x){ 
+              return x.note 
+            })
+            .map(function(x){
+              if(x === item){
+                return true;
+              }else{
+                return false;
+              }
+            })
+            : this.notes.map(function(x){
+              if(x === item){
+                return true;
+              }else{
+                return false;
+              }
+            })
     }
   }else{
+    // TODO: Analogue to notes support the search.
     if(item instanceof Graph){
       this.item_selection = {
         object: Graph,
         last_idx: this.graphs.indexOf(item),
-        anchor: this.notes.indexOf(item),
+        anchor: this.graphs.indexOf(item),
         shadows: this.graphs.map(function(x){
           if(x === item){
             return true;
@@ -606,14 +664,79 @@ Project.prototype.startSelectionWithAnchor = function(item){
   }
 }
 
-Project.prototype.toggleSelectionAnchor = function(item){
-  if(!this.item_selection){ return; }
+
+Project.prototype.addNoteToSelection = function(note){
+  let target_idx = this.notes.indexOf(graph);
+
+  // Always toggle the selection of the item
+  if(this.item_selection[target_idx]){
+    // Unset, only if it is not the last one
+
+    // If it was an anchor there must bording selectees set the anchor to the next
+
+  }else{
+    // If the target has no selected neighbors: Select it & Set the pointer and the anchor to it
+
+    // If it has one direct selected neighbor, select element and set pointer on it,
+    // then set the anchor on the element 
+    // that is the furthest away in that direction i.e. inc/dec the index as long as elements are selected
+
+    // If it has selected neighbors in both directions than the element is selected and there are three options:
+    // 1. Set pointer, anchor on this element ignoring the chain of selected elements
+    // 2. Set pointer, anchor randomly
+    // 3. Set pointer, anchor based on the weight i.e. the selection on shift shall proceed in that direction which had 
+    //    the most elements on its side, where the newly added forms the center of the imaginary scale.
+  }
+}
+Project.prototype.addGraphToSelection = function(graph){
+  // Analog to notes
+}
+Project.prototype.addItemToSelection = function(item){
+  if(!this.item_selection){ return; } // Something must be wrong if an active item exists a selection must exist too.
   if(this.item_selection.object === Note && item instanceof Graph ){ return; }
   if(this.item_selection.object === Graph && item instanceof Note ){ return; }
 
-  let target_idx;
-  if()
-  if(this.item_selection.shadows[target_idx] = (this.item_selection.shadows[target_idx]) ? false : true; 
+  switch(this.item_selection.object){
+    case Note:
+      this.addNoteToSelection(item);
+      break;
+    case Graph:
+      this.addGraphToSelection(item);
+      break;
+  }
+  
+}
+
+Project.prototype.expandNoteSelection = function(note){
+  // Get the index of the target
+
+  // Three cases
+  if(this.item_selection.last_idx < this.item_selection.anchor){
+    // Unselect all selected with idx < target_idx except anchor
+    // Select all with idx between target_idx and anchor
+  }else if(this.item_selection.last_idx > this.item_selection.anchor){
+
+    // Unselect all selected with idx > target_idx except anchor
+    // Select all with idx between target_idx and anchor
+
+  }else{ // this.item_selection.last_idx == this.item_selection.anchor
+
+    // Extend the selection until the target idx, swallow already selected, update last_idx, keep anchor
+  }
+}
+Project.prototype.expandGraphSelection = function(graph){
+  
+}
+Project.prototype.expandItemSelection = function(item){
+  
+  switch(this.item_selection.object){
+    case Note:
+      this.expandNoteSelection();
+      break;
+    case Graph:
+      this.expandGraphSelection();
+      break;
+  }
 }
 
 Project.prototype.shiftSelectTowardsHead = function(){
@@ -623,26 +746,53 @@ Project.prototype.shiftSelectTowardsHead = function(){
 
   if(this.item_selection.last_idx < this.item_selection.anchor){
     // Swallow Selected && Select Unselected
-  }else{
-    if(this.item_selection.last_idx > this.item_selection.anchor){
-      // Unselect the selected
+    --this.item_selection.last_idx;
+    while(this.item_selection.last_idx !== 0 && this.item_selection.shadows[this.item_selection.last_idx]){
+      this.item_selection.last_idx--;
     }
+    this.item_selection.shadows[this.item_selection.last_idx] = true; 
+  }else if(this.item_selection.last_idx > this.item_selection.anchor){
+    // Unselect the selected
+    if(this.item_selection.shadows[this.item_selection.last_idx]){
+      this.item_selection.shadows[this.item_selection.last_idx] = false;
+      this.item_selection.last_idx--;
+    }
+  }else{
+    // Select unselected
+    --this.item_selection.last_idx;
+    this.item_selection.shadows[this.item_selection.last_idx] = true;
   }
+  console.log(this.item_selection);
 }
 
-Project.prototype.sshiftSelectTowardsTail = function(){
+Project.prototype.shiftSelectTowardsTail = function(){
   console.log("Project.js => expandSelectionToTail");
   if(!this.item_selection){ return; }
   if(this.item_selection.last_idx >= this.item_selection.shadows.length - 1){ return; }
 
   if(this.item_selection.last_idx < this.item_selection.anchor){
     // Unselect the selected
-  }else{
-    if(this.item_selection.last_idx > this.item_selection.anchor){
-     // Swallow Selected && Select Unselected 
+    if(this.item_selection.shadows[this.item_selection.last_idx]){
+      this.item_selection.shadows[this.item_selection.last_idx] = false;
+      this.item_selection.last_idx++;
     }
+  }else if(this.item_selection.last_idx > this.item_selection.anchor){
+     // Swallow Selected && Select Unselected 
+    ++this.item_selection.last_idx;
+    while(this.item_selection.last_idx !== (this.item_selection.shadows.length - 1) 
+    && this.item_selection.shadows[this.item_selection.last_idx]){
+      this.item_selection.last_idx++;
+    }
+    this.item_selection.shadows[this.item_selection.last_idx] = true;
+  }else{
+    // Select unselected
+    ++this.item_selection.last_idx;
+    this.item_selection.shadows[this.item_selection.last_idx] = true;
   }
+  console.log(this.item_selection);
 }
+
+
 
 /* ================================================================= */
 /* Trash functions                                                   */

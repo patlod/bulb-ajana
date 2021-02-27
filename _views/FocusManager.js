@@ -14,6 +14,13 @@ function FocusManager(target, focus_object = null){
 
     EventEmitterElement.call(this, target)
 
+    this.TITLEBAR_SEARCH = TITLEBAR_SEARCH;
+    this.PROJECT_LIST = PROJECT_LIST;
+    this.ITEM_LIST = ITEM_LIST;
+    this.NOTE_EDITOR = NOTE_EDITOR;
+    this.GRAPH_EDITOR = GRAPH_EDITOR;
+    this.RIGHT_MENU = RIGHT_MENU;
+
     this.focus_object = focus_object;
 }
 inherits(FocusManager, EventEmitterElement)

@@ -6,6 +6,8 @@ var inherits = require('util').inherits
 const remote = require('electron').remote;
 const Menu = require('electron').remote.Menu;
 // const MenuItem = require('electron').remote.MenuItem;
+const Note = require('../_controllers/Note');
+const Graph = require('../_controllers/Graph');
 
 
 const yo = require('yo-yo')
@@ -13,12 +15,12 @@ const DateFormatter = require('../_util/DateFormatter')
 
 function ItemListView(target, focus_manager) {
   var self = this;
-
   EventEmitterElement.call(this, target);
+  this.app = target;
 
   this.scrollTop = 0;
 
-  this.objectOfDisplay = "note"; // or "graph"
+  this.objectOfDisplay = Note; // or Graph
 
   this.focus_manager = focus_manager;
 }
@@ -67,7 +69,7 @@ ItemListView.prototype.updateActiveNoteThumb = function(dom_el, active_note){
 
 ItemListView.prototype.updateActiveGraphThumb = function(dom_el, active_graph){
   var self = this;
-  if(self.objectOfDisplay === "note"){ return; }
+  if(self.objectOfDisplay === Note){ return; }
   // Get active graph thumb..
   let active_graph_thmb = dom_el.getElementsByClassName('item-thmb selected')[0]
   //console.log(dom_el.getElementsByClassName('item-thmb active'))
@@ -80,7 +82,7 @@ ItemListView.prototype.updateActiveGraphThumb = function(dom_el, active_graph){
 
 ItemListView.prototype.updateActiveGraphNoteCount = function(dom_el, active_graph){
   var self = this;
-  if(self.objectOfDisplay === "note"){ return; }
+  if(self.objectOfDisplay === Note){ return; }
 
   // Get active graph thumb..
   let active_graph_thmb = dom_el.getElementsByClassName('item-thmb active')[0],
@@ -109,8 +111,8 @@ ItemListView.prototype.render = function(project){
   if(!project){ return }
 
   // Could also check whether project is active here...
-  var thumbs, notes;
-  if(self.objectOfDisplay === "note"){
+  var thumbs, notes, graphs, item_selection;
+  if(self.objectOfDisplay === Note){
 
     // Get project notes
     if(project.search === null){
@@ -126,9 +128,10 @@ ItemListView.prototype.render = function(project){
       if(notes.length > 0 && chk.length === 0){
         project.toggleActiveNote(notes[0]);
       }
-      
     }
-    
+
+    item_selection = project.getItemSelection();
+    // if(item_selection.object !== Note){ console.error() }
 
     thumbs = notes.map(function(note){
       
@@ -137,15 +140,15 @@ ItemListView.prototype.render = function(project){
       /* ====================================================================== */
 
       function clickItemThmb(e){
-        // Check for Shift and CtrlOrCmd
-        // if(cmd){
+        self.focus_manager.setFocusObject(self.focus_manager.ITEM_LIST);
+        if(app.views.app.ctrlOrCmdKey_active){
         
-        // }else if(shift){
+        }else if(app.views.app.shiftKey_active){
 
-        // }else{
-
-        // }
-        self.send('transitionNote', project, note)
+        }else{
+          
+          self.send('transitionNote', project, note)
+        }
       }
 
       function dblclickItemThmb(e){
@@ -179,11 +182,13 @@ ItemListView.prototype.render = function(project){
         ]
         const menu = Menu.buildFromTemplate(template);
         menu.popup(remote.getCurrentWindow())
+        self.send('transitionNote', project, note)
       }
       /* ====================================================================== */
       /* ====================================================================== */
 
-      var className = (note.isActive()) ? 'selected' : ''
+      //var className = (note.isActive()) ? 'selected' : ''
+      var className = (item_selection.shadows[notes.indexOf(note)]) ? 'selected' : '';
       
       let note_thumb = yo`
         <div class="item-thmb-wrap">
@@ -229,7 +234,10 @@ ItemListView.prototype.render = function(project){
     })
 
   }else{
-    let graphs = project.getAllGraphs();
+
+    graphs = project.getAllGraphs();
+    item_selection = project.getItemSelection()
+    // if(item_selection.object !== Graph){ console.error(); }
 
     thumbs = graphs.map(function(graph){
       /* ====================================================================== */
@@ -237,17 +245,17 @@ ItemListView.prototype.render = function(project){
       /* ====================================================================== */
 
       function clickItemThmb(e){
-        self.send('transitionGraph', project, graph)
+        self.focus_manager.setFocusObject(self.focus_manager.ITEM_LIST);
+        self.send('transitionGraph', project, graph);
       }
 
       function dblclickItemThmb(e){
-        console.log("Double click on..")
+        console.log("Double click on..");
         if(project.getGraphMode()){
           // Project in graph mode so switch to NoteEditor and then focus on note
-          self.send('transitionGraph', project, graph)
+          self.send('transitionGraph', project, graph);
         }else{  // Same as single click
-          self.send('transitionGraphAndEditor', project, graph)
-          
+          self.send('transitionGraphAndEditor', project, graph);
         }
       }
 
@@ -277,7 +285,8 @@ ItemListView.prototype.render = function(project){
       /* ====================================================================== */
       /* ====================================================================== */
 
-      var className = (graph.isActive()) ? 'selected' : ''
+      // var className = (graph.isActive()) ? 'selected' : '';
+      var className = (item_selection.shadows[graphs.indexOf(graph)]) ? 'selected' : '';
       
       let graph_thumb = yo`
         <div class="item-thmb-wrap">
@@ -301,52 +310,32 @@ ItemListView.prototype.render = function(project){
     })
   }
 
-
-  // <div class="item-thmb-ctrls">
-  //   <div class="item-thmb-dropdown ui dropdown floated right btn-options">
-  //     <i class="fas fa-ellipsis-h"></i>
-  //     <div class="menu">
-  //       <div class="item" >
-  //         <span class="description">ctrl + r</span>
-  //         Rename
-  //       </div>
-  //       <div class="item" >Close</div>
-  //       <div class="item" >
-  //         <i class="trash icon"></i>
-  //         Delete Project
-  //       </div>
-  //     </div>
-  //   </div>  
-  // </div>
-
   function clickItemList(){
     self.focus_manager.setFocusObject(self.focus_manager.ITEM_LIST);
   }
 
   function scrollList(){
-    /**
-     * Save the scroll position in the ItemListView class here..
-     */
+    // Save the scroll position in this instance
     console.log("Scroll position: " + this.scrollTop);
     self.scrollTop = this.scrollTop;
   }
 
   function clickSelectNotesList(){
     console.log("clickSelectNotesList")
-    self.objectOfDisplay = "note";
-    self.send('renderLazy');
+    self.objectOfDisplay = Note;
+    self.send('switchItemList', self.objectOfDisplay);
   }
   
   function clickSelectGraphsList(){
     console.log("clickSelectGraphsList");
-    self.objectOfDisplay = "graph";
-    self.send('renderLazy');
+    self.objectOfDisplay = Graph;
+    self.send('switchItemList', self.objectOfDisplay);
   }
   
   let notes_list = yo`
     <div onclick=${clickItemList}>
       ${function(){
-        if(self.objectOfDisplay === "note"){
+        if(self.objectOfDisplay === Note){
           return yo`<div id="item-list-ctrls-top">
               <span class="active" onclick=${clickSelectNotesList}>Notes</span><span onclick=${clickSelectGraphsList}>Graphs</span>
             </div>`
@@ -358,7 +347,7 @@ ItemListView.prototype.render = function(project){
       }()}
       
       ${function(){
-        if(self.objectOfDisplay === "note" && project.search !== null){
+        if(self.objectOfDisplay === Note && project.search !== null){
           return yo`
           <div id="item-list-head">
             <span class="item-thmb-head">Found ${notes.length} results</span> 
@@ -367,7 +356,7 @@ ItemListView.prototype.render = function(project){
         }
       }()}
       ${function(){
-        if(self.objectOfDisplay === "note" && project.search !== null){
+        if(self.objectOfDisplay === Note && project.search !== null){
           return yo`<div id="item-list-scroll" class="search-active" onscroll=${scrollList}>
                       ${thumbs}
                     </div>`;

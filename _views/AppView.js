@@ -11,14 +11,14 @@ function AppView(target, focus_manager){
 
     this.focus_manager = focus_manager;
 
-    this.cmdOrControlKey_active = false;
+    this.ctrlOrCmdKey_active = false;
     this.shiftKey_active = false;
 }
 inherits(AppView, EventEmitterElement)
 
 
 AppView.prototype.ctrlOrCmdActive = function(){
-  return this.cmdOrControlKey_active;
+  return this.ctrlOrCmdKey_active;
 }
 
 AppView.prototype.shiftActive = function(){
@@ -43,34 +43,32 @@ AppView.prototype.render = function(){
     }
     if(process.platform === 'darwin' || process.platform === 'linux' ){
       if(e.key === "Meta"){
-        self.cmdOrControlKey_active = true;
+        self.ctrlOrCmdKey_active = true;
       }
     }else{
       if(process.platform === 'win32'){
         if(e.key === "Control"){
-          self.cmdOrControlKey_active = true;
+          self.ctrlOrCmdKey_active = true;
         }
       }
     }
     if(e.key === "ArrowUp"){
+      e.preventDefault();
       if(self.shiftKey_active){
-        self.send('arrowShiftSelectUp');
+        self.send('arrowShiftSelectToHead');
       }else{
-        self.send('arrowNavigationUp');
+        self.send('arrowNavigationToHead');
       }
     }else if(e.key === "ArrowDown"){
+      e.preventDefault();
       if(self.shiftKey_active){
-        self.send('arrowShiftSelectDown');
+        self.send('arrowShiftSelectToTail');
       }else{
-        self.send('arrowNavigationDown');
+        self.send('arrowNavigationToTail');
       }
     }else{
       // Nothing
     }
-  });
-
-  window.addEventListener('keypress', function(e){
-    
   });
 
   window.addEventListener('keyup', function(e){
@@ -89,12 +87,12 @@ AppView.prototype.render = function(){
     }
     if(process.platform === 'darwin' || process.platform === 'linux' ){
       if(e.key === "Meta"){
-        self.cmdOrControlKey_active = false;
+        self.ctrlOrCmdKey_active = false;
       }
     }else{
       if(process.platform === 'win32'){
         if(e.key === "Control"){
-          self.cmdOrControlKey_active = false;
+          self.ctrlOrCmdKey_active = false;
         }
       }
     }

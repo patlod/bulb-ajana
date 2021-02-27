@@ -185,9 +185,10 @@ ProjectListView.prototype.render = function(projects, recents){
       //   return
       // }
       // Send event to core App
-      console.log("clickPrjctThmb -> switchProject")
-    
-      self.send('switchProject', project)      
+      console.log("clickPrjctThmb -> transitionProject");
+
+      self.focus_manager.setFocusObject(self.focus_manager.PROJECT_LIST);
+      self.send('transitionProject', project);
     }
 
     function contextMenuPrjctThmb(e){
@@ -382,6 +383,8 @@ ProjectListView.prototype.render = function(projects, recents){
     // Save the scroll position of project list
     self.scrollTop = this.scrollTop
   }
+
+  
 
   return yo`
     <div onclick=${clickProjectList}>

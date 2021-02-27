@@ -47,6 +47,10 @@ Session.prototype.getProjectByPath = function(path){
   return this.projects.filter(p => ( p.db.path.localeCompare(path) === 0 ) ) 
 }
 
+Session.prototype.getProjectByIndex = function(index){
+  return this.projects[index];
+}
+
 /**
  * Gets project by its UUID
  * @param {UUID} id 
@@ -166,11 +170,7 @@ Session.prototype.prepProjectForTrans = function(project){
         }
       }
     }else{
-      if(active_note && active_note.isDirty()){
-        active_note.saveText()
-        active_note.setDirtyBit(false)
-        console.log("App - prepProjectForTrans - Writing text to database.")
-      }
+      project.prepNoteForTrans(active_note);
     }
 
     // Clear search
@@ -182,19 +182,21 @@ Session.prototype.transToProject = function(project, callback){
   var self = this
 
   // Prepare currently active project for transition
-  let active_project = self.getActiveProject()
-  self.prepProjectForTrans(active_project)
-  let prior_project_gm = active_project.getGraphMode()
+  let active_project = self.getActiveProject(),
+      prior_project_gm = active_project.getGraphMode();
 
-  // Due to my design it is enough to just toggle the active projects and 
-  // trigger a re-render()
-  self.toggleActiveProject(project)
-  
-  
-  let cur_active_project = self.getActiveProject()
-  cur_active_project.setActiveNoteAtIndex(0)
-  // Reset the scroll position of NotesListView
-  //self.app.views.items.scrollTop = 0
+  if(active_project.uuid.localeCompare(project.uuid) !== 0){
+    self.prepProjectForTrans(active_project);
+
+    // Due to my design it is enough to just toggle the active projects and 
+    // trigger a re-render()
+    self.toggleActiveProject(project);
+    
+    let cur_active_project = self.getActiveProject();
+    cur_active_project.setActiveNoteAtIndex(0);
+    // Reset the scroll position of NotesListView
+    //self.app.views.items.scrollTop = 0
+  }
 
   if(typeof callback === "function"){
     if(prior_project_gm && cur_active_project.getGraphMode()){

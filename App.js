@@ -21,6 +21,8 @@ const GlobalData = require('./_models/GlobalData');
 // Controllers
 const Session = require('./_controllers/Session.js');
 const SplitManager = require('./scripts/split-screen.js');
+const Note = require('./_controllers/Note');
+const Graph = require('./_controllers/Graph');
 
 // Views
 const AppView = require('./_views/AppView');
@@ -167,22 +169,13 @@ function App(el){
 
   self.appControls.commit()
 
-
-  // function makeContextMenus(){
-  //   remote.app.makeContextMenus();
-  // }
-
-  // ipcRenderer.on('contextMenuReply', (event) => {
-  //   console.log("Received reply from context menu main.js")
-  //  })
-
-
   
 
   /* === Initial DOM tree render ================= */
   var tree = self.render()
   console.log(tree)
   el.appendChild(tree)
+  // Render the AppView separately
   self.views.app.render();
   /* ============================================= */
 
@@ -297,53 +290,150 @@ function App(el){
   /**
    * == Listeners EventEmitter =====================================
    */
-  self.on('render', render)
+  self.on('render', function(){
+    // if(self.session.getGraphMode()){
+    //   self.views.graph.forceClearContentDOMEl();
+    // }
+    render();
+  });
 
   self.on('renderLazy', function(){
     render(true);
   })
 
-  self.on('arrowNavigationUp', function(){
-    console.log("App.js => arrowNavigationUp");
+  self.on('arrowNavigationToHead', function(){
+    console.log("App.js => arrowNavigationToHead");
+    let idx, active_project, active_item;
     switch(self.focusManager.getFocusObject()){
       case self.focusManager.PROJECT_LIST:
-        // self.views.projects.navListSelectorUp();
-        // Instead just toggle the active project
+        console.log("focusManager.PROJECT_LIST");
+        // Toggle the active project to one the selection is currently pointing
+        active_project = self.session.getActiveProject();
+        idx = self.session.projects.indexOf(active_project);
+        if(idx >= 1){
+          transitionToProject(self.session.getProjectByIndex(idx - 1));
+        }
+
         break;
+
       case self.focusManager.ITEM_LIST:
-        // self.views.items.navListSelectorUp();
-        // Instead just toggle the active item
+        console.log("focusManager.ITEM_LIST");
+        // Toggle the active item the selection is currently pointing
+        active_project = self.session.getActiveProject();
+
+        if(self.views.items.objectOfDisplay === Note){
+          active_item = active_project.getActiveNote();
+          idx = active_project.notes.indexOf(active_item);
+        }else{
+          if(self.views.items.objectOfDisplay === Graph){
+            active_item = active_project.getActiveGraph();
+            idx = active_project.graphs.indexOf(active_item);
+          }
+        }
+
+        if(self.views.items.objectOfDisplay === Note){
+          if(active_project.notes.length > 1 && idx >= 1){
+            transitionNote(active_project, active_project.getNoteByIndex(idx - 1));
+          }
+        }else{
+          if(self.views.items.objectOfDisplay === Graph){
+            if(active_project.graphs.length > 1 && idx >= 1){
+              transitionGraph(active_project, active_project.getGraphByIndex(idx - 1));
+            }
+          }
+        }
+        // Render the views
+        if(self.session.getGraphMode()){
+          self.views.graph.forceClearContentDOMEl();
+        }
+        render();
+
         break;
     }
   });
-  self.on('arrowNavigationDown', function(){
-    console.log("App.js => arrowNavigationDown");
+  self.on('arrowNavigationToTail', function(){
+    console.log("App.js => arrowNavigationToTail");
+    let idx, active_project, active_item, premise;
     switch(self.focusManager.getFocusObject()){
       case self.focusManager.PROJECT_LIST:
-        // self.views.projects.navListSelectorDown();
-        // Instead just toggle the active project
+        console.log("focusManager.PROJECT_LIST");
+        // Toggle the active project to one the selection is currently pointing
+        active_project = self.session.getActiveProject()
+        idx = self.session.projects.indexOf(active_project);
+        if(idx <= self.session.projects.length - 2){
+          transitionToProject(self.session.getProjectByIndex(idx + 1));
+        }
         break;
+
       case self.focusManager.ITEM_LIST:
-        // self.views.items.navListSelectorDown();
-        // Instead just toggle the active item
+        console.log("focusManager.ITEM_LIST");
+        // Toggle the active item the selection is currently pointing
+        active_project = self.session.getActiveProject();
+
+        if(self.views.items.objectOfDisplay === Note){
+          active_item = active_project.getActiveNote();
+          idx = active_project.notes.indexOf(active_item);
+        }else{
+          if(self.views.items.objectOfDisplay === Graph){
+            active_item = active_project.getActiveGraph();
+            idx = active_project.graphs.indexOf(active_item);
+          }
+        }
+
+        if(self.views.items.objectOfDisplay === Note){
+          if(active_project.notes.length > 1 && idx <= active_project.notes.length - 2){
+            transitionNote(active_project, active_project.getNoteByIndex(idx + 1));
+          }
+        }else{
+          if(self.views.items.objectOfDisplay === Graph){
+            if(active_project.graphs.length > 1 && idx <= active_project.notes.length - 2){
+              transitionGraph(active_project, active_project.getGraphByIndex(idx + 1));
+            }
+          }
+        }
+        // Render the views
+        if(self.session.getGraphMode()){
+          self.views.graph.forceClearContentDOMEl();
+        }
+        render();
         break;
     }
   });
-  self.on('arrowShiftSelectUp', function(){
-    console.log("App.js => arrowShiftSelectUp");
+  self.on('arrowShiftSelectToHead', function(){
+    console.log("App.js => arrowShiftSelectToHead");
     switch(self.focusManager.getFocusObject()){
       case self.focusManager.ITEM_LIST:
-        self.session.getActiveProject().expandSelectionTowardsHead();
+        self.session.getActiveProject().shiftSelectTowardsHead();
+
+        // Render the views
+        if(self.session.getGraphMode()){
+          self.views.graph.forceClearContentDOMEl();
+        }
+        render();
+        
         break;
     }
   });
-  self.on('arrowShiftSelectDown', function(){
-    console.log("App.js => arrowShiftSelectDown");
+  self.on('arrowShiftSelectToTail', function(){
+    console.log("App.js => arrowShiftSelectToTail");
     switch(self.focusManager.getFocusObject()){
       case self.focusManager.ITEM_LIST:
-        self.session.getActiveProject().expandSelectionTowardsTail();
+        self.session.getActiveProject().shiftSelectTowardsTail();
+
+        // Render the views
+        if(self.session.getGraphMode()){
+          self.views.graph.forceClearContentDOMEl();
+        }
+        render();
+
         break;
     }
+  });
+  self.on('shiftClick', function(item){
+
+  });
+  self.on('cmdClick', function(item){
+
   });
 
   function transToGraphEditor(){
@@ -365,11 +455,14 @@ function App(el){
   }
   self.on('transToNoteEditor', transToNoteEditor)
 
-  self.on('switchProject', function(project){
+  function transitionToProject(project){
     // For currently active project save the content of active note
     // in case it exists..
     self.views.titlebar.clearSearch();
-    self.session.transToProject(project, render)
+    self.session.transToProject(project, render);
+  }
+  self.on('transitionProject', function(project){
+    transitionToProject(project);
   })
 
   self.on('newProject', function(){
@@ -400,15 +493,22 @@ function App(el){
     self.session.deleteProject(project_id, render)
   })
 
-  self.on('transitionNote', function(project, note, trigger='item-thumb'){
-    let active_note = project.getActiveNote()
-    // Toggle active project & update UI in case switched to different note
-    if(active_note.uuid.localeCompare(note.uuid) === 0){
-      return
+  self.on('switchItemList', function(objectOfDisplay){
+    let active_project = self.session.getActiveProject();
+    switch(objectOfDisplay){
+      case Note:
+        active_project.startSelectionWith(active_project.getActiveNote());
+        break;
+      case Graph:
+        active_project.startSelectionWith(active_project.getActiveGraph());
+        break;
     }
+    render(true);
+  })
 
+  function transitionNote(project, note, trigger='item-thumb'){
     if(!project.getGraphMode()){
-      self.session.prepProjectForTrans(project)
+      project.prepNoteForTrans(project.getActiveNote());
     }
     
     project.toggleActiveNote(note)
@@ -421,6 +521,16 @@ function App(el){
     }
 
     render(true)
+  }
+
+  self.on('transitionNote', function(project, note, trigger='item-thumb'){
+    let active_note = project.getActiveNote()
+    // Toggle active project & update UI in case switched to different note
+    if(active_note.uuid.localeCompare(note.uuid) === 0){
+      return
+    }
+
+    transitionNote(project, note, trigger);
   })
 
   self.on('transitionNoteAndEditor', function(project, note){
@@ -537,9 +647,14 @@ function App(el){
     
   });
   self.on('clearGlobalSearch', function(){
-    // - Clear the search state in the session.
-    let active_project = self.session.getActiveProject();
+    // Clear the search state in the active project.
+    let active_project = self.session.getActiveProject(),
+        active_note = active_project.getActiveNote();
+
+    // Delete/Clear the project search
     active_project.search = null;
+    // Reset the note selection
+    active_project.startSelectionWith(active_note);
     if(active_project.getGraphMode()){
       render(true);
       self.views.graph.updateGraph();
@@ -642,6 +757,24 @@ function App(el){
   })
 
   // TODO
+  function transitionGraph(project, graph, trigger='item-thumb'){
+    // TODO: 
+    //   - In case graph is empty delte it in prepProjectForTrans
+    //   - Save the description text in case timer is not finsihed.
+    // if(!project.getGraphMode()){
+    //   self.session.prepProjectForTrans(project)
+    // }
+    
+    project.toggleActiveGraph(graph);
+    project.startSelectionWith(graph);
+    console.log(project.getItemSelection());
+
+    if(project.getGraphMode() && trigger.localeCompare('item-thumb') === 0){
+      self.views.graph.forceClearContentDOMEl();
+    }
+    render();
+  }
+
   self.on('transitionGraph', function(project, graph, trigger='item-thumb'){
     console.log('transitionGraph');
 
@@ -651,19 +784,7 @@ function App(el){
       return
     }
 
-    // TODO: 
-    //   - In case graph is empty delte it in prepProjectForTrans
-    //   - Save the description text in case timer is not finsihed.
-    // if(!project.getGraphMode()){
-    //   self.session.prepProjectForTrans(project)
-    // }
-    
-    project.toggleActiveGraph(graph)
-
-    if(project.getGraphMode() && trigger.localeCompare('item-thumb') === 0){
-      self.views.graph.forceClearContentDOMEl();
-    }
-    render()
+    transitionGraph(project, graph, trigger);
   });
 
   // TODO
@@ -740,7 +861,7 @@ function App(el){
     console.log("App received: LIVE UPDATE TEXT OF NOTE THUMB")
     
     // self.views.titlebar.updateCreateNewBtn(el, active_note)
-    if(self.views.items.objectOfDisplay === "graph"){
+    if(self.views.items.objectOfDisplay === Graph){
       self.views.items.updateActiveGraphThumb(el, active_graph)
     }
   })
@@ -811,8 +932,8 @@ App.prototype.render = function (lazy_load = false) {
   var self = this
   var views = self.views
 
-  //console.log("Active Project: ")
-  //console.log(self.session.getActiveProject())
+  // console.log("Active Project: ")
+  // console.log(self.session.getActiveProject())
 
   /**
    * Refactor: 
@@ -821,6 +942,8 @@ App.prototype.render = function (lazy_load = false) {
    *  
    * - Then the content matches the class hierarchy nicer
    */
+  let focusClassPrjcts = (self.focusManager.getFocusObject() === self.focusManager.PROJECT_LIST) ? 'focused' : '';
+  let focusClassItems = (self.focusManager.getFocusObject() === self.focusManager.ITEM_LIST) ? 'focused' : '';
   if(lazy_load){
     return  yo`
       <div id="layout">
@@ -830,12 +953,12 @@ App.prototype.render = function (lazy_load = false) {
         <div id="main">
       
           <!-- Project Menu -->
-          <div id="left-menu-1">
+          <div id="left-menu-1" class="${focusClassPrjcts}">
             ${views.projects.render(self.session.getProjects(), self.appGlobalData.getAllRecentProjects())}
           </div>
 
           <!-- Notes Menu -->
-          <div id="left-menu-2">
+          <div id="left-menu-2" class="${focusClassItems}">
             ${views.items.render(self.session.getActiveProject())}
           </div>
 
@@ -857,12 +980,12 @@ App.prototype.render = function (lazy_load = false) {
         <div id="main">
       
           <!-- Project Menu -->
-          <div id="left-menu-1">
+          <div id="left-menu-1" class="${focusClassPrjcts}">
             ${views.projects.render(self.session.getProjects(), self.appGlobalData.getAllRecentProjects())}
           </div>
 
           <!-- Notes Menu -->
-          <div id="left-menu-2">
+          <div id="left-menu-2" class="${focusClassItems}">
             ${views.items.render(self.session.getActiveProject())}
           </div>
 

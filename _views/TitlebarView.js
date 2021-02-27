@@ -154,7 +154,8 @@ TitlebarView.prototype.render = function (session) {
     }
 
     function focusGlobalSearch(){
-        self.focus_manager.setFocusObject(focus_manager.TITLEBAR_SEARCH);
+        self.focus_manager.setFocusObject(self.focus_manager.TITLEBAR_SEARCH);
+        self.send('renderLazy');
     }
 
     function keyupGlobalSearch(e){
