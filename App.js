@@ -61,6 +61,7 @@ function App(el){
   self.appControls = new AppControls()
 
   self.focusManager = new FocusManager.constructor(el);
+  self.focusManager.setFocusObject(self.focusManager.PROJECT_LIST);
   /* ====== Views ====== */
   // All view instance for different parts of the app's UI
   self.views = {
@@ -538,29 +539,27 @@ function App(el){
   })
 
   function transitionNote(project, note, trigger='item-thumb'){
-    if(!project.getGraphMode()){
-      project.prepNoteForTrans(project.getActiveNote());
-    }
-    
-    project.toggleActiveNote(note)
-    project.startSelectionWith(note);
-    console.log(project.getItemSelection());
+    let active_note = project.getActiveNote()
+    // Toggle active project & update UI in case switched to different note
+    if(active_note.uuid.localeCompare(note.uuid) !== 0){
 
-    if(project.getGraphMode() && trigger.localeCompare('item-thumb') === 0){
-      // Update the graph to highlight the new active note
-      self.views.graph.updateGraph(/*project.getActiveGraph()*/)
-    }
+      if(!project.getGraphMode()){
+        project.prepNoteForTrans(project.getActiveNote());
+      }
+      
+      project.toggleActiveNote(note)
+      project.startSelectionWith(note);
+      console.log(project.getItemSelection());
 
+      if(project.getGraphMode() && trigger.localeCompare('item-thumb') === 0){
+        // Update the graph to highlight the new active note
+        self.views.graph.updateGraph(/*project.getActiveGraph()*/)
+      }
+    }
     render(true)
   }
 
   self.on('transitionNote', function(project, note, trigger='item-thumb'){
-    let active_note = project.getActiveNote()
-    // Toggle active project & update UI in case switched to different note
-    if(active_note.uuid.localeCompare(note.uuid) === 0){
-      return
-    }
-
     transitionNote(project, note, trigger);
   })
 
@@ -605,14 +604,8 @@ function App(el){
     
   })
 
-  self.on('deleteSelectedNotes', function(notes){
+  self.on('DEPRECATED -- deleteSelectedNotes', function(){
     console.log("App received: DELETE SELECTED NOTES")
-    /**
-     * For now: 
-     *  - Selection of multiple notes not possible.
-     *     - Thus: Only delete the currently active note. 
-     *  - The deleted graph is moved to trash been for defined period of time
-     */
     if(self.session.getActiveProject() === null){
       console.log("App listener createNewNote -- No active project.")
       return 
@@ -632,6 +625,20 @@ function App(el){
       // }
     }
     active_project.deleteNote(active_note)
+
+    self.views.graph.forceClearContentDOMEl();
+    render()
+  });
+
+  self.on('deleteSelectedNotes', function(){
+    console.log("App received: DELETE SELECTED NOTES")
+    if(self.session.getActiveProject() === null){
+      console.log("App listener createNewNote -- No active project.")
+      return 
+    }
+    
+    let active_project = self.session.getActiveProject();
+    active_project.deleteSelectedItems();
 
     self.views.graph.forceClearContentDOMEl();
     render()

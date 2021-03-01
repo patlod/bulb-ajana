@@ -91,6 +91,8 @@ Project.prototype.loadData = function(){
   this.graphs = this.loadGraphs()
   // console.log("Project grahps")
   // console.log(this.graphs)
+  console.log("loadData");
+  console.log(this.item_selection);
 }
 
 /**
@@ -424,11 +426,12 @@ Project.prototype.createNewNote = function(){
   //this.db.insertNote(FileDatabaseManager.getEmptyNoteJSON())
   // Toggle active note 
   this.toggleActiveNote(nn)
+  this.startSelectionWith(nn);
   return nn
 }
 
 /**
- * Delete either single note or selection of notes
+ * Delete either single note
  * 
  *  @param {Note} note 
  */ 
@@ -439,7 +442,7 @@ Project.prototype.deleteNote = function(note){
     console.log("Project.deleteNote() -- Note with id " + note.uuid + " is not existing.")
     return
   }
-  // Remove note from cache array at idx
+  // Remove note from instance array at idx
   this.notes.splice(idx, 1)
   
   // Delete note from database file
@@ -624,13 +627,14 @@ Project.prototype.searchAllNotesTextsAndTags = function(needle){
  * @param {Note | Graph} item 
  */
 Project.prototype.startSelectionWith = function(item){
+  var self = this;
   if(item instanceof Note){
-    this.item_selection = {
+    self.item_selection = {
       object: Note,
-      select_pointer: (this.search) ? this.search.notes.map(function(x){ return x.note }).indexOf(item) : this.notes.indexOf(item),
-      anchor: (this.search) ? this.search.notes.map(function(x){ return x.note }).indexOf(item) : this.notes.indexOf(item),
-      shadows: (this.search) 
-            ? this.search.notes.map(function(x){ 
+      select_pointer: (self.search) ? self.search.notes.map(function(x){ return x.note }).indexOf(item) : self.notes.indexOf(item),
+      anchor: (self.search) ? self.search.notes.map(function(x){ return x.note }).indexOf(item) : self.notes.indexOf(item),
+      shadows: (self.search) 
+            ? self.search.notes.map(function(x){ 
               return x.note 
             })
             .map(function(x){
@@ -640,7 +644,7 @@ Project.prototype.startSelectionWith = function(item){
                 return false;
               }
             })
-            : this.notes.map(function(x){
+            : self.notes.map(function(x){
               if(x === item){
                 return true;
               }else{
@@ -651,11 +655,11 @@ Project.prototype.startSelectionWith = function(item){
   }else{
     // TODO: Analogue to notes support the search.
     if(item instanceof Graph){
-      this.item_selection = {
+      self.item_selection = {
         object: Graph,
-        select_pointer: this.graphs.indexOf(item),
-        anchor: this.graphs.indexOf(item),
-        shadows: this.graphs.map(function(x){
+        select_pointer: self.graphs.indexOf(item),
+        anchor: self.graphs.indexOf(item),
+        shadows: self.graphs.map(function(x){
           if(x === item){
             return true;
           }else{
@@ -674,6 +678,91 @@ Project.prototype.getItemSelection = function(){
   return this.item_selection;
 }
 
+Project.prototype.getSelectedNotes = function(){
+  var self = this;
+  if(!this.item_selection){return;}
+  if(this.item_selection.object !== Note){ return; }
+
+  return this.notes.filter(function(n, idx){
+    return self.item_selection.shadows[idx];
+  });
+}
+Project.prototype.getSelectedGraphs = function(){
+  var self = this;
+  if(!this.item_selection){return;}
+  if(this.item_selection.object !== Graph){ return; }
+
+  return self.graphs.filter(function(g, idx){
+    return self.item_selection.shadows[idx];
+  });
+}
+Project.prototype.getItemsFromSelection = function(){
+  if(!this.item_selection){ 
+    console.log("No items selected.");
+    return;
+  }
+
+  switch(this.item_selection.object){
+    case Note:
+      this.getSelectedNotes();
+      break;
+    case Graph: 
+      this.getSelectedGraphs();
+      break;
+  }
+}
+
+Project.prototype.deleteSelectedNotes = function(){
+  var self = this;
+  if(!this.item_selection){return;}
+  if(this.item_selection.object !== Note){ return; }
+
+  let i, j,
+      tbDel_Objs = this.getSelectedNotes(),
+      tbDel_JSONs = tbDel_Objs.map(function(n){
+        return n.getNoteJSON();
+      });
+
+  this.db.deleteNotes(tbDel_JSONs);
+
+  // Delete notes from instance array at idx
+  for(i in tbDel_Objs){
+    this.notes.splice(this.notes.indexOf(tbDel_Objs[i]), 1);
+  }
+
+  // Delete notes from all of the graphs
+  for(i in tbDel_Objs){
+    for(j in this.graphs){
+      this.graphs[j].deleteVerticesForNote(tbDel_Objs[i]);
+    }
+  }
+
+  // Toggle the active note & Reset item selection
+  this.item_selection = null;
+  this.setActiveNoteAtIndex(0);
+}
+
+Project.prototype.deleteSelectedGraphs = function(){
+  if(!this.item_selection){return;}
+  if(this.item_selection.object !== Graph){ return; }
+
+  let tbDel = this.getSelectedGraphs();
+}
+Project.prototype.deleteSelectedItems = function(){
+  if(!this.item_selection){ 
+    console.log("No items selected.");
+    return;
+  }
+
+  switch(this.item_selection.object){
+    case Note:
+      this.deleteSelectedNotes();
+      break;
+    case Graph: 
+      this.deleteSelectedGraphs();
+      break;
+  }
+}
 /**
  * Sets the item closest to the list head as active instance (Note or Graph).
  */
