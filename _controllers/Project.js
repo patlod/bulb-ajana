@@ -628,6 +628,7 @@ Project.prototype.searchAllNotesTextsAndTags = function(needle){
  */
 Project.prototype.startSelectionWith = function(item){
   var self = this;
+  console.log(item);
   if(item instanceof Note){
     self.item_selection = {
       object: Note,
