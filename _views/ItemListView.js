@@ -142,9 +142,9 @@ ItemListView.prototype.render = function(project){
       function clickItemThmb(e){
         self.focus_manager.setFocusObject(self.focus_manager.ITEM_LIST);
         if(app.views.app.ctrlOrCmdKey_active){
-        
+          self.send('addItemToSelection', note);
         }else if(app.views.app.shiftKey_active){
-
+          self.send('expandItemSelection', note)
         }else{
           
           self.send('transitionNote', project, note)

@@ -624,7 +624,7 @@ Project.prototype.startSelectionWith = function(item){
   if(item instanceof Note){
     this.item_selection = {
       object: Note,
-      last_idx: (this.search) ? this.search.notes.map(function(x){ return x.note }).indexOf(item) : this.notes.indexOf(item),
+      select_pointer: (this.search) ? this.search.notes.map(function(x){ return x.note }).indexOf(item) : this.notes.indexOf(item),
       anchor: (this.search) ? this.search.notes.map(function(x){ return x.note }).indexOf(item) : this.notes.indexOf(item),
       shadows: (this.search) 
             ? this.search.notes.map(function(x){ 
@@ -650,7 +650,7 @@ Project.prototype.startSelectionWith = function(item){
     if(item instanceof Graph){
       this.item_selection = {
         object: Graph,
-        last_idx: this.graphs.indexOf(item),
+        select_pointer: this.graphs.indexOf(item),
         anchor: this.graphs.indexOf(item),
         shadows: this.graphs.map(function(x){
           if(x === item){
@@ -666,30 +666,117 @@ Project.prototype.startSelectionWith = function(item){
 
 
 Project.prototype.addNoteToSelection = function(note){
-  let target_idx = this.notes.indexOf(graph);
+  let count, i,
+      target_idx = this.notes.indexOf(note);
 
-  // Always toggle the selection of the item
+  count = this.item_selection.shadows.filter(function(x){ return x }).length
+  // Unset, only if it is not the last one selected
+  if(count <= 1){ return; }
+
+  // UNSELECT
   if(this.item_selection[target_idx]){
-    // Unset, only if it is not the last one
+    // Always unselect the item
+    this.item_selection[target_idx] = false;
 
-    // If it was an anchor there must bording selectees set the anchor to the next
+    // In the case select_pointer or anchor are affected
+    if(target_idx >= 1 && this.item_selection.shadows[target_idx - 1] 
+      && target_idx <= this.item_selection.shadows.length - 2 && this.item_selection.shadows[target_idx + 1]){
+      // Selected direct neibhors in both directions:
+      // Move the anchor towards the half where the select_pointer pointer is placed
+      if(this.item_selection.anchor > target_idx){
+        this.item_selection.anchor = target_idx - 1;
+      }else{
+        if(this.item_selection.anchor < target_idx){
+          this.item_selection.anchor = target_idx + 1;
+        }
+      }
 
+    }else if(target_idx >= 1 && this.item_selection.shadows[target_idx - 1] ){
+      // Selected direct neighbors in towards head
+      if(this.item_selection.anchor === target_idx){
+        // Set the anchor to the bordering element
+        this.item_selection.anchor = (target_idx - 1);
+      }else{
+        if(this.item_selection.select_pointer === target_idx){
+          // Move the select_pointer to the bordering element
+          this.item_selection.select_pointer = (target_idx - 1);
+        }
+      }
+
+    }else if(target_idx <= this.item_selection.shadows.length - 2 && this.item_selection.shadows[target_idx + 1]){
+      // Selected direct neighbors in towards tail
+      if(this.item_selection.anchor === target_idx){
+        // Set the anchor to the bordering element
+        this.item_selection.anchor = (target_idx + 1);
+      }else{
+        if(this.item_selection.select_pointer === target_idx){
+          // Move the select_pointer to the bordering
+          this.item_selection.select_pointer = (target_idx + 1);
+        }
+      }
+    }else{
+      // No direct neighbors selected
+      // In case the element was not the anchor nothing has to be adjusted
+      if(this.item_selection.anchor !== target_idx){ return; }
+
+      // Set the references to remaining block closest to the tail of the list
+      i = this.item_selection.shadows.length - 1;
+      while(i >= 0 && !this.item_selection.shadow[i]){
+        i--;
+      }
+      this.item_selection.select_pointer = i;
+      while(i >= 0 && this.item_selection.shadow[i]){
+        i--;
+      }
+      this.item_selection.anchor = i + 1;
+    }
+  // SELECT
   }else{
-    // If the target has no selected neighbors: Select it & Set the pointer and the anchor to it
+    // Always select the target item 
+    this.item_selection.shadows[target_idx] = true;
 
-    // If it has one direct selected neighbor, select element and set pointer on it,
-    // then set the anchor on the element 
-    // that is the furthest away in that direction i.e. inc/dec the index as long as elements are selected
+    if(target_idx >= 1 && this.item_selection.shadows[target_idx - 1] 
+      && target_idx <= this.item_selection.shadows.length - 2 && this.item_selection.shadows[target_idx + 1]){
+      // Direct neibhors selected towards head & tail:
+      // Move the anchor towards the half where the select_pointer pointer is placed, select_pointer stays.
+      if(this.item_selection.select_pointer > target_idx && this.item_selection.anchor < target_idx){
+        this.item_selection.anchor = target_idx + 1;
+      }else{
+        if(this.item_selection.select_pointer < target_idx && this.item_selection.anchor > target_idx){
+          this.item_selection.anchor = target_idx - 1;
+        } 
+      }
 
-    // If it has selected neighbors in both directions than the element is selected and there are three options:
-    // 1. Set pointer, anchor on this element ignoring the chain of selected elements
-    // 2. Set pointer, anchor randomly
-    // 3. Set pointer, anchor based on the weight i.e. the selection on shift shall proceed in that direction which had 
-    //    the most elements on its side, where the newly added forms the center of the imaginary scale.
+    }else if(target_idx >= 1 && this.item_selection.shadows[target_idx - 1] ){
+      // Direct neighbors selected towards head:
+      // Set pointer on target element 
+      this.item_selection.select_pointer = target_idx;
+      // Set anchor on the element that is the furthest away in that direction i.e. inc/dec the index as long as elements are selected
+      i = target_idx;
+      while(i >= 0 && this.item_selection.shadows[i]){
+        --i;
+      }
+      this.item_selection.anchor = i + 1;
+    }else if(target_idx <= this.item_selection.shadows.length - 2 && this.item_selection.shadows[target_idx + 1]){
+      // Direct neighbors selected towards tail:
+      // Set pointer on target element
+      this.item_selection.select_pointer = target_idx;
+      // Set the anchor on the element // that is the furthest away in that direction i.e. inc/dec the index as long as elements are selected
+      i = target_idx;
+      while(i <= this.item_selection.shadows.length - 1 && this.item_selection.shadows[i]){
+        ++i;
+      }
+      this.item_selection.anchor = i - 1;
+    }else{
+      // No direct neighbors selected:
+      // Set the pointer and the anchor to target
+      this.item_selection.select_pointer = target_idx;
+      this.item_selection.anchor = target_idx;
+    }
   }
 }
 Project.prototype.addGraphToSelection = function(graph){
-  // Analog to notes
+  // TODO: Analog to notes
 }
 Project.prototype.addItemToSelection = function(item){
   if(!this.item_selection){ return; } // Something must be wrong if an active item exists a selection must exist too.
@@ -711,21 +798,21 @@ Project.prototype.expandNoteSelection = function(note){
   // Get the index of the target
 
   // Three cases
-  if(this.item_selection.last_idx < this.item_selection.anchor){
+  if(this.item_selection.select_pointer < this.item_selection.anchor){
     // Unselect all selected with idx < target_idx except anchor
     // Select all with idx between target_idx and anchor
-  }else if(this.item_selection.last_idx > this.item_selection.anchor){
+  }else if(this.item_selection.select_pointer > this.item_selection.anchor){
 
     // Unselect all selected with idx > target_idx except anchor
     // Select all with idx between target_idx and anchor
 
-  }else{ // this.item_selection.last_idx == this.item_selection.anchor
+  }else{ // this.item_selection.select_pointer == this.item_selection.anchor
 
-    // Extend the selection until the target idx, swallow already selected, update last_idx, keep anchor
+    // Extend the selection until the target idx, swallow already selected, update select_pointer, keep anchor
   }
 }
 Project.prototype.expandGraphSelection = function(graph){
-  
+  // TODO: Analog to notes
 }
 Project.prototype.expandItemSelection = function(item){
   
@@ -739,55 +826,55 @@ Project.prototype.expandItemSelection = function(item){
   }
 }
 
-Project.prototype.shiftSelectTowardsHead = function(){
+Project.prototype.singleShiftSelectTowardsHead = function(){
   console.log("Project.js => expandSelectionToHead");
   if(!this.item_selection){ return; }
-  if(this.item_selection.last_idx === 0){ return; }
+  if(this.item_selection.select_pointer === 0){ return; }
 
-  if(this.item_selection.last_idx < this.item_selection.anchor){
+  if(this.item_selection.select_pointer < this.item_selection.anchor){
     // Swallow Selected && Select Unselected
-    --this.item_selection.last_idx;
-    while(this.item_selection.last_idx !== 0 && this.item_selection.shadows[this.item_selection.last_idx]){
-      this.item_selection.last_idx--;
+    --this.item_selection.select_pointer;
+    while(this.item_selection.select_pointer !== 0 && this.item_selection.shadows[this.item_selection.select_pointer]){
+      this.item_selection.select_pointer--;
     }
-    this.item_selection.shadows[this.item_selection.last_idx] = true; 
-  }else if(this.item_selection.last_idx > this.item_selection.anchor){
+    this.item_selection.shadows[this.item_selection.select_pointer] = true; 
+  }else if(this.item_selection.select_pointer > this.item_selection.anchor){
     // Unselect the selected
-    if(this.item_selection.shadows[this.item_selection.last_idx]){
-      this.item_selection.shadows[this.item_selection.last_idx] = false;
-      this.item_selection.last_idx--;
+    if(this.item_selection.shadows[this.item_selection.select_pointer]){
+      this.item_selection.shadows[this.item_selection.select_pointer] = false;
+      this.item_selection.select_pointer--;
     }
   }else{
     // Select unselected
-    --this.item_selection.last_idx;
-    this.item_selection.shadows[this.item_selection.last_idx] = true;
+    --this.item_selection.select_pointer;
+    this.item_selection.shadows[this.item_selection.select_pointer] = true;
   }
   console.log(this.item_selection);
 }
 
-Project.prototype.shiftSelectTowardsTail = function(){
+Project.prototype.singleShiftSelectTowardsTail = function(){
   console.log("Project.js => expandSelectionToTail");
   if(!this.item_selection){ return; }
-  if(this.item_selection.last_idx >= this.item_selection.shadows.length - 1){ return; }
+  if(this.item_selection.select_pointer >= this.item_selection.shadows.length - 1){ return; }
 
-  if(this.item_selection.last_idx < this.item_selection.anchor){
+  if(this.item_selection.select_pointer < this.item_selection.anchor){
     // Unselect the selected
-    if(this.item_selection.shadows[this.item_selection.last_idx]){
-      this.item_selection.shadows[this.item_selection.last_idx] = false;
-      this.item_selection.last_idx++;
+    if(this.item_selection.shadows[this.item_selection.select_pointer]){
+      this.item_selection.shadows[this.item_selection.select_pointer] = false;
+      this.item_selection.select_pointer++;
     }
-  }else if(this.item_selection.last_idx > this.item_selection.anchor){
+  }else if(this.item_selection.select_pointer > this.item_selection.anchor){
      // Swallow Selected && Select Unselected 
-    ++this.item_selection.last_idx;
-    while(this.item_selection.last_idx !== (this.item_selection.shadows.length - 1) 
-    && this.item_selection.shadows[this.item_selection.last_idx]){
-      this.item_selection.last_idx++;
+    ++this.item_selection.select_pointer;
+    while(this.item_selection.select_pointer !== (this.item_selection.shadows.length - 1) 
+    && this.item_selection.shadows[this.item_selection.select_pointer]){
+      this.item_selection.select_pointer++;
     }
-    this.item_selection.shadows[this.item_selection.last_idx] = true;
+    this.item_selection.shadows[this.item_selection.select_pointer] = true;
   }else{
     // Select unselected
-    ++this.item_selection.last_idx;
-    this.item_selection.shadows[this.item_selection.last_idx] = true;
+    ++this.item_selection.select_pointer;
+    this.item_selection.shadows[this.item_selection.select_pointer] = true;
   }
   console.log(this.item_selection);
 }

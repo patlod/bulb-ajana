@@ -403,7 +403,7 @@ function App(el){
     console.log("App.js => arrowShiftSelectToHead");
     switch(self.focusManager.getFocusObject()){
       case self.focusManager.ITEM_LIST:
-        self.session.getActiveProject().shiftSelectTowardsHead();
+        self.session.getActiveProject().singleShiftSelectTowardsHead();
 
         // Render the views
         if(self.session.getGraphMode()){
@@ -418,7 +418,7 @@ function App(el){
     console.log("App.js => arrowShiftSelectToTail");
     switch(self.focusManager.getFocusObject()){
       case self.focusManager.ITEM_LIST:
-        self.session.getActiveProject().shiftSelectTowardsTail();
+        self.session.getActiveProject().singleShiftSelectTowardsTail();
 
         // Render the views
         if(self.session.getGraphMode()){
