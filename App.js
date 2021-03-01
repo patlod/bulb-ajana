@@ -351,6 +351,7 @@ function App(el){
         break;
     }
   });
+
   self.on('arrowNavigationToTail', function(){
     console.log("App.js => arrowNavigationToTail");
     let idx, active_project, active_item, premise;
@@ -399,12 +400,14 @@ function App(el){
         break;
     }
   });
+
   self.on('arrowShiftSelectToHead', function(){
     console.log("App.js => arrowShiftSelectToHead");
     switch(self.focusManager.getFocusObject()){
       case self.focusManager.ITEM_LIST:
-        self.session.getActiveProject().singleShiftSelectTowardsHead();
-
+        let active_project = self.session.getActiveProject();
+        active_project.singleShiftSelectTowardsHead();
+        active_project.activateSelectionHead();
         // Render the views
         if(self.session.getGraphMode()){
           self.views.graph.forceClearContentDOMEl();
@@ -414,12 +417,14 @@ function App(el){
         break;
     }
   });
+
   self.on('arrowShiftSelectToTail', function(){
     console.log("App.js => arrowShiftSelectToTail");
     switch(self.focusManager.getFocusObject()){
       case self.focusManager.ITEM_LIST:
-        self.session.getActiveProject().singleShiftSelectTowardsTail();
-
+        let active_project = self.session.getActiveProject();
+        active_project.singleShiftSelectTowardsTail();
+        active_project.activateSelectionHead();
         // Render the views
         if(self.session.getGraphMode()){
           self.views.graph.forceClearContentDOMEl();
@@ -429,11 +434,37 @@ function App(el){
         break;
     }
   });
-  self.on('shiftClick', function(item){
 
+  self.on('shiftClickItemSelection', function(item){
+    console.log("App.js => shiftClickItemSelection");
+    let active_project = self.session.getActiveProject();
+    active_project.shiftExpandItemSelection(item);
+    active_project.activateSelectionHead();
+
+    console.log("Current item selection");
+    console.log(active_project.item_selection);
+
+    // Render the views
+    if(self.session.getGraphMode()){
+      self.views.graph.forceClearContentDOMEl();
+    }
+    render();
   });
-  self.on('cmdClick', function(item){
 
+  self.on('toggleItemInSelection', function(item){
+    console.log("App.js => toggleItemInSelection");
+    let active_project = self.session.getActiveProject();
+    active_project.toggleItemInSelection(item);
+    active_project.activateSelectionHead();
+
+    console.log("Current item selection");
+    console.log(active_project.item_selection);
+
+    // Render the views
+    if(self.session.getGraphMode()){
+      self.views.graph.forceClearContentDOMEl();
+    }
+    render();
   });
 
   function transToGraphEditor(){
@@ -636,6 +667,8 @@ function App(el){
       needle: needle,
       notes: self.session.getActiveProject().searchAllNotesTextsAndTags(needle)
     }
+    // Reset the note selection
+    active_project.startSelectionWith(active_project.getActiveNote());
     console.log(active_project.search);
     console.log(active_project.getGraphMode())
     if(active_project.getGraphMode()){

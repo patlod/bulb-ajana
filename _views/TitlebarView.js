@@ -81,7 +81,7 @@ TitlebarView.prototype.render = function (session) {
             return
         }
         
-        if(project.session.app.views.items.objectOfDisplay === "note"){
+        if(project.session.app.views.items.objectOfDisplay === Note){
             let eN = project.getEmptyNotes()
             if( eN === null){
                 console.error("ERROR inconsistencies in notes")
@@ -140,7 +140,7 @@ TitlebarView.prototype.render = function (session) {
             return
         }else{
              
-            if(project.session.app.views.items.objectOfDisplay === "note"){
+            if(project.session.app.views.items.objectOfDisplay === Note){
                 return yo`
                     <button class="tb-btn" onclick=${clickDeleteSelectedNotes}><i class="fas fa-trash-alt"></i></button>
                 `
