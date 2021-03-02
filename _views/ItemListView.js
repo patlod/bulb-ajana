@@ -146,6 +146,8 @@ ItemListView.prototype.render = function(project){
         }else if(app.views.app.shiftKey_active){
           self.send('shiftClickItemSelection', note)
         }else{
+          console.log(project);
+          console.log(note);
           self.send('transitionNote', project, note)
         }
       }

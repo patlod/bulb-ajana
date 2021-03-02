@@ -83,15 +83,18 @@ Project.prototype.renameProject = function(name){
  * database.
  */
 Project.prototype.loadData = function(){
+  console.log("loadData");
   this.uuid = this.db.getProjectUUID()
   this.datetime = this.db.getProjectCreated()
   this.name = this.db.getProjectName()
   this.tags = this.db.getProjectTags()
   this.notes = this.loadNotes()
   this.graphs = this.loadGraphs()
-  // console.log("Project grahps")
-  // console.log(this.graphs)
-  console.log("loadData");
+  
+  // Start the first selection with the active notes
+  this.startSelectionWith(this.notes[0]);
+
+  console.log("item_selection");
   console.log(this.item_selection);
 }
 
@@ -121,13 +124,13 @@ Project.prototype.getActiveNote = function(){
   }
 }
 
-Project.prototype.activateNote = function(note){
-  note.activate();
-  // In case no selection exists set one with the current note
-  if(!this.item_selection || this.item_selection.object !== Note){
-    this.startSelectionWith(note);
-  }
-}
+// Project.prototype.activateNote = function(note){
+//   note.activate();
+//   // In case no selection exists set one with the current note
+//   if(!this.item_selection || this.item_selection.object !== Note){
+//     this.startSelectionWith(note);
+//   }
+// }
 
 /**
  * Activates the handed target note and deactivates the current active note.
@@ -137,25 +140,28 @@ Project.prototype.activateNote = function(note){
  * @param {Note} target 
  */
 Project.prototype.toggleActiveNote = function(target = null){
+  console.log("toggleActiveNote");
   if(this.notes.length === 0) return null;
+  console.log("after if");
   for(var i in this.notes){
+    // Did not work with getActiveProject, probably because the return hands back a value..
     if(this.notes[i].isActive()) this.notes[i].deactivate()
   }
   if(target){
-    this.activateNote(target);
+    console.log("active target note");
+    console.log(target);
+    target.activate()
     return target
-  }else{  // else no note will be activated
-    if(this.item_selection){
-      this.item_selection = null;
-    }
-  }
+  } // else no note will be activated
 }
 
 /**
  * Sets note at index in the notes array active
  */
 Project.prototype.setActiveNoteAtIndex = function(index){
-  return this.toggleActiveNote(this.notes[index])
+  let aN = this.toggleActiveNote(this.notes[index])
+  this.startSelectionWith(this.notes[index]);
+  return aN
 }
 
 /**
@@ -163,6 +169,7 @@ Project.prototype.setActiveNoteAtIndex = function(index){
  */
 Project.prototype.resetActiveNote = function(){
   this.toggleActiveNote()
+  this.clearItemSelection();
 }
 
 /**
@@ -224,13 +231,13 @@ Project.prototype.getActiveGraph = function(){
   }
 }
 
-Project.prototype.activateGraph = function(graph){
-  graph.activate();
-  // In case no selection exists set one with the current note
-  if(!this.item_selection || this.item_selection.object !== Graph){
-    this.startSelectionWith(graph);
-  }
-}
+// Project.prototype.activateGraph = function(graph){
+//   graph.activate();
+//   // In case no selection exists set one with the current note
+//   if(!this.item_selection || this.item_selection.object !== Graph){
+//     this.startSelectionWith(graph);
+//   }
+// }
 
 /**
  * TODO
@@ -242,27 +249,26 @@ Project.prototype.toggleActiveGraph = function(target = null){
     if(this.graphs[i].isActive()) this.graphs[i].deactivate()
   }
   if(target){
-    this.activateGraph(target);
-    return target;
-  }else{  // else no graph will be activated
-    if(this.item_selection){
-      this.item_selection = null;
-    }
-  }
+    target.activate()
+    return target
+  } // else no graph will be activated
 }
 
 /**
  * Sets note at index in the notes array active
  */
 Project.prototype.setActiveGraphAtIndex = function(index){
-  return this.toggleActiveGraph(this.graphs[index])
+  let aG = this.toggleActiveGraph(this.graphs[index])
+  this.startSelectionWith(this.graphs[index]);
+  return aG;
 }
 
 /**
  * Resets active notes of project to 'NO ACTIVE NOTE'
  */
 Project.prototype.resetActiveGraph = function(){
-  this.toggleActiveGraph()
+  this.toggleActiveGraph();
+  this.clearItemSelection();
 }
 
 /**
@@ -357,7 +363,7 @@ Project.prototype.loadGraphs = function(){
   }
   graphs.sort(descend_DateCreated)
   if(graphs.length > 0){
-    this.activateGraph(graphs[0]);
+    graphs[0].activate();
   }
   return graphs
 }
@@ -382,6 +388,7 @@ Project.prototype.createNewGraph = function(){
   //this.db.insertNote(FileDatabaseManager.getEmptyNoteJSON())
   // Toggle active note 
   this.toggleActiveGraph(nG)
+  this.startSelectionWith(nG);
   return nG
 }
 
@@ -407,10 +414,12 @@ Project.prototype.deleteGraph = function(graph){
 
   // Toggle active note
   if( idx <= this.graphs.length - 1 ){
-    this.toggleActiveGraph(this.graphs[idx])
+    this.toggleActiveGraph(this.graphs[idx]);
+    this.startSelectionWith(this.graphs[idx]);
   }
   if( idx > (this.graphs.length - 1 )){
     this.toggleActiveGraph(this.graphs[idx - 1])
+    this.startSelectionWith(this.graphs[idx - 1]);
   }
 }
 
@@ -453,9 +462,11 @@ Project.prototype.deleteNote = function(note){
   // Toggle active note
   if( idx <= this.notes.length - 1 ){
     this.toggleActiveNote(this.notes[idx])
+    this.startSelectionWith(this.notes[idx])
   }
   if( idx > (this.notes.length - 1 )){
     this.toggleActiveNote(this.notes[idx - 1])
+    this.startSelectionWith(this.notes[idx - 1])
   }
 }
 
@@ -476,7 +487,7 @@ Project.prototype.loadNotes = function(){
   }
   notes.sort(descend_DateCreated)
   if(notes.length > 0){
-    this.activateNote(notes[0]);
+    notes[0].activate();
   }
   return notes
 }
@@ -670,6 +681,10 @@ Project.prototype.startSelectionWith = function(item){
       }
     }
   }
+}
+
+Project.prototype.clearItemSelection = function(){
+  this.item_selection = null;
 }
 
 /**

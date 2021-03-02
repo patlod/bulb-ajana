@@ -539,7 +539,8 @@ function App(el){
   })
 
   function transitionNote(project, note, trigger='item-thumb'){
-    let active_note = project.getActiveNote()
+    let active_note = project.getActiveNote();
+    console.log(active_note);
     // Toggle active project & update UI in case switched to different note
     if(active_note.uuid.localeCompare(note.uuid) !== 0){
 
@@ -569,17 +570,19 @@ function App(el){
 
     console.log(project.getGraphMode())
     if(project.getGraphMode()){
-      project.toggleActiveNote(note)
-      project.setGraphMode(false)
-      self.views.graph.takedown()
-      render()
+      project.toggleActiveNote(note);
+      project.startSelectionWith(note);
+      project.setGraphMode(false);
+      self.views.graph.takedown();
+      render();
     }else{
       if(active_note.uuid.localeCompare(note.uuid) === 0){
-        return
+        return;
       }
-      self.session.prepProjectForTrans(project)
-      project.toggleActiveNote(note)
-      render(true)
+      self.session.prepProjectForTrans(project);
+      project.toggleActiveNote(note);
+      project.startSelectionWith(note);
+      render(true);
     }
     
   })
@@ -602,6 +605,7 @@ function App(el){
       render()
     }
     
+    document.getElementById('notepad').focus();
   })
 
   self.on('DEPRECATED -- deleteSelectedNotes', function(){
