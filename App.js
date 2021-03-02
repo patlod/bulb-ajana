@@ -258,26 +258,47 @@ function App(el){
           item_id = $item_thmb.attr('data-id');
 
           let active_project = self.session.getActiveProject(),
-              active_graph = active_project.getActiveGraph();
-
-          // Get note from project
-          let note = active_project.getNoteByUUID(item_id)
+              active_graph = active_project.getActiveGraph(),
+              selected_notes = active_project.getItemsFromSelection(),
+              note = active_project.getNoteByUUID(item_id),
+              drag_notes = [];
+          
           console.log(note)
+          
+          if(!note){
+            console.error("Note associated with UI element could not be found.");
+            return;
+          }
+          // Selected thumb was dragged => Drags all selected thumbs.
+          if(selected_notes.indexOf(note) >= 0){
+            drag_notes = selected_notes;
+          }else{  // Unselected note thumb was dragged
+            drag_notes.push(note);
+          }
 
           console.log("calcDropZone coordinates...")
-          let coords = self.views.graph.calcRelativeDropZone(ui.position)
-          
-          if(note !== null){
-            console.log("..it exists, so add it...")
-            let nV = active_graph.createNewVertexForNote(coords, note)
-            if(nV){
-              nV.saveData();
+          let i = 0, nV = null,
+              coords = self.views.graph.calcRelativeDropZone(ui.position),
+              newVertices = [];
+          if(drag_notes.length > 0){
+            console.log("..note selection exists, so add it...");
+            for(i in drag_notes){
+              nV = active_graph.createNewVertexForNote(coords, drag_notes[i]);
+              coords.x = coords.x + 10;
+              coords.y = coords.y + 10;
+              if(nV){
+                nV.saveData();
+                newVertices.push(nV);
+              }else{
+                console.log("Vertex for this note already exists..")
+              }
+            }
+            if(newVertices.length > 0){
+              console.log(newVertices.length + " notes added to graph..");
               self.views.graph.updateGraph(active_graph);
               // Update the create new graph button
               self.views.titlebar.updateCreateNewBtn(el, active_graph);
               render(true);
-            }else{
-              console.log("Vertex for this note already exists..")
             }
           }
         }

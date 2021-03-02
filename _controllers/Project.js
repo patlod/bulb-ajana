@@ -699,6 +699,7 @@ Project.prototype.getItemSelection = function(){
   return this.item_selection;
 }
 
+
 Project.prototype.getSelectedNotes = function(){
   var self = this;
   if(!this.item_selection){return;}
@@ -733,11 +734,9 @@ Project.prototype.getItemsFromSelection = function(){
 
   switch(this.item_selection.object){
     case Note:
-      this.getSelectedNotes();
-      break;
+      return this.getSelectedNotes();
     case Graph: 
-      this.getSelectedGraphs();
-      break;
+      return this.getSelectedGraphs();
   }
 }
 

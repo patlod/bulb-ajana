@@ -222,9 +222,19 @@ ItemListView.prototype.render = function(project){
         revert: true, 
         helper: function(e,ui){
           //$($.parseHTML('<p style="background: pink">Copy!</p>'))
-          let clone = $(this).clone()
-          clone.children('.item-thmb').css({"background": "#f7f7f7", "border-bottom": "none"})
-          return clone
+          let $clone = $(this).clone()
+          $clone.children('.item-thmb').css({"background": "#f7f7f7", "border-bottom": "none"})
+          
+          let selection_size = project.getItemsFromSelection().length;
+          if(selection_size > 1){
+            var counter = {
+              id: "draggable-counter",
+            };
+            var $span = $("<span>", counter);
+            $span.html(selection_size.toString());
+            $clone.append($span);
+          }
+          return $clone
         }, 
         cursorAt: { left: 2, top: 2},
         appendTo: '#layout',
