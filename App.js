@@ -490,7 +490,6 @@ function App(el){
   function transitionToProject(project){
     // For currently active project save the content of active note
     // in case it exists..
-    self.views.titlebar.clearSearch();
     self.session.transToProject(project, render);
   }
   self.on('transitionProject', function(project){
@@ -540,6 +539,10 @@ function App(el){
 
   function transitionNote(project, note, trigger='item-thumb'){
     let active_note = project.getActiveNote();
+    if(!active_note || active_note === undefined){
+      console.error("Error: No active note set.");
+      return;
+    }
     console.log(active_note);
     // Toggle active project & update UI in case switched to different note
     if(active_note.uuid.localeCompare(note.uuid) !== 0){
@@ -556,6 +559,8 @@ function App(el){
         // Update the graph to highlight the new active note
         self.views.graph.updateGraph(/*project.getActiveGraph()*/)
       }
+    }else{
+      project.startSelectionWith(active_note);
     }
     render(true)
   }
@@ -566,9 +571,13 @@ function App(el){
 
   self.on('transitionNoteAndEditor', function(project, note){
     console.log("transitionNoteAndEditor")
-    let active_note = project.getActiveNote()
+    let active_note = project.getActiveNote();
+    if(!active_note || active_note === undefined){
+      console.error("Error: No active note set.");
+      return;
+    }
 
-    console.log(project.getGraphMode())
+    // console.log(project.getGraphMode())
     if(project.getGraphMode()){
       project.toggleActiveNote(note);
       project.startSelectionWith(note);
@@ -823,6 +832,10 @@ function App(el){
     console.log('transitionGraph');
 
     let active_graph = project.getActiveGraph()
+    if(!active_graph || active_graph === undefined){
+      console.error("Error: No active graph set.");
+      return;
+    }
     // Toggle active project & update UI in case switched to different note
     if(active_graph.uuid.localeCompare(graph.uuid) === 0){
       return
@@ -836,6 +849,10 @@ function App(el){
     console.log('transitionGraphAndEditor');
 
     let active_graph = project.getActiveGraph()
+    if(!active_graph || active_graph === undefined){
+      console.error("Error: No active graph set.");
+      return;
+    }
 
     if(!project.getGraphMode()){
       project.toggleActiveGraph(graph)

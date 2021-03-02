@@ -778,9 +778,14 @@ GraphEditorView.prototype.resetZoom = function(){
 
     let bounds_svg = self.svg.node().getBoundingClientRect(),
         bounds_vertices = self.graph.getVerticesBoundingBox();
+    
+    // console.log(bounds_svg.width);
+    // console.log(bounds_svg.height);
+    // console.log(bounds_vertices.width);
+    // console.log(bounds_vertices.height);
 
     let scaleWidth = bounds_svg.width / bounds_vertices.width,
-        scaleHeight = bounds_svg.height / bounds_vertices.height,
+        scaleHeight = bounds_svg.height / (bounds_vertices.height === 0) ? 1.0 : bounds_vertices.height,
         SCALE_MARGIN = 0.1;
 
     //let rescale = (scaleWidth < scaleHeight) ? scaleWidth - SCALE_MARGIN : scaleHeight - SCALE_MARGIN;
@@ -794,6 +799,15 @@ GraphEditorView.prototype.resetZoom = function(){
     // let transX = (-bounds_vertices.startX < 0) ? -bounds_vertices.startX * rescale + marginX : -bounds_vertices.startX * rescale - marginX,
     //     transY = (-bounds_vertices.startY < 0) ? -bounds_vertices.startY * rescale - marginY : -bounds_vertices.startY * rescale + marginY;    
     
+    // console.log("bounds_svg: " + bounds_svg);
+    // console.log("bounds_vertices: " + bounds_vertices)
+    // console.log("scaleWidth: " + scaleWidth)
+    // console.log("scaleHeight: " + scaleHeight)
+    // console.log("rescale: " + rescale)
+    // console.log("transX: " + transX)
+    // console.log("transY: " + transY)
+
+
     self.setGraphPosition(transX, transY, rescale);
     // Update the controllers
     self.graph.position = {

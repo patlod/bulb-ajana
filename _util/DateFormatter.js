@@ -62,7 +62,7 @@ var DateFormatter = {
     let p_date = moment(new Date(date_past));
     let diff = today.diff(p_date, 'days', true);
     
-    return diff <= delta;
+    return diff >= delta;
   }
 }
 

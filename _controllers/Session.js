@@ -175,6 +175,7 @@ Session.prototype.prepProjectForTrans = function(project){
 
     // Clear search
     project.search = null;
+    self.app.views.titlebar.clearSearch();
   }
 }
 
@@ -194,6 +195,10 @@ Session.prototype.transToProject = function(project, callback){
     
     let cur_active_project = self.getActiveProject();
     cur_active_project.setActiveNoteAtIndex(0);
+    if(cur_active_project.notes.length > 0){
+      cur_active_project.startSelectionWith(cur_active_project.notes[0]);
+    }
+    
     // Reset the scroll position of NotesListView
     //self.app.views.items.scrollTop = 0
   }
@@ -389,6 +394,9 @@ Session.prototype.closeProject = function(project_id, callback){
       let new_active_p = self.setActiveProjectAtIndex(0)
       if(new_active_p){
         new_active_p.setActiveNoteAtIndex(0)
+        if(new_active_p.notes.length > 0){
+          new_active_p.startSelectionWith(new_active_p.notes[0]);
+        }
       }
       
     }
@@ -454,7 +462,11 @@ Session.prototype.deleteProject = function(project_id, callback){
         // Set first project in list as new active project
         if(this.projects.length > 0){
           this.setActiveProjectAtIndex(0)
-          this.getActiveProject().setActiveNoteAtIndex(0)
+          let aP = this.getActiveProject()
+          aP.setActiveNoteAtIndex(0)
+          if(aP.notes.length > 0){
+            aP.startSelectionWith(aP.notes[0]);
+          }
         }
       }
 

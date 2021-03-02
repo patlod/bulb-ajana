@@ -159,7 +159,8 @@ Project.prototype.toggleActiveNote = function(target = null){
  * Sets note at index in the notes array active
  */
 Project.prototype.setActiveNoteAtIndex = function(index){
-  let aN = this.toggleActiveNote(this.notes[index])
+  if(this.notes.length === 0){ return; }
+  return this.toggleActiveNote(this.notes[index])
   this.startSelectionWith(this.notes[index]);
   return aN
 }
@@ -258,9 +259,8 @@ Project.prototype.toggleActiveGraph = function(target = null){
  * Sets note at index in the notes array active
  */
 Project.prototype.setActiveGraphAtIndex = function(index){
-  let aG = this.toggleActiveGraph(this.graphs[index])
-  this.startSelectionWith(this.graphs[index]);
-  return aG;
+  if(this.graphs.length === 0){ return; }
+  return this.toggleActiveGraph(this.graphs[index])
 }
 
 /**
@@ -632,14 +632,19 @@ Project.prototype.searchAllNotesTextsAndTags = function(needle){
 /**
  * Starts a new item selection with either Note or Graph objects.
  * 
+ * Careful when to call this this overwrites the item selection.
+ * 
  * NOTE: Does regard whether search is active and accordingly initialises 
  *       shadows array of the search result array. 
  * 
  * @param {Note | Graph} item 
  */
 Project.prototype.startSelectionWith = function(item){
+  if(item === undefined || item === null){
+    console.error("startSelectionWith must have parameter");
+    return;
+  }
   var self = this;
-  console.log(item);
   if(item instanceof Note){
     self.item_selection = {
       object: Note,
@@ -699,15 +704,23 @@ Project.prototype.getSelectedNotes = function(){
   if(!this.item_selection){return;}
   if(this.item_selection.object !== Note){ return; }
 
-  return this.notes.filter(function(n, idx){
-    return self.item_selection.shadows[idx];
-  });
+  if(this.search){
+    return this.search.notes.map(function(x){ return x.note })
+      .filter(function(n, idx){
+        return self.item_selection.shadows[idx];
+      });
+  }else{
+    return this.notes.filter(function(n, idx){
+      return self.item_selection.shadows[idx];
+    });
+  }
 }
 Project.prototype.getSelectedGraphs = function(){
   var self = this;
   if(!this.item_selection){return;}
   if(this.item_selection.object !== Graph){ return; }
 
+  // TODO: Support search for graphs.
   return self.graphs.filter(function(g, idx){
     return self.item_selection.shadows[idx];
   });
@@ -729,7 +742,6 @@ Project.prototype.getItemsFromSelection = function(){
 }
 
 Project.prototype.deleteSelectedNotes = function(){
-  var self = this;
   if(!this.item_selection){return;}
   if(this.item_selection.object !== Note){ return; }
 
@@ -739,30 +751,46 @@ Project.prototype.deleteSelectedNotes = function(){
         return n.getNoteJSON();
       });
 
+  // Delete from database
   this.db.deleteNotes(tbDel_JSONs);
-
-  // Delete notes from instance array at idx
+  // Delete from instance array at idx
   for(i in tbDel_Objs){
     this.notes.splice(this.notes.indexOf(tbDel_Objs[i]), 1);
   }
-
   // Delete notes from all of the graphs
   for(i in tbDel_Objs){
     for(j in this.graphs){
       this.graphs[j].deleteVerticesForNote(tbDel_Objs[i]);
     }
   }
-
   // Toggle the active note & Reset item selection
-  this.item_selection = null;
   this.setActiveNoteAtIndex(0);
+  if(this.notes.length > 0){
+    this.startSelectionWith(this.notes[0]);
+  }
 }
 
 Project.prototype.deleteSelectedGraphs = function(){
   if(!this.item_selection){return;}
   if(this.item_selection.object !== Graph){ return; }
 
-  let tbDel = this.getSelectedGraphs();
+  let i,
+      tbDel_Objs = this.getSelectedGraphs(),
+      tbDel_JSONs = tbDel_Objs.map(function(g){
+        return g.getGraphJSON();
+      });
+  
+  // Delete from database
+  this.db.deleteGraphs(tbDel_JSONs);
+  // Delete from instance array at idx
+  for(i in tbDel_Objs){
+    this.graphs.splice(this.graphs.indexOf(tbDel_Objs[i]), 1);
+  }
+  // Toggle the active note & Reset item selection
+  this.setActiveGraphAtIndex(0);
+  if(this.graphs.length > 0){
+    this.startSelectionWith(this.graphs[0]);
+  }
 }
 Project.prototype.deleteSelectedItems = function(){
   if(!this.item_selection){ 
@@ -784,7 +812,7 @@ Project.prototype.deleteSelectedItems = function(){
  */
 Project.prototype.activateSelectionHead = function(){
   if(!this.item_selection){ return; }
-  let i = 0;
+  let i = 0, search_result;
   switch(this.item_selection.object){
     case Note:
       while(i < this.item_selection.shadows.length){
@@ -793,8 +821,15 @@ Project.prototype.activateSelectionHead = function(){
         }
         i++;
       }
-      if(this.notes.indexOf(this.getActiveNote()) !== i){
-        this.toggleActiveNote(this.notes[i]);
+      if(this.search){
+        search_result = this.search.notes.map(function(x){ return x.note });
+        if(search_result.indexOf(this.getActiveNote()) !== i){
+          this.toggleActiveNote(search_result[i]);
+        }
+      }else{
+        if(this.notes.indexOf(this.getActiveNote()) !== i){
+          this.toggleActiveNote(this.notes[i]);
+        }
       }
       break;
 
@@ -805,9 +840,18 @@ Project.prototype.activateSelectionHead = function(){
         }
         i++;
       }
-      if(this.graphs.indexOf(this.getActiveGraph()) !== i){
-        this.toggleActiveGraph(this.graphs[i]);
-      }
+
+      // TODO: Support search also for graphs.
+      // if(this.search){
+      //   search_result = this.search.graphs.map(function(x){ return x.graph });
+      //   if(search_result.indexOf(this.getActiveNote()) !== i){
+      //     this.toggleActiveGraph(search_result[i]);
+      //   }
+      // }else{
+        if(this.graphs.indexOf(this.getActiveGraph()) !== i){
+          this.toggleActiveGraph(this.graphs[i]);
+        }
+      // }
       break;
   }
 }
@@ -946,7 +990,7 @@ Project.prototype.toggleNoteInSelection = function(note){
 
   console.log("Project: toggleNoteInSelection");
   let count, i,
-      target_idx = this.notes.indexOf(note);
+      target_idx = (this.search) ? this.search.notes.map(function(x){ return x.note }).indexOf(note) : this.notes.indexOf(note);
 
   // UNSELECT
   if(this.item_selection.shadows[target_idx]){
@@ -1009,7 +1053,7 @@ Project.prototype.shiftExpandNoteSelection = function(note){
   console.log("Project: shiftExpandNoteSelection");
   // Get the index of the target
   var i,
-  target_idx = this.notes.indexOf(note);
+  target_idx = (this.search) ? this.search.notes.map(function(x){ return x.note }).indexOf(note) : this.notes.indexOf(note);
 
   if(target_idx > this.item_selection.anchor){
     console.log("target_idx > this.item_selection.anchor");
