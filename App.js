@@ -321,7 +321,7 @@ function App(el){
 
   self.on('renderLazy', function(){
     render(true);
-  })
+  });
 
   self.on('arrowNavigationToHead', function(){
     console.log("App.js => arrowNavigationToHead");
@@ -496,7 +496,7 @@ function App(el){
       render();
     }
   }
-  self.on('transToGraphEditor', transToGraphEditor)
+  self.on('transToGraphEditor', transToGraphEditor);
 
   function transToNoteEditor(){
     let active_p = self.session.getActiveProject();
@@ -506,7 +506,7 @@ function App(el){
       render();
     }
   }
-  self.on('transToNoteEditor', transToNoteEditor)
+  self.on('transToNoteEditor', transToNoteEditor);
 
   function transitionToProject(project){
     // For currently active project save the content of active note
@@ -515,35 +515,35 @@ function App(el){
   }
   self.on('transitionProject', function(project){
     transitionToProject(project);
-  })
+  });
 
   self.on('newProject', function(){
     self.session.newProject(render);
-  })
+  });
 
   self.on('openProjectDialog', function(){
     self.session.openProjectDialog(render);
 
     // Empty trash of the opened if necessary
     self.session.getActiveProject().garbageDisposal();
-  })
+  });
 
   self.on('openRecentProject', function(path){
     self.session.openProjectWithPath(path, render);
 
     // Empty trash of the opened if necessary
     self.session.getActiveProject().garbageDisposal();
-  })
+  });
 
   self.on('closeProject', function(project_id){
     console.log("App -- Close Project..")
     self.session.closeProject(project_id, render);
-  })
+  });
 
   self.on('deleteProject', function(project_id){
     console.log("App -- Delete Project..")
     self.session.deleteProject(project_id, render)
-  })
+  });
 
   self.on('switchItemList', function(objectOfDisplay){
     let active_project = self.session.getActiveProject();
@@ -556,7 +556,7 @@ function App(el){
         break;
     }
     render(true);
-  })
+  });
 
   function transitionNote(project, note, trigger='item-thumb'){
     let active_note = project.getActiveNote();
@@ -588,7 +588,7 @@ function App(el){
 
   self.on('transitionNote', function(project, note, trigger='item-thumb'){
     transitionNote(project, note, trigger);
-  })
+  });
 
   self.on('transitionNoteAndEditor', function(project, note){
     console.log("transitionNoteAndEditor")
@@ -615,10 +615,37 @@ function App(el){
       render(true);
     }
     
-  })
+  });
 
-  self.on('createNewNote', function(){
-    console.log("App received: CREATE NEW NOTE");
+  
+  self.on('transitionNoteContextMenu', function(project, note){
+    console.log("transitionNoteContextMenu")
+    if(project.getItemsFromSelection().indexOf(note) < 0){
+      transitionNote(project, note);
+    }
+
+    const template = [
+      {
+        label: 'Delete',
+        click: () => {
+          console.log("Context-Menu - Delete clicked on element:")
+          deleteSelectedNotes();
+        }
+      },
+      { type: 'separator' },
+      {
+        label: 'New Note',
+        click: () => {
+          console.log("Context-Menu - New Note clicked on element:")
+          createNewNote();
+        }
+      }
+    ];
+
+    self.views.items.showContextMenuFromTemplate(template);
+  });
+
+  function createNewNote(){
     if(self.session.getActiveProject() === null){
       console.log("App listener createNewNote -- No active project.")
       return 
@@ -635,8 +662,13 @@ function App(el){
       render()
     }
     
-    document.getElementById('notepad').focus();
-  })
+    self.views.editor.focusNotepad();
+  }
+
+  self.on('createNewNote', function(){
+    console.log("App received: CREATE NEW NOTE");
+    createNewNote()
+  });
 
   self.on('DEPRECATED -- deleteSelectedNotes', function(){
     console.log("App received: DELETE SELECTED NOTES")
@@ -664,8 +696,7 @@ function App(el){
     render()
   });
 
-  self.on('deleteSelectedNotes', function(){
-    console.log("App received: DELETE SELECTED NOTES")
+  function deleteSelectedNotes(){
     if(self.session.getActiveProject() === null){
       console.log("App listener createNewNote -- No active project.")
       return 
@@ -675,8 +706,13 @@ function App(el){
     active_project.deleteSelectedItems();
 
     self.views.graph.forceClearContentDOMEl();
-    render()
-  })
+    render();
+  }
+
+  self.on('deleteSelectedNotes', function(){
+    console.log("App received: DELETE SELECTED NOTES")
+    deleteSelectedNotes();
+  });
 
   
   self.on('updateByNoteEditorContent', function(active_note){
@@ -684,7 +720,7 @@ function App(el){
     
     self.views.titlebar.updateCreateNewBtn(el, active_note)
     self.views.items.updateActiveNoteThumb(el, active_note)
-  })
+  });
 
   self.on('toggleEditorDate', function(){
     // Get active note thumb..
@@ -692,7 +728,7 @@ function App(el){
     let m_dt = document.getElementById('dt-modified')
     c_dt.classList.toggle('hidden')
     m_dt.classList.toggle('hidden')
-  })
+  });
 
   self.on('updateNoteColor', function(note, targetColor){
     // Update note thumbnail and write note color to database
@@ -700,7 +736,7 @@ function App(el){
     note.saveData()
 
     self.views.items.updateNoteThmbColor(note)
-  })
+  });
 
   self.on('updateGlobalSearch', function(needle){
     let active_project = self.session.getActiveProject()
@@ -774,12 +810,12 @@ function App(el){
     self.views.graph.updateGraph(active_graph)
 
     render(true)
-  })
+  });
 
   self.on('addNotesToGraph', function(coords){ 
     // TODO: 
     console.log("Call addNotesToGraph..")
-  })
+  });
 
   self.on('deleteVertexInGraph', function(selectedVertex){
     console.log("deleteVertexInGraph: ")
@@ -794,7 +830,7 @@ function App(el){
     self.views.items.updateActiveGraphNoteCount(el, g);
 
     self.views.graph.updateGraph(g);
-  })
+  });
 
   self.on('createNewEdgeInGraph', function(vPair){
     console.log("createNewEdgeInGraph: ")
@@ -814,7 +850,7 @@ function App(el){
 
       self.views.graph.updateGraph(g);
     }
-  })
+  });
 
   self.on('deleteEdgeInGraph', function(selectedEdge){
     console.log("deleteEdgeInGraph: ")
@@ -824,11 +860,11 @@ function App(el){
     self.views.graph.removeSelectFromEdge()
 
     self.views.graph.updateGraph(g);
-  })
+  });
 
   self.on('updateVertexPosition', function(){
     // PROBABLY NOT NEEDED.
-  })
+  });
 
   // TODO
   function transitionGraph(project, graph, trigger='item-thumb'){
@@ -893,9 +929,32 @@ function App(el){
     }
   });
 
-  self.on('createNewGraph', function(){
-    console.log("App.js: createNewGraph");
+  self.on('transitionGraphContextMenu', function(project, graph){
+    console.log("transitionGraphContextMenu")
+    if(project.getItemsFromSelection().indexOf(graph) < 0){
+      transitionGraph(project, graph);
+    }
+    const template = [
+      {
+        label: 'Delete',
+        click: () => {
+          console.log("Context-Menu - Delete clicked on element:")
+          deleteSelectedGraphs();
+        }
+      },
+      { type: 'separator'},
+      {
+        label: 'New Graph',
+        click: () => {
+          console.log("Context-Menu - New Graph clicked on element:")
+          createNewGraph();
+        }
+      }
+    ]
+    self.views.items.showContextMenuFromTemplate(template);
+  });
 
+  function createNewGraph(){
     if(self.session.getActiveProject() === null){
       console.log("App listener createNewNote -- No active project.")
       return 
@@ -911,6 +970,10 @@ function App(el){
       self.session.setGraphMode(true);
     }
     render();
+  }
+  self.on('createNewGraph', function(){
+    console.log("App.js: createNewGraph");
+    createNewGraph();
   });
 
   self.on('DEPRECATED -- deleteSelectedGraphs', function(){
@@ -939,20 +1002,23 @@ function App(el){
     render()
   });
   
-  self.on('deleteSelectedGraphs', function(){
-    console.log("App.js: deleteSelectedGraphs");
-
-    console.log("App received: DELETE SELECTED NOTES")
+  function deleteSelectedGraphs(){
+    console.log("App received: DELETE SELECTED NOTES");
     if(self.session.getActiveProject() === null){
-      console.log("App listener createNewNote -- No active project.")
-      return 
+      console.log("App listener createNewNote -- No active project.");
+      return;
     }
     
     let active_project = self.session.getActiveProject();
     active_project.deleteSelectedItems();
 
     self.views.graph.forceClearContentDOMEl();
-    render()
+    render();
+  }
+
+  self.on('deleteSelectedGraphs', function(){
+    console.log("App.js: deleteSelectedGraphs");
+    deleteSelectedGraphs();    
   });
 
 
@@ -963,7 +1029,7 @@ function App(el){
     if(self.views.items.objectOfDisplay === Graph){
       self.views.items.updateActiveGraphThumb(el, active_graph)
     }
-  })
+  });
 
   function closeApp(){
      // TODO: Check for graph or regular view

@@ -54,7 +54,6 @@ ItemListView.prototype.tagsHTML = function(note, pureHTML = false){
   }
 }
 
-
 ItemListView.prototype.updateActiveNoteThumb = function(dom_el, active_note){
   var self = this;
 
@@ -98,6 +97,11 @@ ItemListView.prototype.updateNoteThmbColor = function(note){
   let c = target.getElementsByClassName('color-pickr-circle-thmb')[0]
 
   c.style.backgroundColor = note.bg_color
+}
+
+ItemListView.prototype.showContextMenuFromTemplate = function(template){
+  let menu = Menu.buildFromTemplate(template);
+  menu.popup(remote.getCurrentWindow());
 }
 
 /**
@@ -163,27 +167,7 @@ ItemListView.prototype.render = function(project){
       }
 
       function rightclickItemThmb(e){
-        $(this).attr('data-id')
-        const template = [
-          {
-            label: 'Delete',
-            click: () => {
-              console.log("Context-Menu - Delete clicked on element:")
-              console.log(item_id)
-            }
-          },
-          { type: 'separator'},
-          {
-            label: 'New Note',
-            click: () => {
-              console.log("Context-Menu - New Note clicked on element:")
-              console.log(item_id)
-            }
-          }
-        ]
-        const menu = Menu.buildFromTemplate(template);
-        menu.popup(remote.getCurrentWindow())
-        self.send('transitionNote', project, note)
+        self.send('transitionNoteContextMenu', project, note);
       }
       /* ====================================================================== */
       /* ====================================================================== */
@@ -280,26 +264,7 @@ ItemListView.prototype.render = function(project){
       }
 
       function rightClickGraphThmb(e){
-        $(this).attr('data-id')
-        const template = [
-          {
-            label: 'Delete',
-            click: () => {
-              console.log("Context-Menu - Delete clicked on element:")
-              console.log(item_id)
-            }
-          },
-          { type: 'separator'},
-          {
-            label: 'New Graph',
-            click: () => {
-              console.log("Context-Menu - New Graph clicked on element:")
-              console.log(item_id)
-            }
-          }
-        ]
-        const menu = Menu.buildFromTemplate(template);
-        menu.popup(remote.getCurrentWindow())
+        self.send('transitionGraphContextMenu', project, graph);
       }
 
       /* ====================================================================== */

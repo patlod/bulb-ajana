@@ -129,19 +129,9 @@ NoteEditorView.prototype.makeTagifyValues = function(tags){
   return JSON.stringify(tags.map(function(tag){ return { "value": tag.name } })) 
 }
 
-// NoteEditorView.prototype.resizeElementByContent = function(el){
-//   if(!el){
-//     return
-//   }
-
-//   let default_height = 26;
-//   /*console.log("Input event notepad textarea: " + this.scrollHeight)
-//   console.log("Normal height: " + getComputedStyle(this).height)
-//   console.log("normal width: " + getComputedStyle(this).width)*/
-//   el.style.height = default_height.toString() + "px"
-//   el.style.height = el.scrollHeight.toString() + "px"
-// }
-
+NoteEditorView.prototype.focusNotepad = function(){
+  document.getElementById('notepad').focus();
+}
 /**
  * Functions related to note editor local search.
  */
@@ -165,13 +155,6 @@ NoteEditorView.prototype.hideNotepadOverlay = function(){
     this.overlay_DOMEl.classList.add('hidden');
   }
 }
-
-// NoteEditorView.prototype.loadOverlayContent = function(){
-//   let haystack = this.search.haystack,
-//       needle = this.search.needle,
-//       needle_pos = this.search.getResults();
-  
-// }
 
 /**
  * Converts the text of a note into format that is used by 'contenteditable'
@@ -275,13 +258,24 @@ NoteEditorView.prototype.concealNeeedleDOMEl = function(el){
   }
 }
 
-
-
 NoteEditorView.prototype.resetSearch = function(){
   this.search = null;
   this.overlay_DOMEl = null;
   this.current_needle_DOMEl = null;
 }
+
+NoteEditorView.prototype.toggleLocalSearch = function(){
+  let el = document.getElementById('local-search')
+  if(el){
+    if(el.classList.contains('hidden')){
+      el.classList.remove('hidden');
+      el.getElementsByTagName('input')[0].focus();
+    }else{
+      el.getElementsByTagName('input')[0].focus();
+    }
+  }
+}
+
 /**
  * Resets the editor before new content is loaded.
  */
@@ -300,18 +294,6 @@ NoteEditorView.prototype.resetEditorState = function(){
   }
 
   this.resetSearch();
-}
-
-NoteEditorView.prototype.toggleLocalSearch = function(){
-  let el = document.getElementById('local-search')
-  if(el){
-    if(el.classList.contains('hidden')){
-      el.classList.remove('hidden');
-      el.getElementsByTagName('input')[0].focus();
-    }else{
-      el.getElementsByTagName('input')[0].focus();
-    }
-  }
 }
 
 /**

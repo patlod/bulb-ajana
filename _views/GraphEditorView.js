@@ -196,7 +196,9 @@ GraphEditorView.prototype.init = function(svg){
             // TODO  the internal d3 state is still changing
             return false;
           } else{
-            self.zoomed.call(self);
+            // if(d3.event.sourceEvent.metaKey || d3.event.sourceEvent.ctrlKey){
+              self.zoomed.call(self);
+            // }
           }
           return true;
         })
