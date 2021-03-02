@@ -199,17 +199,22 @@ Session.prototype.transToProject = function(project, callback){
       cur_active_project.startSelectionWith(cur_active_project.notes[0]);
     }
     
+    if(typeof callback === "function"){
+      if(prior_project_gm && cur_active_project.getGraphMode()){
+        // For some reason the graph only loads when DOM element is force cleaned.
+        self.app.views.graph.forceClearContentDOMEl();
+      }
+      callback();
+    }
     // Reset the scroll position of NotesListView
     //self.app.views.items.scrollTop = 0
+  }else{
+    if(typeof callback === "function"){
+      callback(true);
+    }
   }
 
-  if(typeof callback === "function"){
-    if(prior_project_gm && cur_active_project.getGraphMode()){
-      // For some reason the graph only loads when DOM element is force cleaned.
-      self.app.views.graph.forceClearContentDOMEl();
-    }
-    callback();
-  }
+  
 }
 
 Session.prototype.newProject = function(callback){

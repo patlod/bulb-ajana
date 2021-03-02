@@ -1007,8 +1007,32 @@ Project.prototype.toggleNoteInSelection = function(note){
     // If this note is closer to head then active note make this note active
   }
 }
+// TODO: Support search for graphs too.
 Project.prototype.toggleGraphInSelection = function(graph){
   // TODO: Analog to notes
+  if(!graph){
+    console.error("Error: No parameter given.");
+    return;
+  }
+
+  console.log("Project: toggleGraphInSelection");
+  let count, i,
+      target_idx = /*(this.search) ? this.search.graphs.map(function(x){ return x.graph }).indexOf(graph) :*/ this.graphs.indexOf(graph);
+
+  // UNSELECT
+  if(this.item_selection.shadows[target_idx]){
+    count = this.item_selection.shadows.filter(function(x){ return x }).length
+    // Unset, only if it is not the last one selected
+    if(count > 1){ 
+      this.unselectItemInSelection(target_idx);
+    }
+    // If this note is the active note make next one
+  // SELECT
+  }else{
+    this.selectItemInSelection(target_idx);
+
+    // If this note is closer to head then active note make this note active
+  }
 }
 /**
  * Called to select or unselect an item in the item list.
@@ -1131,10 +1155,96 @@ Project.prototype.shiftExpandNoteSelection = function(note){
     this.item_selection.anchor = target_idx;
     this.item_selection.select_pointer = target_idx;
   }
-  
 }
+// TODO: Support search for graphs too.
 Project.prototype.shiftExpandGraphSelection = function(graph){
   // TODO: Analog to notes
+  if(!graph){
+    console.error("Error: No parameter given.");
+    return;
+  }
+
+  console.log("Project: shiftExpandNoteSelection");
+  // Get the index of the target
+  var i,
+  target_idx = /*(this.search) ? this.search.notes.map(function(x){ return x.note }).indexOf(note) :*/ this.graphs.indexOf(graph);
+
+  if(target_idx > this.item_selection.anchor){
+    console.log("target_idx > this.item_selection.anchor");
+    // Select from anchor to target
+    for(i = this.item_selection.anchor; i <= target_idx; i++){
+      this.item_selection.shadows[i] = true;
+    }
+    // Adjust the select_pointer
+    this.item_selection.select_pointer = target_idx;
+
+    if(this.item_selection.select_pointer < this.item_selection.anchor){
+      // Unselect from anchor - 1 to select_pointer
+      for(i = this.item_selection.anchor - 1; i >= this.item_selection.select_pointer; i--){
+        this.item_selection.shadows[i] = false;
+      }
+    }else{
+      if(target_idx < this.item_selection.select_pointer){
+        // Unselect from target_idx + 1 to select_pointer
+        for(i = target_idx + 1; i <= this.item_selection.select_pointer; i++){
+          this.item_selection.shadows[i] = false;
+        }
+      }else{
+        // Check for direct neighbors fo the target
+        // if yes, pointer moves further to tail as long as there are direct neighbors selected
+        // else select_pointer to target_idx
+        i = target_idx + 1;
+        while(i <= this.item_selection.shadows.length - 1 && this.item_selection.shadows[i]){
+          i++;
+        }
+        this.item_selection.select_pointer = i - 1;
+      }
+    }
+
+  }else if(target_idx < this.item_selection.anchor){
+    console.log("target_idx < this.item_selection.anchor");
+    // Select from anchor to target
+    for(i = this.item_selection.anchor; i >= target_idx; i--){
+      this.item_selection.shadows[i] = true;
+    }
+    // Adjust the select_pointer
+    if(this.item_selection.select_pointer > this.item_selection.anchor){
+      // Unselect from anchor + 1 to select_pointer
+      for(i = this.item_selection.anchor + 1; i <= this.item_selection.select_pointer; i++){
+        this.item_selection.shadows[i] = false;
+      }
+    }else{
+      if(target_idx > this.item_selection.select_pointer){
+        // Unselect from target_idx - 1 to select_pointer
+        for(i = target_idx - 1; i >= this.item_selection.select_pointer; i--){
+          this.item_selection.shadows[i] = false;
+        }
+      }else{
+        // Check for direct neighbors of the target
+        // if yes, pointer moves further towards head as long as there are direct neighbors selected
+        // else select_pointer to target_idx
+        i = target_idx - 1;
+        while(i >= 0 && this.item_selection.shadows[i]){
+          i++;
+        }
+        this.item_selection.select_pointer = i + 1;
+      }
+    }
+  }else{ // target_idx == anchor
+    // Unselect all elements between anchor and select_pointer
+    if(this.item_selection.select_pointer > this.item_selection.anchor){
+      // Unselect from anchor + 1 to select_pointer
+      for(i = this.item_selection.anchor + 1; i <= this.item_selection.select_pointer; i++){
+        this.item_selection.shadows[i] = false;
+      }
+    }else{
+      for(i = this.item_selection.anchor - 1; i >= this.item_selection.select_pointer; i--){
+        this.item_selection.shadows[i] = false;
+      }
+    }
+    this.item_selection.anchor = target_idx;
+    this.item_selection.select_pointer = target_idx;
+  }
 }
 /**
  * Called to select or unselect several items in the item list.

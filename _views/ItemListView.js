@@ -144,11 +144,11 @@ ItemListView.prototype.render = function(project){
         if(app.views.app.ctrlOrCmdKey_active){
           self.send('toggleItemInSelection', note);
         }else if(app.views.app.shiftKey_active){
-          self.send('shiftClickItemSelection', note)
+          self.send('shiftClickItemSelection', note);
         }else{
           console.log(project);
           console.log(note);
-          self.send('transitionNote', project, note)
+          self.send('transitionNote', project, note);
         }
       }
 
@@ -247,7 +247,16 @@ ItemListView.prototype.render = function(project){
 
       function clickItemThmb(e){
         self.focus_manager.setFocusObject(self.focus_manager.ITEM_LIST);
-        self.send('transitionGraph', project, graph);
+        if(app.views.app.ctrlOrCmdKey_active){
+          self.send('toggleItemInSelection', graph);
+        }else if(app.views.app.shiftKey_active){
+          self.send('shiftClickItemSelection', graph);
+        }else{
+          console.log(project);
+          console.log(graph);
+          self.send('transitionGraph', project, graph);
+        }
+        
       }
 
       function dblclickItemThmb(e){

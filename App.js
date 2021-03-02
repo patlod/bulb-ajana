@@ -817,30 +817,29 @@ function App(el){
     // if(!project.getGraphMode()){
     //   self.session.prepProjectForTrans(project)
     // }
-    
-    project.toggleActiveGraph(graph);
-    project.startSelectionWith(graph);
-    console.log(project.getItemSelection());
-
-    if(project.getGraphMode() && trigger.localeCompare('item-thumb') === 0){
-      self.views.graph.forceClearContentDOMEl();
-    }
-    render();
-  }
-
-  self.on('transitionGraph', function(project, graph, trigger='item-thumb'){
-    console.log('transitionGraph');
-
     let active_graph = project.getActiveGraph()
     if(!active_graph || active_graph === undefined){
       console.error("Error: No active graph set.");
       return;
     }
     // Toggle active project & update UI in case switched to different note
-    if(active_graph.uuid.localeCompare(graph.uuid) === 0){
-      return
-    }
+    if(active_graph.uuid.localeCompare(graph.uuid) !== 0){
+      project.toggleActiveGraph(graph);
+      project.startSelectionWith(graph);
+      console.log(project.getItemSelection());
 
+      if(project.getGraphMode() && trigger.localeCompare('item-thumb') === 0){
+        self.views.graph.forceClearContentDOMEl();
+      }
+      render();
+    }else{
+      project.startSelectionWith(active_graph);
+      render(true);
+    }
+  }
+
+  self.on('transitionGraph', function(project, graph, trigger='item-thumb'){
+    console.log('transitionGraph');
     transitionGraph(project, graph, trigger);
   });
 
@@ -867,6 +866,7 @@ function App(el){
       //self.session.prepProjectForTrans(project)
 
       project.toggleActiveGraph(graph);
+      project.startSelectionWith(graph);
       self.views.graph.forceClearContentDOMEl();
       render();
     }
@@ -892,7 +892,7 @@ function App(el){
     render();
   });
 
-  self.on('deleteSelectedGraphs', function(){
+  self.on('DEPRECATED -- deleteSelectedGraphs', function(){
     console.log("App.js: deleteSelectedGraphs");
 
     /**
@@ -917,6 +917,23 @@ function App(el){
     }
     render()
   });
+  
+  self.on('deleteSelectedGraphs', function(){
+    console.log("App.js: deleteSelectedGraphs");
+
+    console.log("App received: DELETE SELECTED NOTES")
+    if(self.session.getActiveProject() === null){
+      console.log("App listener createNewNote -- No active project.")
+      return 
+    }
+    
+    let active_project = self.session.getActiveProject();
+    active_project.deleteSelectedItems();
+
+    self.views.graph.forceClearContentDOMEl();
+    render()
+  });
+
 
   self.on('updateByGraphEditorContent', function(active_graph){
     console.log("App received: LIVE UPDATE TEXT OF NOTE THUMB")
