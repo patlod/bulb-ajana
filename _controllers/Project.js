@@ -92,7 +92,10 @@ Project.prototype.loadData = function(){
   this.graphs = this.loadGraphs()
   
   // Start the first selection with the active notes
-  this.startSelectionWith(this.notes[0]);
+  if(this.notes.length > 0){
+    this.startSelectionWith(this.notes[0]);
+  }
+  
 
   console.log("item_selection");
   console.log(this.item_selection);

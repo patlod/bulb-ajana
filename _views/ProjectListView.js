@@ -25,36 +25,36 @@ inherits(ProjectListView, EventEmitterElement)
 ProjectListView.prototype.createPrjctThmbDropdown = function(){
   var self = this
   /**
-   * TODO: Define event handler functions
+   * Event handler functions
    */
   function clickRenameProject(e){
     console.log("Click handler - RENAME")
-    let p_thumb = $(this).parent().parent().parent().parent()[0]
-    let nInput = p_thumb.getElementsByClassName('prjct-name-input')[0]
-    let nSpan = p_thumb.getElementsByClassName('prjct-thmb-name')[0]
-    nSpan.classList.toggle('hidden')
-    nInput.classList.toggle('hidden')
-    nInput.focus()
-    nInput.select()
+    let p_thumb = $(this).parent().parent().parent().parent()[0];
+    let nInput = p_thumb.getElementsByClassName('prjct-name-input')[0];
+    let nSpan = p_thumb.getElementsByClassName('prjct-thmb-name')[0];
+    nSpan.classList.toggle('hidden');
+    nInput.classList.toggle('hidden');
+    nInput.focus();
+    nInput.select();
   }
 
   function clickCloseProject(e){
     // Hide the dropdown (jQuery)
-    let dd_el = $(this).parent().parent()
-    dd_el.dropdown('destroy')
+    let dd_el = $(this).parent().parent();
+    dd_el.dropdown('destroy');
     
     // Get the project id
-    let project_id = dd_el.parent().parent().attr('data-id')
+    let project_id = dd_el.parent().parent().attr('data-id');
     // Send closeProject event to App
-    self.send('closeProject', project_id)
+    self.send('closeProject', project_id);
   }
 
   function clickDeleteProject(e){
     console.log("Click handler - DELETE")
-    let dd_el = $(this).parent().parent()
-    dd_el.dropdown('destroy')
-    let project_id = dd_el.parent().parent().attr('data-id')
-    self.send('deleteProject', project_id)
+    let dd_el = $(this).parent().parent();
+    dd_el.dropdown('destroy');
+    let project_id = dd_el.parent().parent().attr('data-id');
+    self.send('deleteProject', project_id);
   }
 
   var prjct_thmb_dp = yo`
@@ -97,16 +97,16 @@ ProjectListView.prototype.createLeftMenuDropdown = function(recents){
    * Event h
    */
   function clickOpenProjectDialog(e){
-    self.send('openProjectDialog')
+    self.send('openProjectDialog');
   }
 
   function clickNewProject(e){
-    self.send('newProject')
+    self.send('newProject');
   }
 
   function clickOpenRecentProject(e){
     let path = this.getAttribute('data-path')
-    self.send('openRecentProject', path)
+    self.send('openRecentProject', path);
   }
 
   function mapRecentProjects(arr){
@@ -197,14 +197,23 @@ ProjectListView.prototype.render = function(projects, recents){
         label: 'Rename Project',
         click: () => {
           console.log("Context-Menu - Rename Project clicked on element:")
-          console.log(this)
+          let nInput = this.getElementsByClassName('prjct-name-input')[0],
+              nSpan = this.getElementsByClassName('prjct-thmb-name')[0];
+          nSpan.classList.toggle('hidden');
+          nInput.classList.toggle('hidden');
+          nInput.focus();
+          nInput.select();
         }
       },
       {
         label: 'Delete Project',
         click: () => {
           console.log("Context-Menu - Delete Project clicked on element:")
-          console.log(this)
+          let dd_el = $(this).parent().parent();
+          dd_el.dropdown('destroy');
+          let project_id = $(this).attr('data-id');
+          self.send('deleteProject', project_id);
+          
         }
       },
       { type: 'separator'},
@@ -212,7 +221,14 @@ ProjectListView.prototype.render = function(projects, recents){
         label: 'Close Project',
         click: () => {
           console.log("Context-Menu - Close Project clicked on element:")
-          console.log(this)
+          // Hide the dropdown (jQuery)
+          let dd_el = $(this).parent().parent();
+          dd_el.dropdown('destroy');
+          
+          // Get the project id
+          let project_id = $(this).attr('data-id');
+          // Send closeProject event to App
+          self.send('closeProject', project_id);
         }
       },
       { type: 'separator'},
@@ -220,7 +236,7 @@ ProjectListView.prototype.render = function(projects, recents){
         label: 'New Project',
         click: () => {
           console.log("Context-Menu - New Project clicked on element:")
-          console.log(this)
+          self.send('newProject');
         }
       }];
       const menu = Menu.buildFromTemplate(template);
