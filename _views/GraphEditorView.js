@@ -94,7 +94,10 @@ GraphEditorView.prototype.init = function(svg){
     justScaleTransGraph: false,
     lastKeyDown: -1,
     shiftNodeDrag: false,
-    selectedText: null
+    selectedText: null,
+    vertexContextMenu: false,
+    dragInitiated: false,
+    zoomInitiated: false,
   };
 
   // define arrow markers for graph links
@@ -144,39 +147,53 @@ GraphEditorView.prototype.init = function(svg){
   // Drag behaviour for the vertices
   self.drag = d3.behavior.drag()
         .origin(function(d){
-          console.log("drag origin: ")
-          console.log(d)
-          return {x: d.posX, y: d.posY}; // self.calcNodeCenter(d3.select(this), d)
+            console.log("ORIGIN: ")
+            console.log(d)
+            return {x: d.posX, y: d.posY}; // self.calcNodeCenter(d3.select(this), d)
+        })
+        .on("dragstart", function(d){
+          console.log(d3.event.sourceEvent.button);
+          if(d3.event.sourceEvent.button === 0){
+            self.state.dragInitiated = true;
+          }
         })
         .on("drag", function(d){
-          self.state.justDragged = true;
-          self.dragmove.call(self, d);
+          if(self.state.dragInitiated){
+            console.log("DRAG")
+            self.state.justDragged = true;
+            self.dragmove.call(self, d);
+          }
         })
         .on("dragend", function(d) {
-          console.log("DRAGEND:")
-          console.log(d)
-          // todo check if edge-mode is selected
+          if(d3.event.sourceEvent.button === 0){
+            console.log("DRAGEND:")
+            console.log(d)
 
-          if(self.dirty_vertices.indexOf(d) < 0){
-            self.dirty_vertices.push(d)
-          }
-          
-          // Set/Reset timer for writing to database
-          if (self.dragTimeout !== null) {
-            clearTimeout(self.dragTimeout);
-          }
-          self.dragTimeout = setTimeout(function() {
-            self.dragTimeout = null;  
+            self.state.dragInitiated = false;
 
-            console.log("TIMEOUT: Writing dirty vertices to database.")
-            for(var i in self.dirty_vertices){
-              console.log(self.dirty_vertices[i])
-              self.dirty_vertices[i].saveData()
+            // todo check if edge-mode is selected
+
+            if(self.dirty_vertices.indexOf(d) < 0){
+              self.dirty_vertices.push(d)
             }
             
-            self.dirty_vertices = []
-            
-          }, self.POSITION_SAVE_INTERVAL);  
+            // Set/Reset timer for writing to database
+            if (self.dragTimeout !== null) {
+              clearTimeout(self.dragTimeout);
+            }
+            self.dragTimeout = setTimeout(function() {
+              self.dragTimeout = null;  
+
+              console.log("TIMEOUT: Writing dirty vertices to database.")
+              for(var i in self.dirty_vertices){
+                console.log(self.dirty_vertices[i])
+                self.dirty_vertices[i].saveData()
+              }
+              
+              self.dirty_vertices = []
+              
+            }, self.POSITION_SAVE_INTERVAL);
+          }
         });
 
   // listen for key events
@@ -192,25 +209,39 @@ GraphEditorView.prototype.init = function(svg){
   // Listen for drag and zoom behavior on the svg
   self.dragSvg = d3.behavior.zoom()
         .on("zoom", function(){
-          if (d3.event.sourceEvent.shiftKey){
-            // TODO  the internal d3 state is still changing
-            return false;
-          } else{
-            // if(d3.event.sourceEvent.metaKey || d3.event.sourceEvent.ctrlKey){
-              self.zoomed.call(self);
-            // }
+          if(self.state.zoomInitiated){
+            console.log("ZOOM");
+            if (d3.event.sourceEvent.shiftKey){
+              // TODO  the internal d3 state is still changing
+              return false;
+            }else{
+              // if(d3.event.sourceEvent.metaKey || d3.event.sourceEvent.ctrlKey){
+                self.zoomed.call(self);
+              // }
+            }
+            return true;
           }
-          return true;
         })
         .on("zoomstart", function(){
-          var ael = d3.select("#" + self.consts.activeEditId).node();
-          if (ael){
-            ael.blur();
+          console.log("zoomstart called..")
+          if(d3.event.sourceEvent.type === "wheel" || d3.event.sourceEvent.button === 0){
+            console.log("ZOOMSTART");
+            self.state.zoomInitiated = true;
+
+            var ael = d3.select("#" + self.consts.activeEditId).node();
+            if (ael){
+              ael.blur();
+            }
+            if (!d3.event.sourceEvent.shiftKey) d3.select('#graph-editor').style("cursor", "move");
           }
-          if (!d3.event.sourceEvent.shiftKey) d3.select('#graph-editor').style("cursor", "move");
         })
         .on("zoomend", function(){
-          d3.select('#graph-editor').style("cursor", "auto");
+          console.log(d3.event.sourceEvent)
+          if(!d3.event.sourceEvent || d3.event.sourceEvent.button === 0){
+            console.log("ZOOMEND");
+            self.state.zoomInitiated = false;
+            d3.select('#graph-editor').style("cursor", "auto");
+          }
         });
 
   svg.call(self.dragSvg).on("dblclick.zoom", null);
@@ -269,7 +300,7 @@ GraphEditorView.prototype.replaceSelectNode = function(d3Node, nodeData){
 GraphEditorView.prototype.replaceSelectNodeExternal = function(vertex){
   var self = this;
   let d3node = self.getD3NodeByVertex(vertex);
-  console.log(d3node);
+  // console.log(d3node);
   self.replaceSelectNode(d3node, vertex);
 }
 
@@ -401,7 +432,11 @@ GraphEditorView.prototype.svgMouseUp = function(){
   if (state.justScaleTransGraph) {
     // dragged not clicked
     state.justScaleTransGraph = false;
-  } else if (state.graphMouseDown && d3.event.shiftKey){ 
+  }else if(self.state.vertexContextMenu){
+    self.state.vertexContextMenu = false;
+    d3.event.stopPropagation();
+    self.updateGraph();
+  }else if (state.graphMouseDown && d3.event.shiftKey){ 
     // clicked not dragged from svg
 
     // CREATE NEW NOTE/VERTEX
@@ -492,6 +527,14 @@ GraphEditorView.prototype.applyProjectSearch = function(search){
 }
 
 GraphEditorView.prototype.showVertexContextMenu = function(){
+  var self = this;
+
+  // var stop = d3.event.button || d3.event.ctrlKey || d3.event.metaKey;
+  // if (stop) d3.event.stopImmediatePropagation();
+  d3.event.stopPropagation();
+  // d3.event.preventDefault();
+
+  self.state.vertexContextMenu = true;
   let template = [
     {
       label: 'Open Note Editor',
@@ -503,6 +546,7 @@ GraphEditorView.prototype.showVertexContextMenu = function(){
   ];
   let menu = Menu.buildFromTemplate(template);
   menu.popup(remote.getCurrentWindow());
+  console.log("showVertexContextMenu");
 }
 
 // Call to propagate changes to graph
@@ -514,7 +558,7 @@ GraphEditorView.prototype.updateGraph = function(graph = null){
     return;
   }
 
-  console.log(self.graph);
+  // console.log(self.graph);
   let active_project = self.graph.project;
   let active_note = active_project.getActiveNote();
 
@@ -603,11 +647,11 @@ GraphEditorView.prototype.updateGraph = function(graph = null){
   // Remove old nodes
   self.circles.exit().remove();
 
-  console.log("updateGraph:")
-  console.log("active project")
-  console.log(active_project)
-  console.log("active note")
-  console.log(active_note)
+  // console.log("updateGraph:")
+  // console.log("active project")
+  // console.log(active_project)
+  // console.log("active note")
+  // console.log(active_note)
 
   // Select vertex associated with active note if existing.
   let vertex = self.graph.getVertexForNote(active_note)
@@ -641,7 +685,7 @@ GraphEditorView.prototype.updateGraph = function(graph = null){
     .style('marker-end','url(#end-arrow)')
     .classed("link", true)
     .attr("d", function(d){
-      console.log(d)
+      // console.log(d)
       let source_midCoords = d.source.calcDOMCenterCoords()
       let target_midCoords = d.target.calcDOMCenterCoords()
       
@@ -678,10 +722,10 @@ GraphEditorView.prototype.zoomed = function(){
 
   this.state.justScaleTransGraph = true;
 
-  console.log("d3.event.translate")
-  console.log(d3.event.translate)
-  console.log("D3 event scale")
-  console.log(d3.event.scale)
+  // console.log("d3.event.translate")
+  // console.log(d3.event.translate)
+  // console.log("D3 event scale")
+  // console.log(d3.event.scale)
 
   let d3_translate = d3.event.translate,
       d3_scale = d3.event.scale;
@@ -736,10 +780,10 @@ GraphEditorView.prototype.updateWindow = function(){
 GraphEditorView.prototype.getD3NodeByVertex = function(vertex){
   let self = this;
   let el = null
-  console.log(self.circles)
+  // console.log(self.circles)
   self.circles.each(function(d){
-    console.log(d)
-    console.log(d3.select(this))
+    // console.log(d)
+    // console.log(d3.select(this))
   if(d.uuid.localeCompare(vertex.uuid) === 0){
     el = d3.select(this);
   }
@@ -752,7 +796,7 @@ GraphEditorView.prototype.getD3NodeByVertex = function(vertex){
  * on drag'n'drop.
  * Coordinates relative to the graph <g> element origin.
  * 
- * NOTE: This is a hack, as mouse position can not be fetched without click event.
+ * NOTE: This is a hack, because mouse position can not be fetched without click event.
  * 
  * @param {Object} drop_pos -- Drop position coordinates of draggable object relative 
  *                             to the body element. 

@@ -209,6 +209,14 @@ ProjectListView.prototype.render = function(projects, recents){
       },
       { type: 'separator'},
       {
+        label: 'Close Project',
+        click: () => {
+          console.log("Context-Menu - Close Project clicked on element:")
+          console.log(this)
+        }
+      },
+      { type: 'separator'},
+      {
         label: 'New Project',
         click: () => {
           console.log("Context-Menu - New Project clicked on element:")

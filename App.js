@@ -792,7 +792,7 @@ function App(el){
 
     // Check whether empty note exists already
     let empty_notes = active_project.getEmptyNotes()
-    if(empty_notes === null || empty_items.length === 1){
+    if(empty_notes === null || empty_notes.length === 1){
       console.log("Still empty note found...")
       return
     }
