@@ -205,11 +205,14 @@ GraphEditorView.prototype.init = function(svg){
   });
   svg.on("mousedown", function(d){self.svgMouseDown.call(self, d);});
   svg.on("mouseup", function(d){self.svgMouseUp.call(self, d);});
+  svg.on("contextmenu", function(d){
+    self.showVertexContextMenu();
+  })
 
   // Listen for drag and zoom behavior on the svg
   self.dragSvg = d3.behavior.zoom()
         .on("zoom", function(){
-          if(self.state.zoomInitiated){
+          // if(self.state.zoomInitiated){
             console.log("ZOOM");
             if (d3.event.sourceEvent.shiftKey){
               // TODO  the internal d3 state is still changing
@@ -220,11 +223,11 @@ GraphEditorView.prototype.init = function(svg){
               // }
             }
             return true;
-          }
+          // }
         })
         .on("zoomstart", function(){
           console.log("zoomstart called..")
-          if(d3.event.sourceEvent.type === "wheel" || d3.event.sourceEvent.button === 0){
+          // if(d3.event.sourceEvent.type === "wheel" || d3.event.sourceEvent.button === 0){
             console.log("ZOOMSTART");
             self.state.zoomInitiated = true;
 
@@ -233,15 +236,15 @@ GraphEditorView.prototype.init = function(svg){
               ael.blur();
             }
             if (!d3.event.sourceEvent.shiftKey) d3.select('#graph-editor').style("cursor", "move");
-          }
+          // }
         })
         .on("zoomend", function(){
           console.log(d3.event.sourceEvent)
-          if(!d3.event.sourceEvent || d3.event.sourceEvent.button === 0){
+          // if(!d3.event.sourceEvent || d3.event.sourceEvent.button === 0){
             console.log("ZOOMEND");
             self.state.zoomInitiated = false;
             d3.select('#graph-editor').style("cursor", "auto");
-          }
+          // }
         });
 
   svg.call(self.dragSvg).on("dblclick.zoom", null);
@@ -414,6 +417,9 @@ GraphEditorView.prototype.circleMouseUp = function(d3node, d){
 
 // mousedown on main svg
 GraphEditorView.prototype.svgMouseDown = function(){
+  var stop = d3.event.button || d3.event.ctrlKey || d3.event.metaKey;
+  if (stop) d3.event.stopImmediatePropagation();
+
   this.state.graphMouseDown = true;
 };
 
@@ -434,8 +440,7 @@ GraphEditorView.prototype.svgMouseUp = function(){
     state.justScaleTransGraph = false;
   }else if(self.state.vertexContextMenu){
     self.state.vertexContextMenu = false;
-    d3.event.stopPropagation();
-    self.updateGraph();
+    d3.event.stopImmediatePropagation();
   }else if (state.graphMouseDown && d3.event.shiftKey){ 
     // clicked not dragged from svg
 
@@ -531,7 +536,7 @@ GraphEditorView.prototype.showVertexContextMenu = function(){
 
   // var stop = d3.event.button || d3.event.ctrlKey || d3.event.metaKey;
   // if (stop) d3.event.stopImmediatePropagation();
-  d3.event.stopPropagation();
+  
   // d3.event.preventDefault();
 
   self.state.vertexContextMenu = true;
@@ -637,9 +642,6 @@ GraphEditorView.prototype.updateGraph = function(graph = null){
     })
     .on("mouseup", function(d){
       self.circleMouseUp.call(self, d3.select(this), d);
-    })
-    .on("contextmenu", function(d){
-      self.showVertexContextMenu();
     })
     .call(self.drag);
   });
