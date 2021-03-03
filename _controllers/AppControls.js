@@ -26,7 +26,6 @@ function AppControls () {
     if (!this.menu[mode]) { this.menu[mode] = {} }
     if (!this.menu[mode][cat]) { this.menu[mode][cat] = {} }
     if (!this.menu[mode][cat][targetLabel]){ this.menu[mode][cat][targetLabel] = { } }
-    
     this.menu[mode][cat][targetLabel][subLabel] = {fn: fn, accelerator: accelerator, type: type };
   }
 
@@ -59,10 +58,7 @@ function AppControls () {
       const submenu = []
       for (const name in m[cat]) {
         const option = m[cat][name]
-        console.log(name)
-        console.log(option);
         if(option.hasOwnProperty('fn') || option.hasOwnProperty('role') || option.hasOwnProperty('type')){   // Check whether submenu item or subsubmenu
-          console.log("normal")
           if(option.fn){
             if(option.type.localeCompare('checkbox') === 0){
               submenu.push({ label: name, accelerator: option.accelerator, click: option.fn, type: option.type, checked: option.checked})
@@ -75,7 +71,6 @@ function AppControls () {
             submenu.push({ type: option.type })
           }
         }else{
-          console.log("Is subsubmenu..");
           const subsubmenu = [];
           for(const subname in option){
             const suboption = option[subname]
@@ -94,7 +89,6 @@ function AppControls () {
           console.log(subsubmenu);
           submenu.push({label: name, submenu: subsubmenu});
         }
-        console.log("-----------------------------------");
       }
       f.push({ label: cat, submenu: submenu })
     }
@@ -102,7 +96,7 @@ function AppControls () {
   }
 
   this.commit = function () {
-    console.log('Controller', 'Changing..')
+    console.log('AppControls', 'Changing..')
     console.log(this.format())
     this.app.injectMenu(this.format())
   }

@@ -693,7 +693,7 @@ marker {
 path.link {
   fill: none;
   stroke: #333;
-  stroke-width: 4px;
+  stroke-width: 2px;
   cursor: default;
 }
 path.link:hover {
