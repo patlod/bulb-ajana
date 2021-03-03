@@ -1,8 +1,8 @@
 # bulb-ajana
 ## Bulb 
-A customised brainstorming tool that saves tons of paper (notebooks or plain DIN A4 printable..).
+A customised brainstorming tool that saves tons of paper (notebooks or plain DIN A4 printable..). But also not just another notes app..
 
-It's functionality is derived from usual note taking apps and extended to enable better visual display of your thoughts and ideas while staying as simple as possible. (therefore: __A__ lmost __J__ ust __A__ nother __N__ otes __A__ pp)
+It's functionality is inspired by note taking apps and extended to enable better visual display of your thoughts and ideas while staying as simple as possible. (therefore: __A__ lmost __J__ ust __A__ nother __N__ otes __A__ pp)
 One may notice a strong similarity with the Apple Notes App for a reason, as this is in my opinion one of the best notes applications out there, simply for the reason that creates the perfect combination of usability and simplicity. I use it all the time but for me it lacked a couple of very important features beyond ordinary thought documentation.
 
 While you can write notes in the way you are used to it, Bulb offers two (or three) main features:
@@ -18,8 +18,8 @@ The idea for the tool originated from two trigger points:
 2. The need for a prototype to test the idea for a bigger vision.
 
 Next to the two points just mentioned above the following can also be named as intentions of the project:
-3. Warm myself up in programming for a bigger project & potential business idea, after I had spent a year on developing hardware & working with flight controller software.
-4. Create a software portfolio project
+3. Warm myself up programming for a bigger project & potential business idea, after I had spent a year on developing hardware & working with flight controller software.
+4. Create a little software portfolio project
 5. Practice my passion for working with all kinds of technology that orignated from the web technology domain.
 6. Create a tool I needed myself, exactly as I needed to.
 6. Fun.
