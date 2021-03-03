@@ -56,7 +56,6 @@ function App(el){
   // self.appUserPreferences = new UserPreferences(USER_PREFS_PATH)
   self.appGlobalData = new GlobalData(GLOBAL_DATA_PATH)
 
-
   self.session = new Session(self)     // The session stores all the open projects with notes
   self.appControls = new AppControls()
 
@@ -77,18 +76,22 @@ function App(el){
 
   // --- Menu ---
   // App
-  self.appControls.add('default', '*', 'About', () => { console.log("About") }, '');
-  self.appControls.addSpacer('default', '*', 'preffers');
-  self.appControls.add('default', '*', 'Preferences', () => { console.log("Preferences") }, '');
-  self.appControls.addSpacer('default', '*', 'hidders');
-  self.appControls.add('default', '*', 'Hide', () => { console.log("Hide") }, 'CmdOrCtrl+H');
-  self.appControls.add('default', '*', 'Hide Others', () => { console.log("Hide Others") }, 'Alt+CmdOrCtrl+H');
-  self.appControls.add('default', '*', 'Show All', () => { console.log("Show All") }, '');
+  self.appControls.add('default', '*', 'About', () => { 
+    console.log("About");
+    // Case 1 - Project will be open source and public on Github: open href in browser to github repo
+    // Case 2 - Projec closed source: Show an electron about page like in other apps (e.g. VSCode, Typora, ...)
+  }, '');
+  // self.appControls.addSpacer('default', '*', 'preffers');
+  // self.appControls.add('default', '*', 'Preferences', () => { console.log("Preferences"); }, '');
+  // self.appControls.addSpacer('default', '*', 'hidders');
+  // self.appControls.add('default', '*', 'Hide', () => { console.log("Hide") }, 'CmdOrCtrl+H');
+  // self.appControls.add('default', '*', 'Hide Others', () => { console.log("Hide Others") }, 'Alt+CmdOrCtrl+H');
+  // self.appControls.add('default', '*', 'Show All', () => { console.log("Show All") }, '');
   self.appControls.addSpacer('default', '*', 'Developers');
   self.appControls.addRole('default', '*', 'reload');
   self.appControls.addRole('default', '*', 'forcereload');
   self.appControls.addRole('default', '*', 'toggledevtools');
-  self.appControls.addSpacer('default', '*', 'quitters');
+  // self.appControls.addSpacer('default', '*', 'quitters');
   // self.appControls.add('default', '*', 'Reset', () => { console.log("Reset") }, 'CmdOrCtrl+Backspace')
   self.appControls.add('default', '*', 'Quit', () => { 
     console.log("Quit");
@@ -113,7 +116,14 @@ function App(el){
   self.appControls.add('default', 'File', 'Open Project...', () => { 
     openProjectDialog();
    }, 'CmdOrCtrl+O');
-  // self.appControls.add('default', 'File', 'Open Recent...', () => { }, '');
+  
+  let recents = self.appGlobalData.getAllRecentProjects(); 
+  for(var i in recents){
+    const path = recents[i]
+    self.appControls.addSub('default', 'File', 'Open Recent Project...', path, () => {
+      openRecentProject(path);
+    }, '');
+  }
   self.appControls.addSpacer('default', 'File', 'Close');
   self.appControls.add('default', 'File', 'Close Project...', () => { 
     self.session.closeProject(self.session.getActiveProject().uuid, render);
@@ -173,18 +183,27 @@ function App(el){
   // self.appControls.add('default', 'View', 'Full Screen', () => { console.log("Full Screen") }, '');
 
   // Window
-  self.appControls.add('default', 'Window', 'Minimise', () => { console.log("Minimise Window") }, '');
-  self.appControls.addSpacer('default', 'Window', 'New Window');
-  self.appControls.add('default', 'Window', 'New Window', () => { console.log("New Window") }, '');
+  self.appControls.add('default', 'Window', 'Minimise', () => { 
+    console.log("Minimise Window");
+    try{
+      remote.BrowserWindow.getFocusedWindow().minimize();
+    }catch(error){
+      console.error("Minimise Command: No window focused currently.");
+    }
+  }, 'CmdOrCtrl+M');
+  // self.appControls.addSpacer('default', 'Window', 'New Window');
+  // self.appControls.add('default', 'Window', 'New Window', () => { console.log("New Window") }, '');
 
   // Graph
   self.appControls.add('default', 'Graph', 'New Graph', () => { 
-    // Transition to item list to graph display
-    // Create new Graph if 
+    // Set item list object of display & transition to graph list
+    self.views.items.objectOfDisplay = Graph;
+    switchItemList(self.views.items.objectOfDisplay);
+    // Create new graph (checks whether empty one already exists..)
+    createNewGraph();
    }, '');
   self.appControls.add('default', 'Graph', 'Add Selected Notes', () => { 
-    // Check for selected notes
-    // Add to graph
+    addSelectedNotesToGraph();
   }, '');
   self.appControls.addSpacer('default', 'Graph', 'orient');
   self.appControls.add('default', 'Graph', 'Refresh Orientation', () => { 
@@ -337,10 +356,40 @@ function App(el){
         }
       });
     }
-    
   }
 
-  
+  function addSelectedNotesToGraph(){
+    let i = 0, nV = null, box_offset = 500,
+        active_project = self.session.getActiveProject(),
+        selected_notes = active_project.getItemsFromSelection(),
+        active_graph = active_project.getActiveGraph(),
+        bounding_box = active_graph.getVerticesBoundingBox(),
+        newVertices = [],
+        coords = {
+          x: bounding_box.startX + bounding_box.width + box_offset,
+          y: bounding_box.startY + bounding_box.height/2
+        };
+
+    console.log("..note selection exists, so add it...");
+    for(i in selected_notes){
+      nV = active_graph.createNewVertexForNote(coords, selected_notes[i]);
+      coords.x = coords.x + 100;
+      coords.y = coords.y + 100;
+      if(nV){
+        nV.saveData();
+        newVertices.push(nV);
+      }else{
+        console.log("Vertex for this note already exists..")
+      }
+    }
+    if(active_project.getGraphMode() && newVertices.length > 0){
+      console.log(newVertices.length + " notes added to graph..");
+      self.views.graph.updateGraph(active_graph);
+      // Update the create new graph button
+      self.views.titlebar.updateCreateNewBtn(el, active_graph);
+      render(true);
+    }
+  }
 
   /**
    * == Listeners EventEmitter =====================================
@@ -563,11 +612,14 @@ function App(el){
     openProjectDialog();
   });
 
-  self.on('openRecentProject', function(path){
+  function openRecentProject(path){
     self.session.openProjectWithPath(path, render);
 
     // Empty trash of the opened if necessary
     self.session.getActiveProject().garbageDisposal();
+  }
+  self.on('openRecentProject', function(path){
+    openRecentProject(path);
   });
 
   self.on('closeProject', function(project_id){
@@ -580,7 +632,7 @@ function App(el){
     self.session.deleteProject(project_id, render)
   });
 
-  self.on('switchItemList', function(objectOfDisplay){
+  function switchItemList(objectOfDisplay){
     let active_project = self.session.getActiveProject();
     switch(objectOfDisplay){
       case Note:
@@ -591,6 +643,9 @@ function App(el){
         break;
     }
     render(true);
+  }
+  self.on('switchItemList', function(objectOfDisplay){
+    switchItemList(objectOfDisplay);
   });
 
   function transitionNote(project, note, trigger='item-thumb'){
@@ -1127,6 +1182,8 @@ function App(el){
       self.views.items.updateActiveGraphThumb(el, active_graph)
     }
   });
+
+  
 
   function closeApp(){
      // TODO: Check for graph or regular view
