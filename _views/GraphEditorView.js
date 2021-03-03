@@ -152,9 +152,10 @@ GraphEditorView.prototype.init = function(svg){
             return {x: d.posX, y: d.posY}; // self.calcNodeCenter(d3.select(this), d)
         })
         .on("dragstart", function(d){
-          console.log(d3.event.sourceEvent.button);
           if(d3.event.sourceEvent.button === 0){
             self.state.dragInitiated = true;
+
+            if (!d3.event.sourceEvent.shiftKey) d3.select(this).style("cursor", "grab");
           }
         })
         .on("drag", function(d){
@@ -193,6 +194,8 @@ GraphEditorView.prototype.init = function(svg){
               self.dirty_vertices = []
               
             }, self.POSITION_SAVE_INTERVAL);
+
+            d3.select(this).style("cursor", "auto");
           }
         });
 
