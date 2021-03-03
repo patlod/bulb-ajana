@@ -77,96 +77,129 @@ function App(el){
 
   // --- Menu ---
   // App
-  self.appControls.add('default', '*', 'About', () => { console.log("About") }, '')
-  self.appControls.addSpacer('default', '*', 'preffers')
-  self.appControls.add('default', '*', 'Preferences', () => { console.log("Preferences") }, '')
-  self.appControls.addSpacer('default', '*', 'hidders')
-  self.appControls.add('default', '*', 'Hide', () => { console.log("Hide") }, 'CmdOrCtrl+H')
-  self.appControls.add('default', '*', 'Hide Others', () => { console.log("Hide Others") }, 'Alt+CmdOrCtrl+H')
-  self.appControls.add('default', '*', 'Show All', () => { console.log("Show All") }, '')
-  self.appControls.addSpacer('default', '*', 'Developers')
-  self.appControls.addRole('default', '*', 'reload')
-  self.appControls.addRole('default', '*', 'forcereload')
-  self.appControls.addRole('default', '*', 'toggledevtools')
-  self.appControls.addSpacer('default', '*', 'quitters')
+  self.appControls.add('default', '*', 'About', () => { console.log("About") }, '');
+  self.appControls.addSpacer('default', '*', 'preffers');
+  self.appControls.add('default', '*', 'Preferences', () => { console.log("Preferences") }, '');
+  self.appControls.addSpacer('default', '*', 'hidders');
+  self.appControls.add('default', '*', 'Hide', () => { console.log("Hide") }, 'CmdOrCtrl+H');
+  self.appControls.add('default', '*', 'Hide Others', () => { console.log("Hide Others") }, 'Alt+CmdOrCtrl+H');
+  self.appControls.add('default', '*', 'Show All', () => { console.log("Show All") }, '');
+  self.appControls.addSpacer('default', '*', 'Developers');
+  self.appControls.addRole('default', '*', 'reload');
+  self.appControls.addRole('default', '*', 'forcereload');
+  self.appControls.addRole('default', '*', 'toggledevtools');
+  self.appControls.addSpacer('default', '*', 'quitters');
   // self.appControls.add('default', '*', 'Reset', () => { console.log("Reset") }, 'CmdOrCtrl+Backspace')
   self.appControls.add('default', '*', 'Quit', () => { 
     console.log("Quit");
     closeApp();
-  }, 'CmdOrCtrl+Q')
+  }, 'CmdOrCtrl+Q');
   
   // File
-  self.appControls.add('default', 'File', 'New Project', () => { console.log("New Project") }, 'CmdOrCtrl+P')
-  self.appControls.add('default', 'File', 'New Note', () => { console.log("New Note") }, 'CmdOrCtrl+N')
+  self.appControls.add('default', 'File', 'New Project', () => { 
+    self.session.newProject(render);
+  }, 'CmdOrCtrl+P');
+  self.appControls.add('default', 'File', 'New Note', () => { 
+    switch(self.views.items.objectOfDisplay){
+      case Note:
+        createNewNote();
+        break;
+      case Graph:
+        createNewGraph();
+        break;
+    }
+  }, 'CmdOrCtrl+N');
   self.appControls.addSpacer('default', 'File', 'Open')
-  self.appControls.add('default', 'File', 'Open Project...', () => { console.log("Open Project...") }, 'CmdOrCtrl+O')
-  self.appControls.add('default', 'File', 'Open Recent...', () => { console.log("Open Recent...") }, '')
-  self.appControls.addSpacer('default', 'File', 'Close')
-  self.appControls.add('default', 'File', 'Close Project...', () => { console.log("Close Project") }, 'Shift+CmdOrCtrl+P')
-  self.appControls.add('default', 'File', 'Close Window...', () => { console.log("Close") }, 'CmdOrCtrl+W')
+  self.appControls.add('default', 'File', 'Open Project...', () => { 
+    openProjectDialog();
+   }, 'CmdOrCtrl+O');
+  // self.appControls.add('default', 'File', 'Open Recent...', () => { }, '');
+  self.appControls.addSpacer('default', 'File', 'Close');
+  self.appControls.add('default', 'File', 'Close Project...', () => { 
+    self.session.closeProject(self.session.getActiveProject().uuid, render);
+   }, 'Shift+CmdOrCtrl+P');
+  // self.appControls.add('default', 'File', 'Close Window...', () => { console.log("Close") }, 'CmdOrCtrl+W');
 
   // Edit
-  self.appControls.addRole('default', 'Edit', 'undo')       // REFACTOR: Requries Custom implementation
-  self.appControls.addRole('default', 'Edit', 'redo')       // REFACTOR: Requries Custom implementation
-  self.appControls.addSpacer('default', 'Edit', 'Copy&Paste')
-  self.appControls.addRole('default', 'Edit', 'cut')
-  self.appControls.addRole('default', 'Edit', 'copy')
-  self.appControls.addRole('default', 'Edit', 'paste')
-  self.appControls.addSpacer('default', 'Edit', 'delete')
-  self.appControls.add('default', 'Edit', 'Delete Selection', () => { console.log("Delete Selected Objects") }, 'CmdOrCtrl+Backspace')
+  self.appControls.addRole('default', 'Edit', 'undo');       // REFACTOR: Requries Custom implementation
+  self.appControls.addRole('default', 'Edit', 'redo');       // REFACTOR: Requries Custom implementation
+  self.appControls.addSpacer('default', 'Edit', 'Copy&Paste');
+  self.appControls.addRole('default', 'Edit', 'cut');
+  self.appControls.addRole('default', 'Edit', 'copy');
+  self.appControls.addRole('default', 'Edit', 'paste');
+  self.appControls.addSpacer('default', 'Edit', 'delete');
+  self.appControls.add('default', 'Edit', 'Delete Selected Items', () => { 
+    if(self.views.items.objectOfDisplay === Note){
+      deleteSelectedNotes();
+    }else{
+      deleteSelectedGraphs();
+    }
+  }, 'CmdOrCtrl+Backspace');
   // self.appControls.addRole('default', 'Edit', 'delete')
   // self.appControls.addRole('default', 'Edit', 'selectall')
-  self.appControls.addSpacer('default', 'Edit', 'Find')
+  self.appControls.addSpacer('default', 'Edit', 'Find');
   self.appControls.add('default', 'Edit', 'Find in Editor', () => { 
     console.log("Find in Editor");
     if(!self.session.getGraphMode()){
       self.views.editor.toggleLocalSearch();
     } 
-  }, 'CmdOrCtrl+F')
-  self.appControls.add('default', 'Edit', 'Find in Notes', () => { console.log("Find in Notes") }, 'CmdOrCtrl+Shift+F')
-  self.appControls.add('default', 'Edit', 'Find in Graphs', () => { console.log("Find in Graphs") }, 'CmdOrCtrl+Shift+G')
+  }, 'CmdOrCtrl+F');
+  self.appControls.add('default', 'Edit', 'Find in Project', () => { 
+    self.views.titlebar.setFocusOnSearch();
+  }, 'CmdOrCtrl+Shift+F');
+  // self.appControls.add('default', 'Edit', 'Find in Graphs', () => { console.log("Find in Graphs") }, 'CmdOrCtrl+Shift+G');
 
   // View
   self.appControls.add('default', 'View', 'as Note Editor', () => { 
     console.log("View as Note Editor") 
     transToNoteEditor()
-  }, 'CmdOrCtrl+Shift+G', 'checkbox', true) 
+  }, 'CmdOrCtrl+Shift+G', 'radio', true);
   self.appControls.add('default', 'View', 'as Graph Editor', () => { 
-    console.log("View as Graph Editor", false)
+    console.log("View as Graph Editor", false);
     transToGraphEditor()
-  }, 'CmdOrCtrl+G', 'checkbox') 
-  self.appControls.addSpacer('default', 'View', 'Sorting')
-  self.appControls.add('default', 'View', 'Sort Projects By', () => { console.log("Sort Projects By") }, '') 
-  // Submenu necessary here
-  self.appControls.add('default', 'View', 'Sort Notes By', () => { console.log("Sort Notes By") }, '')
-  // Submenu necessary here
-  self.appControls.add('default', 'View', 'Sort Graphs By', () => { console.log("Sort Graphs By") }, '')
-  // Submenu necessary here
-  self.appControls.addSpacer('default', 'View', 'Zoom')
-  self.appControls.add('default', 'View', 'Zoom In', () => { console.log("Zoom In") }, '')
-  self.appControls.add('default', 'View', 'Zoom Out', () => { console.log("Zoom Out") }, '')
-  self.appControls.add('default', 'View', 'Actual Size', () => { console.log("Actual Size") }, '')
-  self.appControls.addSpacer('default', 'View', 'Screen')
-  self.appControls.add('default', 'View', 'Full Screen', () => { console.log("Full Screen") }, '')
+  }, 'CmdOrCtrl+G', 'radio');
+  // self.appControls.addSpacer('default', 'View', 'Sorting');
+  // self.appControls.add('default', 'View', 'Sort Projects By', () => { console.log("Sort Projects By") }, '');
+  // // Submenu necessary here
+  // self.appControls.add('default', 'View', 'Sort Notes By', () => { console.log("Sort Notes By") }, '');
+  // // Submenu necessary here
+  // self.appControls.add('default', 'View', 'Sort Graphs By', () => { console.log("Sort Graphs By") }, '');
+  // // Submenu necessary here
+  // self.appControls.addSpacer('default', 'View', 'Zoom');
+  // self.appControls.add('default', 'View', 'Zoom In', () => { console.log("Zoom In") }, '');
+  // self.appControls.add('default', 'View', 'Zoom Out', () => { console.log("Zoom Out") }, '');
+  // self.appControls.add('default', 'View', 'Actual Size', () => { console.log("Actual Size") }, '');
+  // self.appControls.addSpacer('default', 'View', 'Screen');
+  // self.appControls.add('default', 'View', 'Full Screen', () => { console.log("Full Screen") }, '');
 
   // Window
-  self.appControls.add('default', 'Window', 'Minimise', () => { console.log("Minimise Window") }, '')
-  self.appControls.addSpacer('default', 'Window', 'New Window')
-  self.appControls.add('default', 'Window', 'New Window', () => { console.log("New Window") }, '')
+  self.appControls.add('default', 'Window', 'Minimise', () => { console.log("Minimise Window") }, '');
+  self.appControls.addSpacer('default', 'Window', 'New Window');
+  self.appControls.add('default', 'Window', 'New Window', () => { console.log("New Window") }, '');
 
   // Graph
-  self.appControls.add('default', 'Graph', 'New Graph', () => { console.log("New Graph") }, '')
-  self.appControls.add('default', 'Graph', 'Add Selected Notes', () => { console.log("Add Selected Notes...") }, '')
-  self.appControls.addSpacer('default', 'Graph', 'orient')
-  self.appControls.add('default', 'Graph', 'Refresh Orientation', () => { console.log("Refresh Orientation") }, '')
-  self.appControls.addSpacer('default', 'Graph', 'zoomers')
-  self.appControls.add('default', 'Graph', 'Zoom In', () => { console.log("Zoom In") }, '')
-  self.appControls.add('default', 'Graph', 'Zoom Out', () => { console.log("Zoom Out") }, '')
-  self.appControls.addSpacer('default', 'Graph', 'scrollers')
-  self.appControls.add('default', 'Graph', 'Scroll North', () => { console.log("Scroll North") }, '')
-  self.appControls.add('default', 'Graph', 'Scroll South', () => { console.log("Scroll South") }, '')
-  self.appControls.add('default', 'Graph', 'Scroll West', () => { console.log("Scroll West") }, '')
-  self.appControls.add('default', 'Graph', 'Scroll East', () => { console.log("Scroll East") }, '')
+  self.appControls.add('default', 'Graph', 'New Graph', () => { 
+    // Transition to item list to graph display
+    // Create new Graph if 
+   }, '');
+  self.appControls.add('default', 'Graph', 'Add Selected Notes', () => { 
+    // Check for selected notes
+    // Add to graph
+  }, '');
+  self.appControls.addSpacer('default', 'Graph', 'orient');
+  self.appControls.add('default', 'Graph', 'Refresh Orientation', () => { 
+    if(self.session.getGraphMode()){
+      self.views.graph.resetZoom();
+    }
+  }, '');
+  // self.appControls.addSpacer('default', 'Graph', 'zoomers');
+  // self.appControls.add('default', 'Graph', 'Zoom In', () => { console.log("Zoom In") }, '');
+  // self.appControls.add('default', 'Graph', 'Zoom Out', () => { console.log("Zoom Out") }, '');
+  // self.appControls.addSpacer('default', 'Graph', 'scrollers');
+  // self.appControls.add('default', 'Graph', 'Scroll North', () => { console.log("Scroll North") }, '');
+  // self.appControls.add('default', 'Graph', 'Scroll South', () => { console.log("Scroll South") }, '');
+  // self.appControls.add('default', 'Graph', 'Scroll West', () => { console.log("Scroll West") }, '');
+  // self.appControls.add('default', 'Graph', 'Scroll East', () => { console.log("Scroll East") }, '');
 
   self.appControls.commit()
 
@@ -521,11 +554,13 @@ function App(el){
     self.session.newProject(render);
   });
 
-  self.on('openProjectDialog', function(){
+  function openProjectDialog(){
     self.session.openProjectDialog(render);
-
     // Empty trash of the opened if necessary
     self.session.getActiveProject().garbageDisposal();
+  }
+  self.on('openProjectDialog', function(){
+    openProjectDialog();
   });
 
   self.on('openRecentProject', function(path){

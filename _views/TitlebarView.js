@@ -53,6 +53,16 @@ TitlebarView.prototype.clearSearch = function(){
     this.current_search = "";
 }
 
+TitlebarView.prototype.setFocusOnSearch = function(){
+    this.focus_manager.setFocusObject(this.focus_manager.TITLEBAR_SEARCH);
+    let input = document.getElementById("global-search").getElementsByTagName("input")[0]
+    if(input){
+        input.focus();
+    }
+    // input.value();
+    // this.current_search = "";
+}
+
 TitlebarView.prototype.render = function (session) {
     var self = this
     
