@@ -703,6 +703,8 @@ function App(el){
     }
     
     let active_project = self.session.getActiveProject();
+    // TODO: Check whether active graph contained one of the deleted notes
+    //       then only if app is in graph mode render() the graph area.
     active_project.deleteSelectedItems();
 
     self.views.graph.forceClearContentDOMEl();
@@ -777,39 +779,39 @@ function App(el){
 /*  Graph Event Listeners                                                         */
 /* ============================================================================== */
   self.on('createNewNoteVertexGraph', function(coords){
-    console.log('createNewNoteVertexGraph triggered')
+    console.log('createNewNoteVertexGraph triggered');
     /**
      * For now: New empty note is directly inserted into database
      * Better: Only insert once there is at least one char content.
      */
-    let active_project = self.session.getActiveProject()
-    let active_graph = active_project.getActiveGraph()
+    let active_project = self.session.getActiveProject();
+    let active_graph = active_project.getActiveGraph();
 
     if( active_project === null || active_graph === null){
-      console.log("createNewNoteVertexGraph -- No active project or graph.")
-      return 
+      console.log("createNewNoteVertexGraph -- No active project or graph.");
+      return;
     }
 
     // Check whether empty note exists already
-    let empty_notes = active_project.getEmptyNotes()
+    let empty_notes = active_project.getEmptyNotes();
     if(empty_notes === null || empty_notes.length === 1){
-      console.log("Still empty note found...")
-      return
+      console.log("Still empty note found...");
+      return;
     }
 
-    let nn = active_project.createNewNote()
-    nn.saveData() // REFACTOR: Maybe move to createNewNote()
+    let nn = active_project.createNewNote();
+    nn.saveData(); // REFACTOR: Maybe move to createNewNote()
     
-    let nV = active_graph.createNewVertexForNote( coords, nn )
-    nV.saveData() // REFACTOR: Maybe move to createNewVertexForNote()
+    let nV = active_graph.createNewVertexForNote( coords, nn );
+    nV.saveData(); // REFACTOR: Maybe move to createNewVertexForNote()
 
     // Update the create new graph button
     self.views.titlebar.updateCreateNewBtn(el, active_graph);
     self.views.items.updateActiveGraphNoteCount(el, active_graph);
     
-    self.views.graph.updateGraph(active_graph)
+    self.views.graph.updateGraph(active_graph);
 
-    render(true)
+    render(true);
   });
 
   self.on('addNotesToGraph', function(coords){ 
@@ -860,6 +862,66 @@ function App(el){
     self.views.graph.removeSelectFromEdge()
 
     self.views.graph.updateGraph(g);
+  });
+
+
+  self.on('createNewNoteLinkedVertexGraph', function(sourceVertex){
+    console.log('createNewNoteLinkedVertexGraph -> TODO!');
+
+    /**
+     * For now: New empty note is directly inserted into database
+     * Better: Only insert once there is at least one char content.
+     */
+    let active_project = self.session.getActiveProject()
+    let active_graph = active_project.getActiveGraph()
+
+    if( active_project === null || active_graph === null){
+      console.log("createNewNoteVertexGraph -- No active project or graph.")
+      return 
+    }
+
+    // Check whether empty note exists already
+    let empty_notes = active_project.getEmptyNotes()
+    if(empty_notes === null || empty_notes.length === 1){
+      console.log("Still empty note found...")
+      return
+    }
+
+    let nn = active_project.createNewNote()
+    nn.saveData() // REFACTOR: Maybe move to createNewNote()
+    
+    // TODO: Calculate coordinates here regarding the width and height
+    //       of the sourceVertex and additional space in-between the vertices so 
+    //       that edge is visible..
+    let coords = {
+      x: (sourceVertex.posX + sourceVertex.width_dom + 50),
+      y: (sourceVertex.posY + sourceVertex.height_dom + 50)
+    };
+    let nV = active_graph.createNewVertexForNote( coords, nn )
+    nV.saveData() // REFACTOR: Maybe move to createNewVertexForNote()
+
+    // Create vertex pair here and execute code of createNewEdgeInGraph
+    let vPair = {source: sourceVertex, target: nV},
+        filtRes = active_graph.getEdges().filter(function(d){
+          console.log(d);
+          if (d.source.compareTo(vPair.target) && d.target.compareTo(vPair.source)){
+            active_graph.deleteEdge(d);
+          }
+          return d.source.compareTo(vPair.source) && d.target.compareTo(vPair.target);
+       });
+
+    if (!filtRes.length){
+      let nE = active_graph.createNewEdge(vPair.source, vPair.target);
+      nE.saveData();
+    }
+
+    // Update the create new graph button
+    self.views.titlebar.updateCreateNewBtn(el, active_graph);
+    self.views.items.updateActiveGraphNoteCount(el, active_graph);
+    
+    self.views.graph.updateGraph(active_graph);
+
+    render(true);
   });
 
   self.on('updateVertexPosition', function(){

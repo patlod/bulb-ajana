@@ -209,7 +209,11 @@ GraphEditorView.prototype.init = function(svg){
   svg.on("mousedown", function(d){self.svgMouseDown.call(self, d);});
   svg.on("mouseup", function(d){self.svgMouseUp.call(self, d);});
   svg.on("contextmenu", function(d){
-    self.showVertexContextMenu();
+    d3.event.stopImmediatePropagation();
+    let xycoords = d3.mouse(self.svgG.node()),
+        coords = {x: xycoords[0], y: xycoords[1]};
+    
+    self.showSvgContextMenu.call(self, d3.select(this), d, coords);
   })
 
   // Listen for drag and zoom behavior on the svg
@@ -312,6 +316,7 @@ GraphEditorView.prototype.replaceSelectNodeExternal = function(vertex){
 
 GraphEditorView.prototype.removeSelectFromNode = function(){
   var self = this;
+  if(!self.state.selectedNode){ return; }
   self.circles.filter(function(cd){
     return cd.uuid === self.state.selectedNode.uuid;
   }).classed(self.consts.selectedClass, false);
@@ -534,7 +539,40 @@ GraphEditorView.prototype.applyProjectSearch = function(search){
   // Check whether search is active and whether note is contained in search result
 }
 
-GraphEditorView.prototype.showVertexContextMenu = function(){
+GraphEditorView.prototype.showSvgContextMenu = function(d3node, d, coords){
+  var self = this;
+  let template = [
+    
+    {
+      label: 'Create New Note',
+      click: () => {
+        console.log("Context-Menu - Create New Note Vertex:");
+        self.send('createNewNoteVertexGraph', coords);
+      }
+    },
+    { type: 'separator'}
+  ];
+  let menu = Menu.buildFromTemplate(template);
+  menu.popup(remote.getCurrentWindow());
+}
+
+GraphEditorView.prototype.showEdgeContextMenu = function(d3node, d){
+  var self = this;
+  let template = [
+    {
+      label: 'Delete Edge',
+      click: () => {
+        console.log("Context-Menu - 'Delete Edge' clicked on element:")
+        self.send('deleteEdgeInGraph', d);
+      }
+    },
+    // { type: 'separator'}
+  ];
+  let menu = Menu.buildFromTemplate(template);
+  menu.popup(remote.getCurrentWindow());
+}
+
+GraphEditorView.prototype.showVertexContextMenu = function(d3node, d){
   var self = this;
 
   // var stop = d3.event.button || d3.event.ctrlKey || d3.event.metaKey;
@@ -548,9 +586,26 @@ GraphEditorView.prototype.showVertexContextMenu = function(){
       label: 'Open Note Editor',
       click: () => {
         console.log("Context-Menu - Open Note Editor clicked on element:")
-        console.log(this)
+        self.send('transitionNoteAndEditor', d.note.project, d.note);
       }
-    }
+    },
+    { type: 'separator'},
+    {
+      label: 'Create New Link',
+      click: () => {
+        console.log("Context-Menu - Create New Link clicked on element:")
+        self.send('createNewNoteLinkedVertexGraph', d);
+      }
+    },
+    { type: 'separator'},
+    {
+      label: 'Delete from Graph',
+      click: () => {
+        console.log("Context-Menu - Delete from Graph clicked on element:")
+        self.send('deleteVertexInGraph', d);
+      }
+    },
+
   ];
   let menu = Menu.buildFromTemplate(template);
   menu.popup(remote.getCurrentWindow());
@@ -645,6 +700,9 @@ GraphEditorView.prototype.updateGraph = function(graph = null){
     })
     .on("mouseup", function(d){
       self.circleMouseUp.call(self, d3.select(this), d);
+    }).on("contextmenu", function(d){
+      d3.event.stopImmediatePropagation();
+      self.showVertexContextMenu.call(self, d3.select(this), d);
     })
     .call(self.drag);
   });
@@ -702,6 +760,10 @@ GraphEditorView.prototype.updateGraph = function(graph = null){
     )
     .on("mouseup", function(d){
       self.state.mouseDownLink = null;
+    })
+    .on("contextmenu", function(d){
+      d3.event.stopImmediatePropagation();
+      self.showEdgeContextMenu.call(self, d3.select(this), d);
     });
 
   // Remove old links

@@ -160,7 +160,7 @@ ItemListView.prototype.render = function(project){
         console.log("Double click on..")
         if(project.getGraphMode()){
           // Project in graph mode so switch to NoteEditor and then focus on note
-          self.send('transitionNoteAndEditor', project, note)
+          self.send('transitionNoteAndEditor', project, note);
         }else{  // Same as single click
           self.send('transitionNote', project, note)
         }
