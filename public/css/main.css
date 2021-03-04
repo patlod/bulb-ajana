@@ -187,8 +187,6 @@ body {
   height: 100%;
   /* calc(100% - @titlebar-height);*/
   background: #f7f7f7;
-  /*z-index: 5;*/
-  /*border-right: 1px solid #666666;*/
   min-width: 100px;
 }
 #left-menu-1 > div {
@@ -326,16 +324,6 @@ body {
    for dropdown items */
 .ui.dropdown .menu > .item {
   padding: 0.6em 1.1em !important;
-}
-#dummy-dropdown {
-  position: absolute !important;
-  display: block;
-  top: 100%;
-  left: 100px;
-  width: 120px;
-  height: 100px;
-  background: yellow;
-  z-index: 40;
 }
 /* ======================================= */
 /*   Left-Side-Menu 2 -- Notes List        */
@@ -773,7 +761,7 @@ foreignObject.selected {
   box-shadow: 0 0 0 3px #000;
 }
 #right-side-menu {
-  z-index: 100;
+  z-index: 20;
   position: absolute;
   top: 0;
   /*@titlebar-height*/
@@ -825,7 +813,7 @@ foreignObject.selected {
   background-color: #fff;
   line-height: 1.1em;
 }
-#graph-shadow-overlay {
+#graph-shade-overlay {
   position: absolute;
   right: 0px;
   bottom: 0px;
@@ -835,7 +823,7 @@ foreignObject.selected {
   background: #000;
   opacity: 0.7;
 }
-#graph-shadow-overlay.hidden {
+#graph-shade-overlay.hidden {
   display: none;
 }
 /**
@@ -1014,4 +1002,85 @@ foreignObject.selected {
 }
 .postit-bg-helsinki-5 {
   background: #DECCE3;
+}
+.notification-list {
+  z-index: 40;
+  position: absolute;
+  bottom: 15px;
+  right: 20px;
+}
+.notification-list > .notification {
+  position: relative;
+  display: block;
+  max-width: 433px;
+  padding: 0.65em 0.85em;
+  margin: 0.65em 0.85em;
+  color: #d9d9d9;
+  background: #333333;
+  /*#F53435;*/
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 11px !important;
+}
+.notification-list > .notification > .close {
+  position: absolute;
+  right: 0.85em;
+}
+.notification-list > .notification > .close:hover {
+  cursor: pointer;
+  color: #8c8c8c;
+}
+.notification-list > .notification > .content {
+  display: table;
+  /*width: 100%;*/
+}
+.notification-list > .notification > .content > .row {
+  display: table-row;
+  width: auto;
+  clear: both;
+}
+.notification-list > .notification > .content > .row > .col-1 {
+  float: left;
+  display: table-column;
+  margin-right: 0.5em;
+}
+.notification-list > .notification > .content > .row > .col-1 > .fa-times-circle {
+  color: #F53435;
+}
+.notification-list > .notification > .content > .row > .col-1 > .fa-exclamation-triangle {
+  color: #0094E3;
+}
+.notification-list > .notification > .content > .row > .col-1 > .fa-info-circle {
+  color: #ffcc00;
+}
+.notification-list > .notification > .content > .row > .col-2 {
+  float: left;
+  display: table-column;
+  max-width: calc(433px - 43px);
+}
+.notification-list > .notification > .content > .row > .col-2 > .msg {
+  display: block;
+  padding-right: 2em;
+}
+.notification-list > .notification > .content > .row > .col-2 > .src {
+  margin-top: 0.5em;
+  font-size: 10px !important;
+}
+.notification-list > .notification > .ctrls {
+  display: block;
+  width: 100%;
+  margin-top: 0.5em;
+  clear: both;
+}
+.notification-list > .notification > .ctrls > .btn {
+  float: right;
+  cursor: pointer;
+  background: #0094E3;
+  display: inline-block;
+  padding: 0.2em 0.2em;
+  margin: 0.3em 0.2em;
+}
+.notification-list > .notification > .ctrls::after {
+  content: "";
+  clear: both;
+  display: table;
 }

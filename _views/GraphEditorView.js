@@ -949,7 +949,7 @@ GraphEditorView.prototype.forceClearContentDOMEl = function(){
 GraphEditorView.prototype.toggleRightSideMenu = function(){
   let self = this;
   let el = document.getElementById('right-side-menu'),
-        overlay = document.getElementById('graph-shadow-overlay')
+        overlay = document.getElementById('graph-shade-overlay')
     if(el.classList.contains('hidden')){
       el.classList.remove('hidden');
       overlay.classList.remove('hidden');
@@ -961,7 +961,7 @@ GraphEditorView.prototype.toggleRightSideMenu = function(){
       self.openSidemenu = false;
     }
   // let el = $('#right-side-menu'), 
-  //     overlay = $('#graph-shadow-overlay');
+  //     overlay = $('#graph-shade-overlay');
   // if(el.hasClass('hidden')){
   //   el.toggleClass('hidden', 500);
   //   overlay.toggleClass('hidden', 500);
@@ -1006,7 +1006,7 @@ GraphEditorView.prototype.render = function(project){
   var hiddenClass = (self.openSidemenu) ? '' : 'hidden';
   var graph_view = yo`
     <div id="graph-editor" onclick=${clickGraphEditor}>
-      <div id="graph-shadow-overlay" class="shadow-overlay ${hiddenClass}" onclick=${clickGraphShadowOverlay}></div>
+      <div id="graph-shade-overlay" class="shadow-overlay ${hiddenClass}" onclick=${clickGraphShadowOverlay}></div>
       <svg xmlns="http://www.w3.org/2000/svg" ></svg>
     
       <div id="toolbox">

@@ -1,0 +1,94 @@
+@max-notification-width: 433px;
+
+.notification-list {
+  z-index: 40;
+  position: absolute;
+  bottom: 15px;
+  right: 20px;
+  
+  & > .notification {
+    position: relative;
+    display: block;
+    max-width: @max-notification-width;
+    padding: 0.65em 0.85em;
+    margin: 0.65em 0.85em;
+    color: #d9d9d9;
+    background:  #333333;/*#F53435;*/
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 11px !important;
+
+    & > .close {
+      position: absolute;
+      right: 0.85em;
+    }
+    & > .close:hover {
+      cursor: pointer;
+      color: #8c8c8c;
+    }
+
+    & > .content {
+      display: table;
+      /*width: 100%;*/
+
+      & > .row {
+        display: table-row;
+        width: auto;
+        clear: both;
+
+        & > .col-1 {
+          float: left;
+          display: table-column;
+          margin-right: 0.5em;
+
+          & > .fa-times-circle{
+            color: #F53435;
+          }
+          & > .fa-exclamation-triangle {
+            color: #0094E3;
+          }
+          & > .fa-info-circle {
+            color: #ffcc00;
+          }
+        }
+
+        & > .col-2{
+          float: left;
+          display: table-column;
+          max-width: calc(@max-notification-width - 43px);
+
+          & > .msg {
+            display: block;
+            padding-right: 2.0em;
+          }
+          & > .src {
+            margin-top: 0.5em;
+            font-size: 10px !important;
+          }
+        }
+      }
+    }
+
+    & > .ctrls {
+      display: block;
+      width: 100%;
+      margin-top: 0.5em;
+      clear: both;
+
+      & > .btn {
+        float: right;
+        cursor: pointer;
+        background: #0094E3;
+        display: inline-block;
+        padding: 0.2em 0.2em;
+        margin: 0.3em 0.2em;
+      }
+    }
+
+    & > .ctrls::after {
+      content: "";
+      clear: both;
+      display: table;
+    }
+  }
+}
+

@@ -26,6 +26,7 @@ const Graph = require('./_controllers/Graph');
 
 // Views
 const AppView = require('./_views/AppView');
+const NotificationView = require('./_views/NotificationView');
 const TitlebarView = require('./_views/TitlebarView');
 const ProjectListView = require('./_views/ProjectListView');
 const ItemListView = require('./_views/ItemListView');
@@ -65,6 +66,7 @@ function App(el){
   // All view instance for different parts of the app's UI
   self.views = {
     app: new AppView(self, self.focusManager),
+    notifications: new NotificationView(self, self.focusManager),
     titlebar: new TitlebarView(self, self.focusManager),
     projects: new ProjectListView(self, self.focusManager),
     items: new ItemListView(self, self.focusManager),
@@ -235,24 +237,16 @@ function App(el){
   // Initialise the split screen manager object
   self.split_manager = new SplitManager(this)
 
+
   /**
    * Inserts script tags 
-   * 
-   * For initialisation of functionality modules 
-   * such as Split.js, Tagify.js and Semantic-UI dropdown 
-   * 
-   * 
-   * BUG: Need to parametrize the scripts otherwise 
-   * the split-screen is reinitialised with the default values
-   * instead of the values from the beginning.
    */
   function addScripts(to){
     var script_el = document.createElement('script');
     script_el.src = "./scripts/dropdown_semantic_ui.js";
     to.appendChild(script_el);
   }
-
-  addScripts(document.getElementById('layout'))
+  addScripts(document.getElementById('layout'));
   
 
   /**
@@ -1284,8 +1278,7 @@ App.prototype.render = function (lazy_load = false) {
           <!-- Content Area -->
           ${self.renderContentArea(lazy_load)}
 
-          
-
+          ${self.views.notifications.render()}
         </div>
         
       </div>
@@ -1311,8 +1304,8 @@ App.prototype.render = function (lazy_load = false) {
           <!-- Content Area -->
           ${self.renderContentArea()}
 
-          
-          
+          <!-- Message Toast Panel -->
+          ${self.views.notifications.render()}          
         </div>
         
       </div>

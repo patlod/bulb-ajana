@@ -1,7 +1,7 @@
 module.exports = NoteEditorView
 
 const EventEmitterElement = require('../_app/EventEmitterElement');
-var inherits = require('util').inherits;
+const inherits = require('util').inherits;
 
 const yo = require('yo-yo');
 const Tagify = require('@yaireo/tagify');
