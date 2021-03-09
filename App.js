@@ -93,7 +93,7 @@ function App(el){
   self.appControls.addRole('default', '*', 'reload');
   self.appControls.addRole('default', '*', 'forcereload');
   self.appControls.addRole('default', '*', 'toggledevtools');
-  // self.appControls.addSpacer('default', '*', 'quitters');
+  self.appControls.addSpacer('default', '*', 'quitters');
   // self.appControls.add('default', '*', 'Reset', () => { console.log("Reset") }, 'CmdOrCtrl+Backspace')
   self.appControls.add('default', '*', 'Quit', () => { 
     console.log("Quit");
@@ -336,7 +336,11 @@ function App(el){
                 nV.saveData();
                 newVertices.push(nV);
               }else{
-                console.log("Vertex for this note already exists..")
+                self.views.notifications.addNotification(
+                  self.views.notifications.INFO,
+                  "Note already has vertex in selected graph."
+                );
+                render(true);
               }
             }
             if(newVertices.length > 0){
@@ -373,7 +377,11 @@ function App(el){
         nV.saveData();
         newVertices.push(nV);
       }else{
-        console.log("Vertex for this note already exists..")
+        self.views.notifications.addNotification(
+          self.views.notifications.INFO,
+          "Note already has vertex in selected graph."
+        );
+        render(true);
       }
     }
     if(active_project.getGraphMode() && newVertices.length > 0){
@@ -610,7 +618,10 @@ function App(el){
     self.session.openProjectWithPath(path, render);
 
     // Empty trash of the opened if necessary
-    self.session.getActiveProject().garbageDisposal();
+    let aP = self.session.getActiveProject();
+    if(aP){
+      aP.garbageDisposal();
+    }
   }
   self.on('openRecentProject', function(path){
     openRecentProject(path);
@@ -709,6 +720,14 @@ function App(el){
     }
 
     const template = [
+      {
+        label: 'Show in Graph',
+        click: () => {
+          console.log("Context-Menu - New Note clicked on element:")
+          transToGraphEditor();
+        }
+      },
+      { type: 'separator' },
       {
         label: 'Delete',
         click: () => {
@@ -1305,7 +1324,11 @@ App.prototype.render = function (lazy_load = false) {
           ${self.renderContentArea()}
 
           <!-- Message Toast Panel -->
-          ${self.views.notifications.render()}          
+          ${function(){
+            let yo = self.views.notifications.render();
+            console.log(yo)
+            return yo;
+          }()}          
         </div>
         
       </div>
@@ -1313,6 +1336,5 @@ App.prototype.render = function (lazy_load = false) {
   }
   
 }
-
 
 module.exports = window.App = App

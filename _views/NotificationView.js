@@ -4,13 +4,85 @@ const EventEmitterElement = require('../_app/EventEmitterElement');
 const inherits = require('util').inherits;
 
 const yo = require('yo-yo');
+const { v4: uuidv4 } = require('uuid')
 
 function NotificationView(target, focus_manager) {
   var self = this;
   EventEmitterElement.call(this, target);
   this.app = target;
 
+  this.INFO = 0;
+  this.WARNING = 1;
+  this.ERROR = 2;
 
+  /* 
+   * Holds objects like:
+   * {
+   *   uuid: uuid,
+   *   type: { this.INFO | this.WARNING | this.ERROR },
+   *   msg: "Message here..",
+   *   src: "path/to/origin",
+   *   action_btns: [
+   *      {
+   *        name: "Button 1",
+   *        callback: () => {},
+   *      }
+   *   ]
+   * }
+   * 
+   * NOTE: When notification is closed it is deleted from the array.
+   */
+  this.test_notifs = [
+    {
+      uuid: uuidv4(),
+      type: this.INFO,
+      msg: "INFO: Message here..",
+      src: "path/to/origin",
+      action_btns: [
+        {
+          name: "Button 1",
+          callback: () => {
+            console.log("Btn click info alert");
+          },
+        }
+      ]
+    },
+    {
+      uuid: uuidv4(),
+      type: this.WARNING,
+      msg: "WARNING: Message here..",
+      src: "path/to/origin",
+      action_btns: [
+        {
+          name: "Yes",
+          callback: () => {
+            console.log("'Yes' click warning alert");
+          },
+        },
+        {
+          name: "No",
+          callback: () => {
+            console.log("'No' click warning alert");
+          },
+        }
+      ]
+    },
+    {
+      uuid: uuidv4(),
+      type: this.ERROR,
+      msg: "ERROR: Message here..",
+      src: "path/to/origin",
+      action_btns: [
+        {
+          name: "Ok",
+          callback: () => {
+            console.log("'Ok' click warning alert");
+          },
+        }
+      ]
+    }
+  ]
+  this.notifications = [];
 }
 inherits(NotificationView, EventEmitterElement);
 
@@ -20,86 +92,146 @@ inherits(NotificationView, EventEmitterElement);
  * 
  * Types of notifications
  */
-NotificationView.prototype.makeNotificationTemplate = function(){
-  // TODO
-  // - Depending on the condition (warning, info, etc. similar as with electron popups) 
-  //   adjust the background color or used symbols
-  // - Maybe also format content differently according to conditions.
+NotificationView.prototype.addNotification = function(type, msg="", src="", actions=[]){
+  this.notifications.push({
+    uuid: uuidv4(),
+    type: type,
+    msg: msg,
+    src: src,
+    action_btns: actions
+  });
+  console.log("Added notification");
 }
 
-
-NotificationView.prototype.showMessage = function(message){
-  // TODO
-  // Show at fixed position.
-  // Question how to show multiple notifications just like in VSCode..
+NotificationView.prototype.removeNotification = function(uuid){
+  for(var i in this.notifications){
+    if(this.notifications[i].uuid === uuid){
+      this.notifications.splice(i, 1);
+      return;
+    }
+  }
 }
 
-NotificationView.prototype.hideMessage = function(message){
-  // TODO
-}
+// NotificationView.prototype.removeNotificationTEST = function(uuid){
+//   for(var i in this.test_notifs){
+//     if(this.test_notifs[i].uuid === uuid){
+//       this.test_notifs.splice(i, 1);
+//       return;
+//     }
+//   }
+// }
 
+NotificationView.prototype.render = function(test = false){
+  let self = this,
+      thumbs, btns;
 
-NotificationView.prototype.render = function(){
-  // <i class="fas fa-times"></i>
-  return yo`
-    <div class="notification-list">
-      <div class="notification">
-        <span class="close"><i class="fas fa-times"></i></span>
-        <div class="content">
-          <div class="row">
-            <div class="col-1">
-              <i class="fas fa-exclamation-triangle"></i>
-            </div>
-            <div class="col-2">
-              <span class="msg">Warning message here..</span>
-              <span class="src">path/to/somewhere</span>
-            </div>
-          </div>    
-        </div>
-        <div class="ctrls">
-          <span class="btn">No</span>
-          <span class="btn">Yes</span>
-        </div>
-      </div>
+  function clickCloseNotif(e){
+    if(test){
+      self.removeNotificationTEST($(this).parent().attr('data-id'));
+    }else{
+      self.removeNotification($(this).parent().attr('data-id'));
+    }
+    
+    self.send('renderLazy');
+  }
 
-      <div class="notification">
-        <span class="close"><i class="fas fa-times"></i></span>
-        <div class="content">
-          <div class="row">
-            <div class="col-1">
-              <i class="fas fa-times-circle"></i>
-            </div>
-            <div class="col-2">
-              <span class="msg">Error message here.. </span>
-              <span class="src">path/to/somewhere</span>
-            </div>
-          </div>    
+  if(test){
+    thumbs = self.test_notifs.map(function(n){
+      return yo`
+        <div class="notification" data-id="${n.uuid}">
+          <span class="close" onclick=${clickCloseNotif}>
+            <i class="fas fa-times"></i>
+          </span>
+          <div class="content">
+            <div class="row">
+              <div class="col-1">
+                ${function(){
+                  switch(n.type){
+                    case self.WARNING:
+                      return yo`<i class="fas fa-exclamation-circle"></i>`;
+                      break;
+                    case self.ERROR:
+                      return yo`<i class="fas fa-times-circle"></i>`;
+                      break;
+                    case self.INFO:
+                      return yo`<i class="fas fa-info-circle"></i>`;
+                      break;
+                  }
+                }()}
+                
+              </div>
+              <div class="col-2">
+                <span class="msg">${n.msg}</span>
+                <span class="src">${n.src}</span>
+              </div>
+            </div>    
+          </div>
+          <div class="ctrls">
+            ${function(){
+              btns = n.action_btns.map(function(b){
+                const cb = b.callback;
+                return yo`<span class="btn" onclick=${cb}>${b.name}</span>`;
+              });
+              return btns;
+            }()}
+          </div>
         </div>
-        <div class="ctrls">
-          <span class="btn">No</span>
-          <span class="btn">Yes</span>
+      `;
+    });
+  }else{
+    thumbs = self.notifications.map(function(n){
+      return yo`
+        <div class="notification" data-id="${n.uuid}">
+          <span class="close" onclick=${clickCloseNotif}>
+            <i class="fas fa-times"></i>
+          </span>
+          <div class="content">
+            <div class="row">
+              <div class="col-1">
+                ${function(){
+                  switch(n.type){
+                    case self.WARNING:
+                      return yo`<i class="fas fa-exclamation-circle"></i>`;
+                      break;
+                    case self.ERROR:
+                      return yo`<i class="fas fa-times-circle"></i>`;
+                      break;
+                    case self.INFO:
+                      return yo`<i class="fas fa-info-circle"></i>`;
+                      break;
+                  }
+                }()}
+                
+              </div>
+              <div class="col-2">
+                <span class="msg">${n.msg}</span>
+                <span class="src">${n.src}</span>
+              </div>
+            </div>    
+          </div>
+          <div class="ctrls">
+            ${function(){
+              btns = n.action_btns.map(function(b){
+                const cb = b.callback;
+                return yo`<span class="btn" onclick=${cb}>${b.name}</span>`;
+              });
+              return btns;
+            }()}
+          </div>
         </div>
-      </div>
-      
-      <div class="notification">
-        <span class="close"><i class="fas fa-times"></i></span>
-        <div class="content">
-          <div class="row">
-            <div class="col-1">
-              <i class="fas fa-info-circle"></i>
-            </div>
-            <div class="col-2">
-              <span class="msg">Info message here..jsdk sjd asf afasd sadfa lsdjk lkdsjlk lkdsjkl fdslkj fjfjfk ldfjj</span>
-              <span class="src">path/to/somewhere</span>
-            </div>
-          </div>    
-        </div>
-        <div class="ctrls">
-          <span class="btn">No</span>
-          <span class="btn">Yes</span>
-        </div>
-      </div>
+      `;
+    });
+  }
 
+  console.log(thumbs);
+
+  var ret = yo`
+    <div class="notification-list hidden">
+      ${thumbs}
     </div>
   `;
+
+  console.log(ret)
+
+  return ret;
 }

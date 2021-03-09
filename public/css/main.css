@@ -453,7 +453,7 @@ body {
   /*opacity: 0.3;*/
   margin-left: 2px;
   margin-right: 2px;
-  color: black;
+  color: #262626;
   border-radius: 4px;
 }
 .color-pickr-circle-thmb {
@@ -751,7 +751,7 @@ path.link.selected {
   margin-right: 2px;
   margin-top: 2px;
   margin-bottom: 2px;
-  color: black;
+  color: #262626;
   border-radius: 4px;
 }
 foreignObject {
@@ -1016,8 +1016,8 @@ foreignObject.selected {
   padding: 0.65em 0.85em;
   margin: 0.65em 0.85em;
   color: #d9d9d9;
-  background: #333333;
-  /*#F53435;*/
+  background: #404040;
+  /*333333;/*#F53435;*/
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   font-size: 11px !important;
 }

@@ -13,14 +13,16 @@ const App = require('../App.js')
 const Project = require('./Project')
 const { path } = require('d3')
 const GraphEditorView = require('../_views/GraphEditorView')
+const { inherits } = require('util')
+const EventEmitterElement = require('../_app/EventEmitterElement')
 
 
 /**
  * Manages the current session
  */
-function Session(app) {    /* Alternative name:    ProjectManager */
+function Session(app) {
   this.self = this
-
+  EventEmitterElement.call(this, app);
 
   this.projects = []
   this.index = 0;
@@ -30,6 +32,7 @@ function Session(app) {    /* Alternative name:    ProjectManager */
 
   this.app = app
 }
+inherits(Session, EventEmitterElement);
 
 
 /**
@@ -295,10 +298,22 @@ Session.prototype.openProjectWithPath = function(path, callback){
   let nP = null
   if(chk.length === 0){ 
     // Create new project
-    nP = new Project(path, self)
-    self.projects.push(nP)
+    try{
+      nP = new Project(path, self)
+      self.projects.push(nP)
+    }catch(e){
+      if(e instanceof SyntaxError){
+        self.app.views.notifications.addNotification(
+          self.app.views.notifications.ERROR,
+          "Database file has JSON formatting errors. Check and correct them.",
+          path);
+        self.send("renderLazy");
+        
+        return;
+      }
+    }
   }else{
-    nP = chk[0]
+    nP = chk[0];
   }
 
   // Prepare currently active project for transition
