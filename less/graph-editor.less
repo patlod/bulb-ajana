@@ -138,10 +138,17 @@ foreignObject.selected {
         width: 313px;
         background: #E4E4E4;
         padding: 0.63em;
-    }
-    & > .side-menu-content > span {
-        font-weight: 600;
-        padding: 0.56em 0.34em;
+        overflow-y: auto;
+
+        & > span {
+            font-weight: 600;
+            padding: 0.56em 0.34em;
+        }
+
+        & > .tagify {
+            margin-top: 0.34em;
+            background: white !important;
+        }
     }
 }
 #right-side-menu.hidden {

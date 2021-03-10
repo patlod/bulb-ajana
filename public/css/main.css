@@ -393,6 +393,24 @@ body {
   visibility: hidden;
   width: 0;
 }
+#item-list-ctrls-bottom {
+  position: absolute;
+  bottom: 0px;
+  font-size: 10px;
+  font-weight: 600;
+  display: block;
+  border-top: 1px solid #c5c5c5;
+}
+#item-list-ctrls-bottom > span {
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  display: inline-block;
+  padding: 0.3em 0em;
+}
+#item-list-ctrls-top > span.active {
+  background: #e4e4e4;
+}
 /* ===== Note list thumbnail ===== */
 .item-thmb {
   font-size: 10px;
@@ -779,10 +797,15 @@ foreignObject.selected {
   width: 313px;
   background: #E4E4E4;
   padding: 0.63em;
+  overflow-y: auto;
 }
 #right-side-menu > .side-menu-content > span {
   font-weight: 600;
   padding: 0.56em 0.34em;
+}
+#right-side-menu > .side-menu-content > .tagify {
+  margin-top: 0.34em;
+  background: white !important;
 }
 #right-side-menu.hidden {
   right: -313px;

@@ -6,6 +6,7 @@
 @left-menu-2-width: 150px;
 @item-list-header: 26.38px;
 @list-ctrls-top: 23px;
+@list-ctrls-bottom: 23px;
 
 #left-menu-2{
   float: left;
@@ -76,6 +77,24 @@
   width:0;
 }
 
+#item-list-ctrls-bottom {
+  position: absolute;
+  bottom: 0px;
+  font-size: 10px;
+  font-weight: 600;
+  display: block;
+  border-top: 1px solid #c5c5c5;
+}
+#item-list-ctrls-bottom > span{
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  display: inline-block;
+  padding: 0.3em 0em;
+}
+#item-list-ctrls-top > span.active{
+  background: #e4e4e4;
+}
 
 /* ===== Note list thumbnail ===== */
 .item-thmb{

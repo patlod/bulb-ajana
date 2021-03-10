@@ -317,6 +317,10 @@ ItemListView.prototype.render = function(project){
     self.send('switchItemList', self.objectOfDisplay);
   }
   
+  function clickRecentlyDeletedList(){
+    console.log("clickRecentlyDeletedList");
+  }
+
   let notes_list = yo`
     <div onclick=${clickItemList}>
       ${function(){
@@ -352,6 +356,11 @@ ItemListView.prototype.render = function(project){
         }
         
       }()}
+      <!-- 
+      <div id="item-list-ctrls-bottom">
+        <span class="active" onclick=${clickRecentlyDeletedList}>Recently Deleted</span>
+      </div>
+      --> 
       </div>`;
   return notes_list;
   

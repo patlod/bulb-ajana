@@ -76,11 +76,11 @@ function App(el){
 
   // --- Menu ---
   // App
-  self.appControls.add('default', '*', 'About', () => { 
-    console.log("About");
-    // Case 1 - Project will be open source and public on Github: open href in browser to github repo
-    // Case 2 - Projec closed source: Show an electron about page like in other apps (e.g. VSCode, Typora, ...)
-  }, '');
+  // self.appControls.add('default', '*', 'About', () => { 
+  //   console.log("About");
+  //   // Case 1 - Project will be open source and public on Github: open href in browser to github repo
+  //   // Case 2 - Projec closed source: Show an electron about page like in other apps (e.g. VSCode, Typora, ...)
+  // }, '');
   // self.appControls.addSpacer('default', '*', 'preffers');
   // self.appControls.add('default', '*', 'Preferences', () => { console.log("Preferences"); }, '');
   // self.appControls.addSpacer('default', '*', 'hidders');
@@ -796,6 +796,10 @@ function App(el){
     self.views.graph.forceClearContentDOMEl();
     render();
   });
+
+  function deleteSpecificNote(note){
+    
+  }
 
   function deleteSelectedNotes(){
     if(self.session.getActiveProject() === null){

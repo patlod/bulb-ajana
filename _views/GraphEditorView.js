@@ -7,6 +7,7 @@ const Menu = require('electron').remote.Menu;
 
 const yo = require('yo-yo');
 const d3 = require("d3");
+const Tagify = require('@yaireo/tagify');
 
 const DateFormatter = require('../_util/DateFormatter');
 const UIAssistant = require('../_util/UIAssistant');
@@ -1064,7 +1065,7 @@ GraphEditorView.prototype.renderRightSideMenu = function(){
   
   var hiddenClass = (self.openSidemenu) ? '' : 'hidden'; 
 
-  return yo`<div id="right-side-menu" class="${hiddenClass}" onclick=${clickRightMenu}>
+  let menu = yo`<div id="right-side-menu" class="${hiddenClass}" onclick=${clickRightMenu}>
         <div id="right-menu-toggle" onclick=${clickRightMenuToggle}><i class="fas fa-chevron-right"></i></div>
         <div id="right-menu-content" class="side-menu-content">
           <span>Graph Description</span>
@@ -1073,6 +1074,28 @@ GraphEditorView.prototype.renderRightSideMenu = function(){
           onclick=${clickDescriptionTextarea}
           oninput=${inputDescriptionTextarea}
           onkeyup=${keyupDescriptionTextarea}>${self.graph.getContent()}</textarea>
+
+          <textarea style="background: white" name='note-tags' placeholder='Tags...'></textarea> 
         </div>
       </div>`;
+
+  /**
+   * Initialise tagify input on the UI fragment.
+   */
+  var input = menu.querySelector('textarea[name=note-tags]');
+  // Create tagify tag input on textarea
+  self.tagify = new Tagify(input, {
+    pattern          : /^[a-zA-ZäöüÄÖÜß0-9\-_]{0,40}$/,
+    enforceWhitelist : false,
+    maxTags          : 12,
+    delimiters       : ",",
+    // whitelist        : this.fetchWhitelist(project),
+    callbacks        : {
+      "add"    : (e) => { /*self.addTag(e, self.tagify)*/ },  // TODO: callback when adding a tag
+      "remove" : (e) => { /*self.removeTag(e, self.tagify)*/ }, // TODO: callback when removing a tag
+      "edit:updated": (e) => { /*self.updateTag(e, self.tagify)*/ }
+    }
+  });
+
+  return menu;
 }
