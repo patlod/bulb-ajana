@@ -1,9 +1,8 @@
 module.exports = TitlebarView
 
-const EventEmitterElement = require('../_app/EventEmitterElement')
-const inherits = require('util').inherits
-
-const yo = require('yo-yo')
+const EventEmitterElement = require('../_app/EventEmitterElement');
+const inherits = require('util').inherits;
+const yo = require('yo-yo');
 
 const Note = require('../_controllers/Note');
 const Graph = require('../_controllers/Graph');
@@ -36,12 +35,12 @@ TitlebarView.prototype.updateCreateNewBtn = function(dom_el, active_item){
     if(disable){
         btn.disabled = true
         if(!btn.classList.contains("disabled")){
-            btn.classList.add("disabled")
+            btn.classList.add("disabled");
         }
     }else{
         btn.disabled = false
         if(btn.classList.contains("disabled")){
-            btn.classList.remove("disabled")
+            btn.classList.remove("disabled");
         }
     }
 }
@@ -55,7 +54,7 @@ TitlebarView.prototype.clearSearch = function(){
 
 TitlebarView.prototype.setFocusOnSearch = function(){
     this.focus_manager.setFocusObject(this.focus_manager.TITLEBAR_SEARCH);
-    let input = document.getElementById("global-search").getElementsByTagName("input")[0]
+    let input = document.getElementById("global-search").getElementsByTagName("input")[0];
     if(input){
         input.focus();
     }
@@ -64,17 +63,17 @@ TitlebarView.prototype.setFocusOnSearch = function(){
 }
 
 TitlebarView.prototype.render = function (session) {
-    var self = this
+    var self = this;
     
     function clickGraphEditor(){
-        if(session.getGraphMode()){ return }
+        if(session.getGraphMode()){ return; }
         //updateEditorToggle(this)
-        self.send('transToGraphEditor')
+        self.send('transToGraphEditor');
     }
     function clickDefaultEditor(){
-        if(!session.getGraphMode()){ return }
+        if(!session.getGraphMode()){ return; }
         //updateEditorToggle(this)
-        self.send('transToNoteEditor')
+        self.send('transToNoteEditor');
     }
 
     function clickCreateNewNote(e){
@@ -82,55 +81,55 @@ TitlebarView.prototype.render = function (session) {
     }
 
     function clickCreateNewGraph(e){
-        console.log("clickCreateNewGraph")
+        console.log("clickCreateNewGraph");
         self.send('createNewGraph');
     }
 
     function makeCreateNewBtn(project){
         if(!project){
-            return
+            return;
         }
         
         if(project.session.app.views.items.objectOfDisplay === Note){
-            let eN = project.getEmptyNotes()
+            let eN = project.getEmptyNotes();
             if( eN === null){
-                console.error("ERROR inconsistencies in notes")
+                console.error("ERROR inconsistencies in notes");
                 
                 // DELETE EMPTY NOTES
-                project.session.prepProjectForTrans(project)
+                project.session.prepProjectForTrans(project);
             }
             if(eN.length === 0){ 
                 // No empty note: Return normal button
                 return yo`    
-                <button id="new-item-btn" class="tb-btn" onclick=${clickCreateNewNote}><i class="far fa-edit"></i></button>
-                `
+                    <button id="new-item-btn" class="tb-btn" onclick=${clickCreateNewNote}><i class="far fa-edit"></i></button>
+                    `;
             }else{
                 if(eN.length === 1){
                     // Has empty note: Return disabled button
                     return yo`
-                    <button id="new-item-btn" class="tb-btn disabled" onclick=${clickCreateNewNote} disabled><i class="far fa-edit"></i></button>
-                    `
+                        <button id="new-item-btn" class="tb-btn disabled" onclick=${clickCreateNewNote} disabled><i class="far fa-edit"></i></button>
+                        `;
                 }
             }    
         }else{
-            let eG = project.getEmptyGraphs()
+            let eG = project.getEmptyGraphs();
             if( eG === null){
-                console.error("ERROR inconsistencies in graphs")
+                console.error("ERROR inconsistencies in graphs");
                 
                 // DELETE EMPTY GRAPHS
-                project.session.prepProjectForTrans(project)
+                project.session.prepProjectForTrans(project);
             }
             if(eG.length === 0){ 
                 // No empty graph: Return normal button
                 return yo`    
-                <button id="new-item-btn" class="tb-btn" onclick=${clickCreateNewGraph}><i class="far fa-edit"></i></button>
-                `
+                    <button id="new-item-btn" class="tb-btn" onclick=${clickCreateNewGraph}><i class="far fa-edit"></i></button>
+                    `;
             }else{
                 if(eG.length === 1){
                     // Has empty graph: Return disabled button
                     return yo`
-                    <button id="new-item-btn" class="tb-btn disabled" onclick=${clickCreateNewGraph} disabled><i class="far fa-edit"></i></button>
-                    `
+                        <button id="new-item-btn" class="tb-btn disabled" onclick=${clickCreateNewGraph} disabled><i class="far fa-edit"></i></button>
+                        `;
                 }
             }    
         }
@@ -138,7 +137,7 @@ TitlebarView.prototype.render = function (session) {
     }
 
     function clickDeleteSelectedNotes(e){
-        self.send('deleteSelectedNotes')
+        self.send('deleteSelectedNotes');
     }
 
     function clickDeleteSelectedGraphs(e){
@@ -147,17 +146,17 @@ TitlebarView.prototype.render = function (session) {
 
     function makeDeleteButton(project){
         if(!project){
-            return
+            return;
         }else{
              
             if(project.session.app.views.items.objectOfDisplay === Note){
                 return yo`
-                    <button class="tb-btn" onclick=${clickDeleteSelectedNotes}><i class="fas fa-trash-alt"></i></button>
-                `
+                        <button class="tb-btn" onclick=${clickDeleteSelectedNotes}><i class="fas fa-trash-alt"></i></button>
+                    `;
             }else{
                 return yo`
-                    <button class="tb-btn" onclick=${clickDeleteSelectedGraphs}><i class="fas fa-trash-alt"></i></button>
-                `
+                        <button class="tb-btn" onclick=${clickDeleteSelectedGraphs}><i class="fas fa-trash-alt"></i></button>
+                    `;
             }
             
         }
@@ -196,12 +195,12 @@ TitlebarView.prototype.render = function (session) {
         console.log(self.current_search);
         self.clearSearch();
         // Clear the search data in the controller/model structures
-        self.send("clearGlobalSearch")
+        self.send("clearGlobalSearch");
     }
 
     function makeSearchField(project){
         if(!project){
-            return
+            return;
         }else{
             return yo`
                 <div id="global-search">
@@ -220,7 +219,7 @@ TitlebarView.prototype.render = function (session) {
     }
 
     function makeEditorToggle(project){
-        if(!project) { return null }
+        if(!project) { return null; }
         else if(project.getGraphMode()){
             return yo`<div class="tb-toggle-btn">
                 <button id="tb-list-btn" class="tb-btn" onclick=${clickDefaultEditor}><i class="fas fa-list"></i></button>

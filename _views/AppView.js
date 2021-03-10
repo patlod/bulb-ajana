@@ -1,9 +1,7 @@
 module.exports = AppView
 
-const EventEmitterElement = require('../_app/EventEmitterElement')
-var inherits = require('util').inherits
-
-var yo = require('yo-yo')
+const EventEmitterElement = require('../_app/EventEmitterElement');
+var inherits = require('util').inherits;
 
 function AppView(target, focus_manager){
     var self = this;
@@ -28,16 +26,6 @@ AppView.prototype.shiftActive = function(){
 AppView.prototype.render = function(){
   var self = this;
   window.addEventListener('keydown', function(e){
-    // console.log("event:");
-    // console.log(e);
-    // console.log("e.key");
-    // console.log(e.key);
-    // console.log("e.keyCode");
-    // console.log(e.keyCode);
-    // console.log("e.metaKey");
-    // console.log(e.metaKey);
-    // console.log("e.shiftKey");
-    // console.log(e.shiftKey);
     if(e.key === "Shift"){
       self.shiftKey_active = true;
     }
@@ -72,16 +60,6 @@ AppView.prototype.render = function(){
   });
 
   window.addEventListener('keyup', function(e){
-    // console.log("event:");
-    // console.log(e);
-    // console.log("e.key");
-    // console.log(e.key);
-    // console.log("e.keyCode");
-    // console.log(e.keyCode);
-    // console.log("e.metaKey");
-    // console.log(e.metaKey);
-    // console.log("e.shiftKey");
-    // console.log(e.shiftKey);
     if(e.key === "Shift"){
       self.shiftKey_active = false;
     }

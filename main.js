@@ -7,18 +7,15 @@ var client = null;
 var force_quit = false;
 
 function createWindow () {
-  //console.log(path.join(__dirname,'preload.js'));
   var win = new BrowserWindow({
     width: 800,
     height: 600,
     minWidth: 698,
     minHeight: 333,
     webPreferences: {
-      //preload: path.join(__dirname,'preload_titlebar.js'),
       nodeIntegration: true,
       enableRemoteModule: true
     },
-    //frame: false,
     titleBarStyle: 'hidden',
     trafficLightPosition: {x: 7, y: 17}
   })

@@ -7,7 +7,7 @@ const FN_USER_PREFERENCES = "user-preferences.json"
 const FN_GLOBAl_DATA = "global-data.json"
 
 function ConfigurationManager(){
-  var self = this
+  var self = this;
 
   /**
    * Returns the directory where app data is stored depending on the platform.
@@ -16,7 +16,7 @@ function ConfigurationManager(){
    * - Darwin:    ~/Library/Application Support
    */
   this.getAppDataDir = function(){
-    return app.getPath('appData')
+    return app.getPath('appData');
   }
 
   this.getUserPreferencesPath = function(){
@@ -37,7 +37,7 @@ function ConfigurationManager(){
   this.getGlobalDataPath = function(){
     switch(process.platform) {
       case 'darwin': {
-        return this.getAppDataDir() + "/" + app.getName() + "/" + FN_GLOBAl_DATA
+        return this.getAppDataDir() + "/" + app.getName() + "/" + FN_GLOBAl_DATA;
       }/*
       case 'win32': {
         return path.join(process.env.APPDATA, ...);

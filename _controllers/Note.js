@@ -1,26 +1,26 @@
 module.exports = Note
 
-const FileDatabaseManager = require('../_models/FileDatabaseManager')
-const StringFormatter = require('../_util/StringFormatter')
+const FileDatabaseManager = require('../_models/FileDatabaseManager');
+const StringFormatter = require('../_util/StringFormatter');
 
 function Note(project, data = FileDatabaseManager.getEmptyNoteJSON()) 
 {
-  var self = this
+  var self = this;
 
-  this.uuid = data.uuid
-  this.created = data.created
-  this.modified = data.modified
-  this.tags = data.tags
-  this.text = data.text
-  this.bg_color = data.bg_color
-  this.associations = data.associations
+  this.uuid = data.uuid;
+  this.created = data.created;
+  this.modified = data.modified;
+  this.tags = data.tags;
+  this.text = data.text;
+  this.bg_color = data.bg_color;
+  this.associations = data.associations;
 
-  this.active = false
-  this.new_tag_indices = []
+  this.active = false;
+  this.new_tag_indices = [];
 
-  this.dirty_bit = false
+  this.dirty_bit = false;
 
-  this.project = project
+  this.project = project;
 }
 
 
@@ -29,17 +29,17 @@ function Note(project, data = FileDatabaseManager.getEmptyNoteJSON())
 /* ======================================================= */
 Note.prototype.saveData = function(){
   // Either insert
-  this.getDB().insertNote(this.getNoteJSON())
+  this.getDB().insertNote(this.getNoteJSON());
   // Or update existing..
 }
 
 Note.prototype.deleteNote = function(){
-  return
+  return;
 }
 
 Note.prototype.saveText = function(){
   // Persist to database
-  this.getDB().updateNoteText(this.getNoteJSON())
+  this.getDB().updateNoteText(this.getNoteJSON());
   
 }
 
@@ -53,34 +53,34 @@ Note.prototype.saveText = function(){
  */
 Note.prototype.addTag = function(tag_value){
   // Insert to database
-  let tag = this.getDB().insertNoteTag(this.uuid, tag_value)
+  let tag = this.getDB().insertNoteTag(this.uuid, tag_value);
   // Add tag to tag array 
-  this.tags.push(tag)
+  this.tags.push(tag);
 
   // Reload project's tag list
-  this.project.loadTags()
+  this.project.loadTags();
 }
 
 
 Note.prototype.removeTag = function(tag_value){
   // Find tag_id and index in tag list from tag_value
-  let index = 0
-  let tag_id = ""
+  let index = 0;
+  let tag_id = "";
   for(var i in this.tags){
     if(this.tags[i].name.localeCompare(tag_value) === 0){
-      index = i
-      tag_id = this.tags[i].uuid
+      index = i;
+      tag_id = this.tags[i].uuid;
     }
   }
   // Remove from database
   if(tag_id.length == 0){
-    console.log("Tag ID can note be found in note object data")
+    console.log("Tag ID can note be found in note object data");
   }
   this.getDB().removeNoteTag(this.uuid, tag_id)
   // Remove tag from tag array
-  this.tags.splice(index, 1)
+  this.tags.splice(index, 1);
   // Reload project's tag list
-  this.project.loadTags()
+  this.project.loadTags();
 }
 
 /**
@@ -91,33 +91,33 @@ Note.prototype.removeTag = function(tag_value){
  */
 Note.prototype.updateTag = function(new_val, pre_val){
   // Insert new tag to database
-  let tag = this.getDB().insertNoteTag(this.uuid, new_val)
+  let tag = this.getDB().insertNoteTag(this.uuid, new_val);
   // Insert tag into tag list
-  this.tags.push(tag)
+  this.tags.push(tag);
 
   // Find tag_id and index in tag list from previous value
-  let index = 0
-  let pre_tag_id = ""
+  let index = 0;
+  let pre_tag_id = "";
   for(var i in this.tags){
     if(this.tags[i].name.localeCompare(pre_val) === 0){
-      index = i
-      pre_tag_id = this.tags[i].uuid
+      index = i;
+      pre_tag_id = this.tags[i].uuid;
     }
   }
   // Remove new tag to database 
-  this.getDB().removeNoteTag(this.uuid, pre_tag_id)
+  this.getDB().removeNoteTag(this.uuid, pre_tag_id);
   // Remove old tag from tags list
-  this.tags.splice(index, 1)
+  this.tags.splice(index, 1);
 
   // Reload project's tag list
-  this.project.loadTags()
+  this.project.loadTags();
 }
 
 /**
  * Get list of note tags
  */
 Note.prototype.getTags = function(){
-  return this.tags
+  return this.tags;
 }
 
 /**
@@ -154,35 +154,35 @@ Note.prototype.searchNoteTags = function(needle){
 /* ======================================================= */
 
 Note.prototype.getDB = function(){
-  return this.project.db
+  return this.project.db;
 }
 
 Note.prototype.isActive = function(){
-  return this.active
+  return this.active;
 }
 
 Note.prototype.activate = function(){
-  this.active = true
+  this.active = true;
 }
 
 Note.prototype.deactivate = function(){
-  this.active = false
+  this.active = false;
 }
 
 Note.prototype.isEmpty = function(){
-  return (this.text.length > 0) ? false : true
+  return (this.text.length > 0) ? false : true;
 }
 
 Note.prototype.isDirty = function(){
-  return this.dirty_bit
+  return this.dirty_bit;
 }
 
 Note.prototype.setDirtyBit = function(val){
   if(val !== true && val !== false){
-    console.error("Value for dirty_bit must be boolean")
-    return
+    console.error("Value for dirty_bit must be boolean");
+    return;
   }
-  this.dirty_bit = val
+  this.dirty_bit = val;
 }
 
 /**
@@ -191,7 +191,7 @@ Note.prototype.setDirtyBit = function(val){
  * @param {Note} note
  */
 Note.prototype.compareTo = function(note){
-  return ( JSON.stringify(this.getNoteJSON()).localeCompare( JSON.stringify(note.getNoteJSON()) ) === 0 )
+  return ( JSON.stringify(this.getNoteJSON()).localeCompare( JSON.stringify(note.getNoteJSON()) ) === 0 );
 }
 
 /**
@@ -199,7 +199,7 @@ Note.prototype.compareTo = function(note){
  * @param {function} callback 
  */
 Note.prototype.getCreated = function(){
-  return this.created
+  return this.created;
 }
 
 /**
@@ -207,12 +207,12 @@ Note.prototype.getCreated = function(){
  * @param {function} callback 
  */
 Note.prototype.getModified = function(){
-  return this.modified
+  return this.modified;
 }
 
 
 Note.prototype.getTags = function(){
-  return this.tags
+  return this.tags;
 }
 
 /**
@@ -234,25 +234,25 @@ Note.prototype.needThumbUpdate = function(selectionStart, selectionEnd){
        *  Maybe create an instance method in NotesListView which can be
        *  called from App to write into the element
        */ 
-      return true // [0]
+      return true; // [0]
     }else{
       if(arr.length >= 2){
         let indices = StringFormatter.getParagraphIndices(arr)
         if(indices.length === 1){
           if(selectionStart >= indices[0] && selectionStart <= indices[0] + 300/*arr[indices[0]].length*/){
-            return true // [indices[0]]
+            return true; // [indices[0]]
           }
         }else if( indices.length >= 2 ){
           //let distance = indices[1] - indices[0]
           if( (selectionStart >= indices[0] && selectionStart <= indices[0] + 300 )
             || (selectionStart >= indices[1] && selectionStart <= indices[1] + 300) ) {   // arr[indices[0]].length + arr[indices[1]].length + distance
-              return true //[indices[0], indices[1]]
+              return true; //[indices[0], indices[1]]
           }else{
-            return false 
+            return false; 
           }
         }else{
           if(selectionStart === arr.length-1)
-          return true
+          return true;
         }
       }
     }
@@ -272,20 +272,20 @@ Note.prototype.needThumbUpdate = function(selectionStart, selectionEnd){
  *   thumbnail.
  */
 Note.prototype.getHeader = function(){
-  let arr = StringFormatter.splitAtNewLine(this.text)
-  let txt_is = StringFormatter.getParagraphIndices(arr)
+  let arr = StringFormatter.splitAtNewLine(this.text);
+  let txt_is = StringFormatter.getParagraphIndices(arr);
   if(txt_is.length >= 1){
     if(arr[txt_is[0]].length > 0){
       if(arr[txt_is[0]].length > 150){
-        return arr[txt_is[0]].substr(0,150)
+        return arr[txt_is[0]].substr(0,150);
       }else{
-        return arr[txt_is[0]]
+        return arr[txt_is[0]];
       }
     } else{
-      return "New Note"
+      return "New Note";
     }
   }else{
-    return "New Note"
+    return "New Note";
   }
 }
 
@@ -293,20 +293,20 @@ Note.prototype.getHeader = function(){
  * For thumbnail: Returns preview of text truncated with "..."
  */
 Note.prototype.getContentPreview = function(){
-  let arr = StringFormatter.splitAtNewLine(this.text)
-  let txt_is = StringFormatter.getParagraphIndices(arr)
+  let arr = StringFormatter.splitAtNewLine(this.text);
+  let txt_is = StringFormatter.getParagraphIndices(arr);
   if(txt_is.length >= 1){
     if(arr[txt_is[0]].length > 150){
-      return arr[txt_is[0]].substr(151, arr[txt_is[0]].length - 1)
+      return arr[txt_is[0]].substr(151, arr[txt_is[0]].length - 1);
     }else{
       if(txt_is.length == 1){
-        return "No additional text"
+        return "No additional text";
       }else{
-        return arr[txt_is[1]]
+        return arr[txt_is[1]];
       }
     }
   }else{
-    return "No additional text"
+    return "No additional text";
   }
   //return (this.text.length > 0) ? this.text : "No additional text"
 }
@@ -315,7 +315,7 @@ Note.prototype.getContentPreview = function(){
  * Returns the complete content of the note
  */
 Note.prototype.getContent = function(){
-  return this.text
+  return this.text;
 }
 
 /**
@@ -330,6 +330,6 @@ Note.prototype.getNoteJSON = function(){
     text: this.text,
     bg_color: this.bg_color,
     associations: this.associations
-  }
+  };
 }
 

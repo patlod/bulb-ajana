@@ -2,13 +2,12 @@ const fs = require('fs');
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 const FileDatabase = require('../_models/FileDatabase');
-//const FileDatabaseManager = require('../_models/FileDatabaseManager')
 
 const { v4: uuidv4 } = require('uuid');
 const { hasUncaughtExceptionCaptureCallback } = require('process');
 const { equal } = require('assert');
 
-const TEST_DB_PATH = "./_tests/test__FileDatabase.json"
+const TEST_DB_PATH = "./_tests/test__FileDatabase.json";
 const TEST_PRJCT_JSON = {
   uuid: uuidv4(),
   created: Date.now(),
@@ -16,16 +15,15 @@ const TEST_PRJCT_JSON = {
   tags: [],
   notes: [],
   graphs: []
-}
+};
 
-var ADAPTER = null
-var DB = null
+var ADAPTER = null;
+var DB = null;
 
 
 function emptyDBJson(){
   const json_string = JSON.stringify(TEST_PRJCT_JSON, null, 2);
-
-  fs.writeFileSync(TEST_DB_PATH, json_string)
+  fs.writeFileSync(TEST_DB_PATH, json_string);
 }
 
 function cleanUpDBFile(){
@@ -33,24 +31,22 @@ function cleanUpDBFile(){
   .set('tags', [])
   .set('notes', [])
   .set('graphs', [])
-  .write()
+  .write();
 }
 
 
 beforeAll(() => {  
-  emptyDBJson()
-  ADAPTER = new FileSync(TEST_DB_PATH)
-  DB = low(ADAPTER)
-
+  emptyDBJson();
+  ADAPTER = new FileSync(TEST_DB_PATH);
+  DB = low(ADAPTER);
   //DB.read()
 })
 
 afterAll(() => {
   // deleteDBJson()
   //cleanUpDBFile()
-  DB = null
-  ADAPTER = null
-
+  DB = null;
+  ADAPTER = null;
   // try {
   //   fs.unlinkSync(TEST_DB_PATH)
   //   //file removed
@@ -61,8 +57,7 @@ afterAll(() => {
 
 afterEach(() => {
   // Delete testdata from JSON file
-
-  //cleanUpDBFile()
+  // cleanUpDBFile()
 })
 
 

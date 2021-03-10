@@ -1,4 +1,4 @@
 .DS_Store
 node_modules/
-public/
+public/css/*.css
 _tests/*.json

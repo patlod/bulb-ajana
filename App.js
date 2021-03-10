@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 var EventEmitter = require('events').EventEmitter;
 
@@ -37,7 +37,7 @@ const AppControls = require('./_controllers/AppControls');
 // Utils
 const UIAssistant = require('./_util/UIAssistant');
 
-inherits(App, EventEmitter)
+inherits(App, EventEmitter);
 
 /**
  * This is the central app controller which references and interacts with all other
@@ -47,18 +47,18 @@ inherits(App, EventEmitter)
  */
 function App(el){
   var self = this;
-  if (!(self instanceof App)) return new App(el)
+  if (!(self instanceof App)) return new App(el);
 
   /* ===== Controllers ===== */
-  self.appConfigManager = new ConfigManager()
+  self.appConfigManager = new ConfigManager();
   // const APP_DATA_DIR = self.appConfigManager.getAppDataDir()
   // const USER_PREFS_PATH = self.appConfigManager.getUserPreferencesPath()
-  const GLOBAL_DATA_PATH = self.appConfigManager.getGlobalDataPath()
+  const GLOBAL_DATA_PATH = self.appConfigManager.getGlobalDataPath();
   // self.appUserPreferences = new UserPreferences(USER_PREFS_PATH)
-  self.appGlobalData = new GlobalData(GLOBAL_DATA_PATH)
+  self.appGlobalData = new GlobalData(GLOBAL_DATA_PATH);
 
-  self.session = new Session(self)     // The session stores all the open projects with notes
-  self.appControls = new AppControls()
+  self.session = new Session(self);     // The session stores all the open projects with notes
+  self.appControls = new AppControls();
 
   self.focusManager = new FocusManager.constructor(el);
   self.focusManager.setFocusObject(self.focusManager.PROJECT_LIST);
@@ -72,9 +72,7 @@ function App(el){
     items: new ItemListView(self, self.focusManager),
     editor: new NoteEditorView(self, self.focusManager),
     graph: new GraphEditorView(self, self.focusManager)
-  }
-
-  
+  };
 
   // --- Menu ---
   // App
@@ -222,20 +220,20 @@ function App(el){
   // self.appControls.add('default', 'Graph', 'Scroll West', () => { console.log("Scroll West") }, '');
   // self.appControls.add('default', 'Graph', 'Scroll East', () => { console.log("Scroll East") }, '');
 
-  self.appControls.commit()
+  self.appControls.commit();
 
   
 
   /* === Initial DOM tree render ================= */
-  var tree = self.render()
-  console.log(tree)
-  el.appendChild(tree)
+  var tree = self.render();
+  console.log(tree);
+  el.appendChild(tree);
   // Render the AppView separately
   self.views.app.render();
   /* ============================================= */
 
   // Initialise the split screen manager object
-  self.split_manager = new SplitManager(this)
+  self.split_manager = new SplitManager(this);
 
 
   /**
@@ -258,10 +256,10 @@ function App(el){
    */
 
   function render (lazy_load = false) {
-    var newTree = self.render(lazy_load)
-    yo.update(tree, newTree)
+    var newTree = self.render(lazy_load);
+    yo.update(tree, newTree);
     // Recreate split screen on new dom tree with sizes from old one
-    self.split_manager.recreateFromBuffer()
+    self.split_manager.recreateFromBuffer();
     // Reinitialise the semantic UI left-menu dropdown
     $('.ui.dropdown').dropdown({
       silent: true
@@ -274,10 +272,10 @@ function App(el){
 
     if(!self.session.getGraphMode()){
       // Adjust height of the textarea in NoteEditorView to fit content
-      UIAssistant.resizeElementByContent($('#notepad')[0])
+      UIAssistant.resizeElementByContent($('#notepad')[0]);
     }else{
       // Adjust height of the textarea in right-side-menu to fit content
-      UIAssistant.resizeElementByContent($('#graph-description')[0])
+      UIAssistant.resizeElementByContent($('#graph-description')[0]);
       // Make the #content container of the graph a droppable element for the notes
       $('#content').droppable({
         accept:'.item-thmb-wrap',
@@ -287,20 +285,20 @@ function App(el){
           "ui-droppable-hover": "graph-droppable-hover"
         },
         over: function(event, ui) {
-          $('body').css("cursor", "copy")
+          $('body').css("cursor", "copy");
         },
         out: function(event, ui) {
-          $('body').css("cursor", "no-drop")
+          $('body').css("cursor", "no-drop");
         },
         drop: function(event,ui){
-          console.log("Dropped note in graph at position...")
+          console.log("Dropped note in graph at position...");
 
           let $item_thmb = ui.draggable.find('.item-thmb'),
               data_object = $item_thmb.attr('data-object'),
               item_id = null;
 
           // For now dropping graphs into graphs is not supported..
-          if(data_object !== "note"){ return }
+          if(data_object !== "note"){ return; }
           item_id = $item_thmb.attr('data-id');
 
           let active_project = self.session.getActiveProject(),
@@ -309,7 +307,7 @@ function App(el){
               note = active_project.getNoteByUUID(item_id),
               drag_notes = [];
           
-          console.log(note)
+          console.log(note);
           
           if(!note){
             console.error("Note associated with UI element could not be found.");
@@ -628,13 +626,13 @@ function App(el){
   });
 
   self.on('closeProject', function(project_id){
-    console.log("App -- Close Project..")
+    console.log("App -- Close Project..");
     self.session.closeProject(project_id, render);
   });
 
   self.on('deleteProject', function(project_id){
-    console.log("App -- Delete Project..")
-    self.session.deleteProject(project_id, render)
+    console.log("App -- Delete Project..");
+    self.session.deleteProject(project_id, render);
   });
 
   function switchItemList(objectOfDisplay){
@@ -667,18 +665,18 @@ function App(el){
         project.prepNoteForTrans(project.getActiveNote());
       }
       
-      project.toggleActiveNote(note)
+      project.toggleActiveNote(note);
       project.startSelectionWith(note);
       console.log(project.getItemSelection());
 
       if(project.getGraphMode() && trigger.localeCompare('item-thumb') === 0){
         // Update the graph to highlight the new active note
-        self.views.graph.updateGraph(/*project.getActiveGraph()*/)
+        self.views.graph.updateGraph(/*project.getActiveGraph()*/);
       }
     }else{
       project.startSelectionWith(active_note);
     }
-    render(true)
+    render(true);
   }
 
   self.on('transitionNote', function(project, note, trigger='item-thumb'){
@@ -686,7 +684,7 @@ function App(el){
   });
 
   self.on('transitionNoteAndEditor', function(project, note){
-    console.log("transitionNoteAndEditor")
+    console.log("transitionNoteAndEditor");
     let active_note = project.getActiveNote();
     if(!active_note || active_note === undefined){
       console.error("Error: No active note set.");
@@ -714,7 +712,7 @@ function App(el){
 
   
   self.on('transitionNoteContextMenu', function(project, note){
-    console.log("transitionNoteContextMenu")
+    console.log("transitionNoteContextMenu");
     if(project.getItemsFromSelection().indexOf(note) < 0){
       transitionNote(project, note);
     }
@@ -750,19 +748,19 @@ function App(el){
 
   function createNewNote(){
     if(self.session.getActiveProject() === null){
-      console.log("App listener createNewNote -- No active project.")
-      return 
+      console.log("App listener createNewNote -- No active project.");
+      return;
     }
 
-    let nn = self.session.getActiveProject().createNewNote()
-    nn.saveData() // REFACTOR: Maybe better move this in createNewNote()
+    let nn = self.session.getActiveProject().createNewNote();
+    nn.saveData(); // REFACTOR: Maybe better move this in createNewNote()
 
     //render(true)
     if(self.session.getGraphMode()){
-      transToNoteEditor()
-      render()
+      transToNoteEditor();
+      render();
     }else{
-      render()
+      render();
     }
     
     self.views.editor.focusNotepad();
@@ -770,14 +768,14 @@ function App(el){
 
   self.on('createNewNote', function(){
     console.log("App received: CREATE NEW NOTE");
-    createNewNote()
+    createNewNote();
   });
 
   self.on('DEPRECATED -- deleteSelectedNotes', function(){
-    console.log("App received: DELETE SELECTED NOTES")
+    console.log("App received: DELETE SELECTED NOTES");
     if(self.session.getActiveProject() === null){
-      console.log("App listener createNewNote -- No active project.")
-      return 
+      console.log("App listener createNewNote -- No active project.");
+      return;
     }
     let i,
         active_project = self.session.getActiveProject(),
@@ -787,22 +785,22 @@ function App(el){
     
     // Delete the note from all graphs here
     for(i in all_graphs){
-      all_graphs[i].deleteVerticesForNote(active_note)
+      all_graphs[i].deleteVerticesForNote(active_note);
       // if(all_graphs[i].uuid.localeCompare(active_graph.uuid) === 0 
       //     && self.views.graph.graph !== null){
       //   self.views.graph.updateGraph(active_graph)
       // }
     }
-    active_project.deleteNote(active_note)
+    active_project.deleteNote(active_note);
 
     self.views.graph.forceClearContentDOMEl();
-    render()
+    render();
   });
 
   function deleteSelectedNotes(){
     if(self.session.getActiveProject() === null){
-      console.log("App listener createNewNote -- No active project.")
-      return 
+      console.log("App listener createNewNote -- No active project.");
+      return;
     }
     
     let active_project = self.session.getActiveProject();
@@ -815,40 +813,40 @@ function App(el){
   }
 
   self.on('deleteSelectedNotes', function(){
-    console.log("App received: DELETE SELECTED NOTES")
+    console.log("App received: DELETE SELECTED NOTES");
     deleteSelectedNotes();
   });
 
   
   self.on('updateByNoteEditorContent', function(active_note){
-    console.log("App received: LIVE UPDATE TEXT OF NOTE THUMB")
+    console.log("App received: LIVE UPDATE TEXT OF NOTE THUMB");
     
-    self.views.titlebar.updateCreateNewBtn(el, active_note)
-    self.views.items.updateActiveNoteThumb(el, active_note)
+    self.views.titlebar.updateCreateNewBtn(el, active_note);
+    self.views.items.updateActiveNoteThumb(el, active_note);
   });
 
   self.on('toggleEditorDate', function(){
     // Get active note thumb..
-    let c_dt = document.getElementById('dt-created')
-    let m_dt = document.getElementById('dt-modified')
-    c_dt.classList.toggle('hidden')
-    m_dt.classList.toggle('hidden')
+    let c_dt = document.getElementById('dt-created');
+    let m_dt = document.getElementById('dt-modified');
+    c_dt.classList.toggle('hidden');
+    m_dt.classList.toggle('hidden');
   });
 
   self.on('updateNoteColor', function(note, targetColor){
     // Update note thumbnail and write note color to database
-    note.bg_color = targetColor
-    note.saveData()
+    note.bg_color = targetColor;
+    note.saveData();
 
-    self.views.items.updateNoteThmbColor(note)
+    self.views.items.updateNoteThmbColor(note);
   });
 
   self.on('updateGlobalSearch', function(needle){
-    let active_project = self.session.getActiveProject()
+    let active_project = self.session.getActiveProject();
     active_project.search = {
       needle: needle,
       notes: self.session.getActiveProject().searchAllNotesTextsAndTags(needle)
-    }
+    };
     // Reset the note selection
     active_project.startSelectionWith(active_project.getActiveNote());
     console.log(active_project.search);
@@ -919,14 +917,14 @@ function App(el){
 
   self.on('addNotesToGraph', function(coords){ 
     // TODO: 
-    console.log("Call addNotesToGraph..")
+    console.log("Call addNotesToGraph..");
   });
 
   self.on('deleteVertexInGraph', function(selectedVertex){
-    console.log("deleteVertexInGraph: ")
+    console.log("deleteVertexInGraph: ");
 
-    let g = self.session.getActiveGraph()
-    g.deleteVertex(selectedVertex)
+    let g = self.session.getActiveGraph();
+    g.deleteVertex(selectedVertex);
 
     self.views.graph.removeSelectFromNode();
 
@@ -938,35 +936,34 @@ function App(el){
   });
 
   self.on('createNewEdgeInGraph', function(vPair){
-    console.log("createNewEdgeInGraph: ")
-    let g = self.session.getActiveGraph()
+    console.log("createNewEdgeInGraph: ");
+    let g = self.session.getActiveGraph();
 
     var filtRes = g.getEdges().filter(function(d){
-      console.log(d)
+      console.log(d);
       if (d.source.compareTo(vPair.target) && d.target.compareTo(vPair.source)){
-        g.deleteEdge(d)
+        g.deleteEdge(d);
       }
       return d.source.compareTo(vPair.source) && d.target.compareTo(vPair.target);
     });
 
     if (!filtRes.length){
       let nE = g.createNewEdge(vPair.source, vPair.target);
-      nE.saveData()
+      nE.saveData();
 
       self.views.graph.updateGraph(g);
     }
   });
 
   self.on('deleteEdgeInGraph', function(selectedEdge){
-    console.log("deleteEdgeInGraph: ")
-    let g = self.session.getActiveGraph()
-    g.deleteEdge(selectedEdge)
+    console.log("deleteEdgeInGraph: ");
+    let g = self.session.getActiveGraph();
+    g.deleteEdge(selectedEdge);
 
-    self.views.graph.removeSelectFromEdge()
+    self.views.graph.removeSelectFromEdge();
 
     self.views.graph.updateGraph(g);
   });
-
 
   self.on('createNewNoteLinkedVertexGraph', function(sourceVertex){
     console.log('createNewNoteLinkedVertexGraph -> TODO!');
@@ -975,23 +972,23 @@ function App(el){
      * For now: New empty note is directly inserted into database
      * Better: Only insert once there is at least one char content.
      */
-    let active_project = self.session.getActiveProject()
-    let active_graph = active_project.getActiveGraph()
+    let active_project = self.session.getActiveProject();
+    let active_graph = active_project.getActiveGraph();
 
     if( active_project === null || active_graph === null){
-      console.log("createNewNoteVertexGraph -- No active project or graph.")
-      return 
+      console.log("createNewNoteVertexGraph -- No active project or graph.");
+      return;
     }
 
     // Check whether empty note exists already
-    let empty_notes = active_project.getEmptyNotes()
+    let empty_notes = active_project.getEmptyNotes();
     if(empty_notes === null || empty_notes.length === 1){
-      console.log("Still empty note found...")
-      return
+      console.log("Still empty note found...");
+      return;
     }
 
-    let nn = active_project.createNewNote()
-    nn.saveData() // REFACTOR: Maybe move to createNewNote()
+    let nn = active_project.createNewNote();
+    nn.saveData(); // REFACTOR: Maybe move to createNewNote()
     
     // TODO: Calculate coordinates here regarding the width and height
     //       of the sourceVertex and additional space in-between the vertices so 
@@ -1000,8 +997,8 @@ function App(el){
       x: (sourceVertex.posX + sourceVertex.width_dom + 50),
       y: (sourceVertex.posY + sourceVertex.height_dom + 50)
     };
-    let nV = active_graph.createNewVertexForNote( coords, nn )
-    nV.saveData() // REFACTOR: Maybe move to createNewVertexForNote()
+    let nV = active_graph.createNewVertexForNote( coords, nn );
+    nV.saveData(); // REFACTOR: Maybe move to createNewVertexForNote()
 
     // Create vertex pair here and execute code of createNewEdgeInGraph
     let vPair = {source: sourceVertex, target: nV},
@@ -1027,9 +1024,6 @@ function App(el){
     render(true);
   });
 
-  self.on('updateVertexPosition', function(){
-    // PROBABLY NOT NEEDED.
-  });
 
   // TODO
   function transitionGraph(project, graph, trigger='item-thumb'){
@@ -1039,7 +1033,7 @@ function App(el){
     // if(!project.getGraphMode()){
     //   self.session.prepProjectForTrans(project)
     // }
-    let active_graph = project.getActiveGraph()
+    let active_graph = project.getActiveGraph();
     if(!active_graph || active_graph === undefined){
       console.error("Error: No active graph set.");
       return;
@@ -1069,19 +1063,19 @@ function App(el){
   self.on('transitionGraphAndEditor', function(project, graph){
     console.log('transitionGraphAndEditor');
 
-    let active_graph = project.getActiveGraph()
+    let active_graph = project.getActiveGraph();
     if(!active_graph || active_graph === undefined){
       console.error("Error: No active graph set.");
       return;
     }
 
     if(!project.getGraphMode()){
-      project.toggleActiveGraph(graph)
-      project.setGraphMode(true)
-      render()
+      project.toggleActiveGraph(graph);
+      project.setGraphMode(true);
+      render();
     }else{
       if(active_graph.uuid.localeCompare(graph.uuid) === 0){
-        return
+        return;
       }
 
       // TODO: Save changes in graph or delete if empty
@@ -1095,7 +1089,7 @@ function App(el){
   });
 
   self.on('transitionGraphContextMenu', function(project, graph){
-    console.log("transitionGraphContextMenu")
+    console.log("transitionGraphContextMenu");
     if(project.getItemsFromSelection().indexOf(graph) < 0){
       transitionGraph(project, graph);
     }
@@ -1115,18 +1109,18 @@ function App(el){
           createNewGraph();
         }
       }
-    ]
+    ];
     self.views.items.showContextMenuFromTemplate(template);
   });
 
   function createNewGraph(){
     if(self.session.getActiveProject() === null){
-      console.log("App listener createNewNote -- No active project.")
-      return 
+      console.log("App listener createNewNote -- No active project.");
+      return;
     }
 
-    let nG = self.session.getActiveProject().createNewGraph()
-    nG.saveData() // REFACTOR: Maybe better move this in createNewNote()
+    let nG = self.session.getActiveProject().createNewGraph();
+    nG.saveData(); // REFACTOR: Maybe better move this in createNewNote()
 
     if(self.session.getGraphMode()){
       self.views.graph.forceClearContentDOMEl();
@@ -1151,20 +1145,20 @@ function App(el){
      *  - The deleted graph is moved to trash been for defined period of time
      */
     if(self.session.getActiveProject() === null){
-      console.log("App listener createNewNote -- No active project.")
-      return 
+      console.log("App listener createNewNote -- No active project.");
+      return;
     }
-    let active_p = self.session.getActiveProject()
-    let active_g = active_p.getActiveGraph()
-    console.log(active_g)
+    let active_p = self.session.getActiveProject();
+    let active_g = active_p.getActiveGraph();
+    console.log(active_g);
     if(active_g !== null ){
-      active_p.deleteGraph(active_g)
+      active_p.deleteGraph(active_g);
     }
 
     if(active_p.getGraphMode()){
       self.views.graph.forceClearContentDOMEl();
     }
-    render()
+    render();
   });
   
   function deleteSelectedGraphs(){
@@ -1188,11 +1182,11 @@ function App(el){
 
 
   self.on('updateByGraphEditorContent', function(active_graph){
-    console.log("App received: LIVE UPDATE TEXT OF NOTE THUMB")
+    console.log("App received: LIVE UPDATE TEXT OF NOTE THUMB");
     
     // self.views.titlebar.updateCreateNewBtn(el, active_note)
     if(self.views.items.objectOfDisplay === Graph){
-      self.views.items.updateActiveGraphThumb(el, active_graph)
+      self.views.items.updateActiveGraphThumb(el, active_graph);
     }
   });
 
@@ -1202,16 +1196,16 @@ function App(el){
      // TODO: Check for graph or regular view
     
     // Save the text of active note
-    let aP = self.session.getActiveProject()
-    self.session.prepProjectForTrans(aP)
+    let aP = self.session.getActiveProject();
+    self.session.prepProjectForTrans(aP);
     
-    ipcRenderer.send('closed')
+    ipcRenderer.send('closed');
   }
   /**
    * Handlers for IPC
    */
   ipcRenderer.on('saveEdits', (event) => {
-   closeApp()
+   closeApp();
   })
 
   
@@ -1227,10 +1221,10 @@ function App(el){
  * Benefitial when the graph svg deals with a lot of elements..
  */
 App.prototype.renderContentArea = function(lazy_load = false){
-  var self = this
+  var self = this;
   if(self.session.getGraphMode()){
     if(lazy_load){
-      return document.getElementById('content')
+      return document.getElementById('content');
     }
 
     let content = yo`
@@ -1238,17 +1232,17 @@ App.prototype.renderContentArea = function(lazy_load = false){
       ${self.views.graph.render(self.session.getActiveProject())}
       ${self.renderRightSideMenu()}
       </div>
-    `
-    console.log("======== renderContentArea: ===========")
-    console.log(content)
-    return content
+    `;
+    console.log("======== renderContentArea: ===========");
+    console.log(content);
+    return content;
 
   }else{
     return yo`
     <div id="content">
     ${self.views.editor.render(self.session.getActiveProject())}
     </div>
-    `
+    `;
   }
 }
 
@@ -1261,8 +1255,8 @@ App.prototype.renderRightSideMenu = function(lazy_load = false){
 }
 
 App.prototype.render = function (lazy_load = false) {
-  var self = this
-  var views = self.views
+  var self = this;
+  var views = self.views;
 
   // console.log("Active Project: ")
   // console.log(self.session.getActiveProject())
@@ -1301,7 +1295,7 @@ App.prototype.render = function (lazy_load = false) {
         </div>
         
       </div>
-    `
+    `;
   }else{
     return yo`
       <div id="layout">
@@ -1324,15 +1318,11 @@ App.prototype.render = function (lazy_load = false) {
           ${self.renderContentArea()}
 
           <!-- Message Toast Panel -->
-          ${function(){
-            let yo = self.views.notifications.render();
-            console.log(yo)
-            return yo;
-          }()}          
+          ${self.views.notifications.render()}          
         </div>
         
       </div>
-    `
+    `;
   }
   
 }

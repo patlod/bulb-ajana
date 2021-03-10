@@ -37,7 +37,7 @@ var StringFormatter = {
    * @param {*} string 
    */
   splitAtNewLine: function(string){
-    return string.replace(/\r/g, "").split(/\n/g)
+    return string.replace(/\r/g, "").split(/\n/g);
   },
 
   /**
@@ -50,15 +50,14 @@ var StringFormatter = {
    */
   getParagraphIndices: function(arr){
     //let txt_lines = 0
-    let indices = []
+    let indices = [];
     // Skip empty lines and calculate the cursor index..
     for(var i in arr){
       if(arr[i].length > 0){
-        indices.push(i)
+        indices.push(i);
       }
-
     }
-    return indices
+    return indices;
   }
 }
 

@@ -1,11 +1,11 @@
 module.exports = FileDatabase
 
-const FDM = require('./FileDatabaseManager')
+const FDM = require('./FileDatabaseManager');
 
-const low = require('lowdb')
-const FileSync = require('lowdb/adapters/FileSync')
+const low = require('lowdb');
+const FileSync = require('lowdb/adapters/FileSync');
 
-const { v4: uuidv4 } = require('uuid')
+const { v4: uuidv4 } = require('uuid');
 
 const DateFormatter = require('../_util/DateFormatter');
 
@@ -73,18 +73,18 @@ const DateFormatter = require('../_util/DateFormatter');
  * }
  */
 function FileDatabase(path) {
-  var self = this
+  var self = this;
 
-  this.path = path
+  this.path = path;
 
-  this.adapter = new FileSync(this.path)
-  this.db = low(this.adapter)
+  this.adapter = new FileSync(this.path);
+  this.db = low(this.adapter);
   
-  this.db.read()
+  this.db.read();
 }
 
 FileDatabase.prototype.read = function(){
-  this.db.read()
+  this.db.read();
 }
 
 /* ================================================================= */
@@ -95,24 +95,24 @@ FileDatabase.prototype.read = function(){
  * Returns the UUID of the project
  */
 FileDatabase.prototype.getProjectUUID = function(){
-  this.db.read()
-  return this.db.get('uuid').value()
+  this.db.read();
+  return this.db.get('uuid').value();
 }
 
 /**
  * Gets created datetime of DB file
  */
 FileDatabase.prototype.getProjectCreated = function(){
-  this.db.read()
-  return this.db.get('created').value()
+  this.db.read();
+  return this.db.get('created').value();
 }
 
 /**
  * Gets name of the project DB file
  */
 FileDatabase.prototype.getProjectName = function(){
-  this.db.read()
-  return this.db.get('name').value()
+  this.db.read();
+  return this.db.get('name').value();
 }
 
 /**
@@ -120,8 +120,8 @@ FileDatabase.prototype.getProjectName = function(){
  * @param {string} name 
  */
 FileDatabase.prototype.updateDBName = function(name){
-  this.db.read()
-  this.db.set('name', name).write()
+  this.db.read();
+  this.db.set('name', name).write();
 }
 
 /* ================================================================= */
@@ -136,14 +136,14 @@ FileDatabase.prototype.updateDBName = function(name){
  * @param {object} note 
  */
 FileDatabase.prototype.insertNote = function(note){
-  this.db.read()
+  this.db.read();
   // Check whether note is already in database
-  let s = this.db.get('notes').find({uuid: note.uuid}).value()
+  let s = this.db.get('notes').find({uuid: note.uuid}).value();
   // Write note to database if not existing yet..
   if(!s){
-    this.db.get('notes').push(note).write()
+    this.db.get('notes').push(note).write();
   }else{
-    console.log(note)
+    console.log(note);
     this.db.get('notes')
     .find({uuid: note.uuid})
     .assign({
@@ -152,7 +152,7 @@ FileDatabase.prototype.insertNote = function(note){
       text: note.text,
       bg_color: note.bg_color,
       associations: note.associations
-    }).write()
+    }).write();
   }
 }
 /**
@@ -163,13 +163,13 @@ FileDatabase.prototype.insertNote = function(note){
  * @param {[objects]} data 
  */
 FileDatabase.prototype.insertManyNotes = function(data){
-  this.db.read()
+  this.db.read();
   for(var i in data){
     // Check whether note is already in database
-    let s = this.db.get('notes').find({uuid: data[i].uuid}).value()
+    let s = this.db.get('notes').find({uuid: data[i].uuid}).value();
     // Write note to database if not existing yet..
     if(!s){
-      this.db.get('notes').push(data[i]).write()
+      this.db.get('notes').push(data[i]).write();
     }
   }
 }
@@ -181,13 +181,13 @@ FileDatabase.prototype.insertManyNotes = function(data){
  * @param {object} note 
  */
 FileDatabase.prototype.updateNoteText = function(note){
-  this.db.read()
-  let s = this.db.get('notes').find({uuid: note.uuid}).value()
+  this.db.read();
+  let s = this.db.get('notes').find({uuid: note.uuid}).value();
   if(s){
     this.db.get('notes')
     .find({uuid: note.uuid})
     .assign({modified: Date.now(), text: note.text})
-    .write()
+    .write();
   }
 }
 
@@ -198,13 +198,13 @@ FileDatabase.prototype.updateNoteText = function(note){
  * @param {[notes]} data 
  */
 FileDatabase.prototype.updateManyNotes = function(data){
-  this.db.read()
+  this.db.read();
   // Either tags or text
   for(i in data){
     this.db.get('notes')
     .find({uuid: data[i].uuid})
     .assign({modified: Date.now(), tags: data[i].tags, text: data[i].text, associations: data[i].associations})
-    .write()
+    .write();
   }
 }
 
@@ -215,7 +215,7 @@ FileDatabase.prototype.updateManyNotes = function(data){
  * 
  */
 FileDatabase.prototype.deleteNotes = function(data){
-  this.db.read()
+  this.db.read();
 
   let note = null,
       arr = data.map(function(x){ return { uuid: x.uuid } } );
@@ -225,7 +225,7 @@ FileDatabase.prototype.deleteNotes = function(data){
       note.modified = Date.now();
       this.db.get('trash').get('notes').push(note).write();
     }
-    this.db.get('notes').remove(arr[i]).write()
+    this.db.get('notes').remove(arr[i]).write();
   }
 }
 
@@ -238,31 +238,31 @@ FileDatabase.prototype.deleteNotes = function(data){
  * @param {[notes]} data 
  */
 FileDatabase.prototype.selectManyNotes = function(data){
-  this.db.read()
+  this.db.read();
 
-  let arr = data.map(function(x){ return { uuid: x.uuid } } )
-  let res = []
+  let arr = data.map(function(x){ return { uuid: x.uuid } } );
+  let res = [];
   for(var i in arr){
-    res.push(this.db.get('notes').find(arr[i]).value())
+    res.push(this.db.get('notes').find(arr[i]).value());
   }
   //console.log(res)
-  return res
+  return res;
 }
 
 /**
  * Selects all notes from the DB file
  */
 FileDatabase.prototype.selectAllNotes = function(){
-  this.db.read()
-  return this.db.get('notes').value()
+  this.db.read();
+  return this.db.get('notes').value();
 }
 
 /**
  * Returns number of notes in saved in DB file
  */
 FileDatabase.prototype.countNotes = function(){
-  this.db.read()
-  return this.db.get('notes').size().value()
+  this.db.read();
+  return this.db.get('notes').size().value();
 }
 
 
@@ -278,17 +278,17 @@ FileDatabase.prototype.countNotes = function(){
  * @param {string} tag_name 
  */
 FileDatabase.prototype.insertNoteTag = function(note_id, tag_name){
-  this.db.read()
+  this.db.read();
   // console.log("insertNoteTag: ")
   // console.log("Note-ID: " + note_id)
   
   // Check if tag is already existing in project's tag list
-  let s = this.db.get('tags').find({name: tag_name}).value()
+  let s = this.db.get('tags').find({name: tag_name}).value();
   // console.log(s)
   if(s){
     // Check whether the given note id is referenced from this tag
-    ss = this.db.get('tags').find({name: tag_name}).get('notes').find({uuid: note_id}).size().value()
-    console.log(ss)
+    ss = this.db.get('tags').find({name: tag_name}).get('notes').find({uuid: note_id}).size().value();
+    console.log(ss);
     if(ss < 1){
       // Add & increment note references to tag in project's global tag list
       this.db.get('tags')
@@ -296,7 +296,7 @@ FileDatabase.prototype.insertNoteTag = function(note_id, tag_name){
       .assign({modified: Date.now()})
       .get('notes')
       .push(note_id)
-      .write()
+      .write();
     }
     // Update note here too!!
     this.db.get('notes')
@@ -304,9 +304,9 @@ FileDatabase.prototype.insertNoteTag = function(note_id, tag_name){
     .assign({modified: Date.now()})
     .get('tags')
     .push(s.uuid)
-    .write()
+    .write();
 
-    return this.db.get('tags').find({name: tag_name}).value() 
+    return this.db.get('tags').find({name: tag_name}).value();
   }else{
     // Create tag and insert
     let tag = {
@@ -317,18 +317,18 @@ FileDatabase.prototype.insertNoteTag = function(note_id, tag_name){
       notes: [
         note_id
       ]
-    }
+    };
     // Add & increment note references to tag in project's global tag listread
-    this.db.get('tags').push(tag).write()
+    this.db.get('tags').push(tag).write();
     // Add tag reference to note
     this.db.get('notes')
     .find({uuid: note_id})
     .assign({modified: Date.now()})
     .get('tags')
     .push(tag.uuid)
-    .write()
+    .write();
     
-    return tag
+    return tag;
   }
 }
 
@@ -340,12 +340,12 @@ FileDatabase.prototype.insertNoteTag = function(note_id, tag_name){
  * @param {string} new_name 
  */
 FileDatabase.prototype.updateNoteTagName = function(note_id, cur_tag_id, new_name){
-  this.db.read()
+  this.db.read();
   // Check if the new name is in the project tag list 
-  let sample = this.db.get('tags').find({name: new_name}).value()
+  let sample = this.db.get('tags').find({name: new_name}).value();
   if(sample){    // Tag with suggested name already exists..
-    this.db.get('tags').find({name: new_name}).get('notes').push(note_id).write()
-    this.db.get('tags').find({uuid: cur_tag_id}).get('notes').remove(note_id).write()
+    this.db.get('tags').find({name: new_name}).get('notes').push(note_id).write();
+    this.db.get('tags').find({uuid: cur_tag_id}).get('notes').remove(note_id).write();
   }else{    
     // Create tag with new name add reference
     
@@ -356,14 +356,14 @@ FileDatabase.prototype.updateNoteTagName = function(note_id, cur_tag_id, new_nam
       name: new_name, 
       notes: [note_id]
     })
-    .write()
+    .write();
 
     // Remove note reference from prior tag
-    var ref_count_old = this.db.get('tags').find({uuid: cur_tag_id}).get('notes').size().value()
+    var ref_count_old = this.db.get('tags').find({uuid: cur_tag_id}).get('notes').size().value();
     if(ref_count_old > 1){
-      this.db.get('tags').find({uuid: cur_tag_id}).assign({modified: Date.now()}).get('notes').remove({uuid: note_id}).write()
+      this.db.get('tags').find({uuid: cur_tag_id}).assign({modified: Date.now()}).get('notes').remove({uuid: note_id}).write();
     }else{
-      this.db.get('tags').remove({uuid: old_tag_id}).write()
+      this.db.get('tags').remove({uuid: old_tag_id}).write();
     }
   }
 }
@@ -373,12 +373,12 @@ FileDatabase.prototype.updateNoteTagName = function(note_id, cur_tag_id, new_nam
  * @param {string} tag_id 
  */
 FileDatabase.prototype.deleteTagGlobally = function(tag_id){
-  this.db.read()
+  this.db.read();
 
-  console.log("deleteTagGlobally: ")
-  console.log("Tag-ID: " + tag_id)
+  console.log("deleteTagGlobally: ");
+  console.log("Tag-ID: " + tag_id);
 
-  this.db.get('tags').remove({uuid: tag_id}).write()
+  this.db.get('tags').remove({uuid: tag_id}).write();
 }
 
 /**
@@ -389,30 +389,30 @@ FileDatabase.prototype.deleteTagGlobally = function(tag_id){
  * @param {string} tag_id 
  */
 FileDatabase.prototype.removeNoteTag = function(note_id, tag_id){
-  this.db.read()
-  console.log("removeNoteTag: ")
-  console.log("Note-ID: " + note_id)
-  console.log("Tag-ID: " + tag_id)
+  this.db.read();
+  console.log("removeNoteTag: ");
+  console.log("Note-ID: " + note_id);
+  console.log("Tag-ID: " + tag_id);
   // Remove tag from tags list in note
   let val = this.db.get('notes')
               .find({uuid: note_id})
               .assign({modified: Date.now()})
               .get('tags')
               .remove(function(x){ return x === tag_id })
-              .write()
+              .write();
 
   // Remove & decrement references in tags list of project
-  var ref_count_old = this.db.get('tags').find({uuid: tag_id}).get('notes').size().value()
-  console.log("ref_count_old: " + ref_count_old)
+  var ref_count_old = this.db.get('tags').find({uuid: tag_id}).get('notes').size().value();
+  console.log("ref_count_old: " + ref_count_old);
   if(ref_count_old > 1){
     this.db.get('tags')
       .find({uuid: tag_id})
       .assign({modified: Date.now()})
       .get('notes')
       .remove(function(x){ return x === note_id })
-      .write()
+      .write();
   }else{
-    this.deleteTagGlobally(tag_id)
+    this.deleteTagGlobally(tag_id);
   }
 }
 
@@ -421,10 +421,10 @@ FileDatabase.prototype.removeNoteTag = function(note_id, tag_id){
  * @param {string} tag_id 
  */
 FileDatabase.prototype.deleteTagFromProject = function(tag_id){
-  this.db.read()
+  this.db.read();
   // Deleting tags only from notes should be enough...
   // Since it is only removable if it has no references to notes
-  this.db.get('tags').remove({uuid: tag_id}).write()
+  this.db.get('tags').remove({uuid: tag_id}).write();
 }
 
 /**
@@ -432,18 +432,19 @@ FileDatabase.prototype.deleteTagFromProject = function(tag_id){
  * @param {string} note_id 
  */
 FileDatabase.prototype.getNoteTags = function(note_id){
-  this.db.read()
+  this.db.read();
   // Resolve references to project's tag list
-  let tag_pointers = this.db.get('notes').find({uuid: note_id}).get('tags').value()
+  let tag_pointers = this.db.get('notes').find({uuid: note_id}).get('tags').value();
   // Join data
-  let tag_ids = tag_pointers.map(function(id){ return { uuid: id } })
-  let arr = []
-  let cur = null
+  let arr = [],
+      cur = null,
+      tag_ids = tag_pointers.map(function(id){ return { uuid: id } });
+  
   for(var i in tag_ids){
-    cur = this.db.get('tags').find({ uuid: tag_ids[i].uuid}).value()
-    arr.push(cur)
+    cur = this.db.get('tags').find({ uuid: tag_ids[i].uuid}).value();
+    arr.push(cur);
   }
-  return arr 
+  return arr;
 }
 
 /**
@@ -452,22 +453,23 @@ FileDatabase.prototype.getNoteTags = function(note_id){
  * @param {string} tag_id
  */
 FileDatabase.prototype.getNotesFromTag = function(tag_id){
-  this.db.read()
-  let note_pointers = this.db.get('tags').find({uuid: tag_id}).get('notes').value()
-  let notes = []
+  this.db.read();
+  let notes = [],
+      note_pointers = this.db.get('tags').find({uuid: tag_id}).get('notes').value();
+  
   for(var i in note_pointers){
-    notes.push(this.db.get('notes').find({uuid: note_pointers[i]}).value())
+    notes.push(this.db.get('notes').find({uuid: note_pointers[i]}).value());
   }
-  return notes
+  return notes;
 }
 
 /**
  * Returns all tags of the project.
  */
 FileDatabase.prototype.getProjectTags = function(){
-  this.db.read()
+  this.db.read();
   // Read all the data from project's tag list
-  return this.db.get('tags').value()
+  return this.db.get('tags').value();
 }
 
 
@@ -500,19 +502,19 @@ FileDatabase.prototype.getProjectTags = function(){
   */
 
 FileDatabase.prototype.makeGraphTable = function(){
-  this.db.read()
-  this.db.set('graphs', []).write()
+  this.db.read();
+  this.db.set('graphs', []).write();
 }
 
 FileDatabase.prototype.insertGraph = function(graph){
-  this.db.read()
+  this.db.read();
   // NOTE: Check graph JSON so that only references are used.
 
   // Check whether note is already in database
-  let s = this.db.get('graphs').find({uuid: graph.uuid}).value()
+  let s = this.db.get('graphs').find({uuid: graph.uuid}).value();
   // Write note to database if not existing yet..
   if(!s){
-    this.db.get('graphs').push(graph).write()
+    this.db.get('graphs').push(graph).write();
   }
 }
 
@@ -524,7 +526,7 @@ FileDatabase.prototype.updateGraphPosition = function(graph_id, position){
       scale: position.scale
     },
     modified: Date.now(),
-  }).write()
+  }).write();
 }
 
 FileDatabase.prototype.updateGraphDescription = function(graph_id, description){
@@ -536,15 +538,15 @@ FileDatabase.prototype.updateGraphDescription = function(graph_id, description){
 }
 
 FileDatabase.prototype.selectAllGraphs = function(){
-  this.db.read()
-  return this.db.get('graphs').value()
+  this.db.read();
+  return this.db.get('graphs').value();
 }
 
 FileDatabase.prototype.insertVertex = function(graph_id, vertex){
   // Empty database buffer
-  this.db.read()
+  this.db.read();
 
-  let s = this.db.get('graphs').find({uuid: graph_id}).get('vertices').find({uuid: vertex.uuid}).value()
+  let s = this.db.get('graphs').find({uuid: graph_id}).get('vertices').find({uuid: vertex.uuid}).value();
   if(!s){ // Not existing, so create..
     this.db.get('graphs')
     .find({uuid: graph_id})
@@ -556,7 +558,7 @@ FileDatabase.prototype.insertVertex = function(graph_id, vertex){
       note:     vertex.note.uuid,
       posX:     vertex.posX,
       posY:     vertex.posY
-    }).write()
+    }).write();
   }else{  // Exists, so update its position..
     this.db.get('graphs')
     .find({uuid: graph_id})
@@ -566,7 +568,7 @@ FileDatabase.prototype.insertVertex = function(graph_id, vertex){
     .assign({
       posX:     vertex.posX,
       posY:     vertex.posY
-    }).write()
+    }).write();
   }
 }
 
@@ -576,7 +578,7 @@ FileDatabase.prototype.insertVertex = function(graph_id, vertex){
  * @param {[object]} data 
  */
 FileDatabase.prototype.deleteGraphs = function(data){
-  this.db.read()
+  this.db.read();
 
   let graph = null,
       arr = data.map(function(x){ return { uuid: x.uuid } } );
@@ -586,30 +588,30 @@ FileDatabase.prototype.deleteGraphs = function(data){
       graph.modified = Date.now();
       this.db.get('trash').get('graphs').push(graph).write();
     }
-    this.db.get('graphs').remove(arr[i]).write()
+    this.db.get('graphs').remove(arr[i]).write();
   }
 }
 
 FileDatabase.prototype.deleteVertices = function(graph_id, vertices){
   // Empty database buffer
-  this.db.read()
+  this.db.read();
   
-  let v_ids = vertices.map(function(v){ return { uuid: v.uuid } } )
+  let v_ids = vertices.map(function(v){ return { uuid: v.uuid } } );
   for(var i in v_ids){
-    this.db.get('graphs').find({uuid: graph_id}).assign({ modified: Date.now() }).get('vertices').remove(v_ids[i]).write()
+    this.db.get('graphs').find({uuid: graph_id}).assign({ modified: Date.now() }).get('vertices').remove(v_ids[i]).write();
   }
 }
 
 FileDatabase.prototype.selectAllVertices = function(graph_id){
-  this.db.read()
-  return this.db.get('graphs').find({uuid: graph_id}).get('vertices').value()
+  this.db.read();
+  return this.db.get('graphs').find({uuid: graph_id}).get('vertices').value();
 }
 
 FileDatabase.prototype.insertEdge = function(graph_id, edge){
   // Empty database buffer
-  this.db.read()
+  this.db.read();
 
-  let s = this.db.get('graphs').find({uuid: graph_id}).get('edges').find({uuid: edge.uuid}).value()
+  let s = this.db.get('graphs').find({uuid: graph_id}).get('edges').find({uuid: edge.uuid}).value();
   if(!s){
     this.db.get('graphs')
     .find({uuid: graph_id})
@@ -620,7 +622,7 @@ FileDatabase.prototype.insertEdge = function(graph_id, edge){
       created: edge.created,
       source: edge.source.uuid,
       target: edge.target.uuid
-    }).write()
+    }).write();
   }
 }
 
@@ -628,7 +630,7 @@ FileDatabase.prototype.deleteEdges = function(graph_id, edges){
   // Empty database buffer
   this.db.read();
 
-  let ed_ids = edges.map(function(ed){ return { uuid: ed.uuid } } )
+  let ed_ids = edges.map(function(ed){ return { uuid: ed.uuid } } );
   for(var i in ed_ids){
     this.db.get('graphs').find({uuid: graph_id}).assign({ modified: Date.now() }).get('edges').remove(ed_ids[i]).write();
   }

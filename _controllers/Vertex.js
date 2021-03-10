@@ -1,32 +1,32 @@
 module.exports = Vertex
 
-const FileDatabaseManager = require('../_models/FileDatabaseManager')
+const FileDatabaseManager = require('../_models/FileDatabaseManager');
 
 
 function Vertex(graph, data = FileDatabaseManager.getEmptyVertexJSON()) 
 {
-  var self = this
+  var self = this;
 
   // Vertice data
-  this.uuid = data.uuid
-  this.created = data.created
-  this.note = data.note
+  this.uuid = data.uuid;
+  this.created = data.created;
+  this.note = data.note;
   // Positional coordinates of the vertex (North-West corner of DOMElement)
-  this.posX = data.posX
-  this.posY = data.posY
+  this.posX = data.posX;
+  this.posY = data.posY;
 
   // Dimensions of the UI elmement in the graph (these will not go to database)
   // NOTE: This is normally rather UI data that belongs in the view
-  this.width_dom = data.width_dom
-  this.height_dom = data.height_dom
+  this.width_dom = data.width_dom;
+  this.height_dom = data.height_dom;
 
-  this.graph = graph
+  this.graph = graph;
 }
 
 
 Vertex.prototype.saveData = function(){
-  console.log("Vertex - saveData()")
-  this.graph.getDB().insertVertex(this.graph.uuid, this.getVertexJSON())
+  console.log("Vertex - saveData()");
+  this.graph.getDB().insertVertex(this.graph.uuid, this.getVertexJSON());
 }
 
 /**
@@ -38,14 +38,14 @@ Vertex.prototype.saveData = function(){
  */
 Vertex.prototype.calcDOMCenterCoords = function(){
   if(!this.width_dom || !this.height_dom){
-    console.error("Vertex dimensions have not been set yet.")
-    return
+    console.error("Vertex dimensions have not been set yet.");
+    return;
   }
-  return {x: (this.posX + this.width_dom/2), y: (this.posY + this.height_dom/2)}
+  return {x: (this.posX + this.width_dom/2), y: (this.posY + this.height_dom/2)};
 }
 
 Vertex.prototype.getGraph = function(){
-  return this.graph
+  return this.graph;
 }
 
 /**
@@ -54,7 +54,7 @@ Vertex.prototype.getGraph = function(){
  * @param {Note} note
  */
 Vertex.prototype.compareTo = function(vertex){
-  return ( JSON.stringify(this.getVertexJSON()).localeCompare( JSON.stringify(vertex.getVertexJSON()) ) === 0 )
+  return ( JSON.stringify(this.getVertexJSON()).localeCompare( JSON.stringify(vertex.getVertexJSON()) ) === 0 );
 }
 
 
@@ -67,6 +67,5 @@ Vertex.prototype.getVertexJSON = function(){
     posY:       this.posY,
     width_dom:  this.width_dom,
     height_dom: this.height_dom
-
-  }
+  };
 }

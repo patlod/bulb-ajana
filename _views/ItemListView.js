@@ -1,7 +1,7 @@
 module.exports = ItemListView
 
-const EventEmitterElement = require('../_app/EventEmitterElement')
-var inherits = require('util').inherits
+const EventEmitterElement = require('../_app/EventEmitterElement');
+var inherits = require('util').inherits;
 
 const remote = require('electron').remote;
 const Menu = require('electron').remote.Menu;
@@ -10,8 +10,8 @@ const Note = require('../_controllers/Note');
 const Graph = require('../_controllers/Graph');
 
 
-const yo = require('yo-yo')
-const DateFormatter = require('../_util/DateFormatter')
+const yo = require('yo-yo');
+const DateFormatter = require('../_util/DateFormatter');
 
 function ItemListView(target, focus_manager) {
   var self = this;
@@ -31,26 +31,26 @@ ItemListView.prototype.tagsHTML = function(note, pureHTML = false){
   // TODO: Limit the amount of tags shown.
   //console.log(note.getTags())
   if(pureHTML){
-    let div =  document.createElement("div")
-    div.classList = "item-thmb-tags"
+    let div =  document.createElement("div");
+    div.classList = "item-thmb-tags";
     note.getTags().map(function(tag){
       let span = document.createElement("span")
       span.textContent = tag.name
       div.appendChild(span)
-    })
-    return div
+    });
+    return div;
   }else{
     let tags = note.getTags().map(function(tag){
       return yo` 
       <span>${tag.name} </span>
-      `
+      `;
     })
   
     return yo`
       <div class="item-thmb-tags">     
         ${tags}
       </div>
-    `
+    `;
   }
 }
 
@@ -58,23 +58,23 @@ ItemListView.prototype.updateActiveNoteThumb = function(dom_el, active_note){
   var self = this;
 
   // Get active note thumb..
-  let active_note_thmb = dom_el.getElementsByClassName('item-thmb selected')[0]
+  let active_note_thmb = dom_el.getElementsByClassName('item-thmb selected')[0];
   //console.log(dom_el.getElementsByClassName('item-thmb selected'))
   // ..update data.
-  active_note_thmb.getElementsByClassName('item-thmb-head')[0].textContent = active_note.getHeader()
-  active_note_thmb.getElementsByClassName('item-thmb-content')[0].textContent = active_note.getContentPreview()
-  active_note_thmb.getElementsByClassName('item-thmb-tags')[0].replaceWith(self.tagsHTML(active_note, true))
+  active_note_thmb.getElementsByClassName('item-thmb-head')[0].textContent = active_note.getHeader();
+  active_note_thmb.getElementsByClassName('item-thmb-content')[0].textContent = active_note.getContentPreview();
+  active_note_thmb.getElementsByClassName('item-thmb-tags')[0].replaceWith(self.tagsHTML(active_note, true));
 }
 
 ItemListView.prototype.updateActiveGraphThumb = function(dom_el, active_graph){
   var self = this;
   if(self.objectOfDisplay === Note){ return; }
   // Get active graph thumb..
-  let active_graph_thmb = dom_el.getElementsByClassName('item-thmb selected')[0]
+  let active_graph_thmb = dom_el.getElementsByClassName('item-thmb selected')[0];
   //console.log(dom_el.getElementsByClassName('item-thmb selected'))
   // ..update data.
   active_graph_thmb.getElementsByClassName('item-thmb-head')[0].textContent = active_graph.getHeader();
-  let nThmb_content = active_graph_thmb.getElementsByClassName('item-thmb-content')
+  let nThmb_content = active_graph_thmb.getElementsByClassName('item-thmb-content');
   nThmb_content[0].textContent = active_graph.getContentPreview();
   nThmb_content[1].textContent = active_graph.getNumberOfNotes() + "Notes linked";
 }
@@ -93,10 +93,10 @@ ItemListView.prototype.updateActiveGraphNoteCount = function(dom_el, active_grap
 }
 
 ItemListView.prototype.updateNoteThmbColor = function(note){
-  let target = document.getElementsByClassName('item-thmb selected')[0]
-  let c = target.getElementsByClassName('color-pickr-circle-thmb')[0]
+  let target = document.getElementsByClassName('item-thmb selected')[0];
+      c = target.getElementsByClassName('color-pickr-circle-thmb')[0];
 
-  c.style.backgroundColor = note.bg_color
+  c.style.backgroundColor = note.bg_color;
 }
 
 ItemListView.prototype.showContextMenuFromTemplate = function(template){
@@ -110,9 +110,9 @@ ItemListView.prototype.showContextMenuFromTemplate = function(template){
  * @param {Project} project - Should be the currently active project
  */
 ItemListView.prototype.render = function(project){
-  var self = this
+  var self = this;
   
-  if(!project){ return }
+  if(!project){ return; }
 
   // Could also check whether project is active here...
   var thumbs, notes, graphs, item_selection;
@@ -127,7 +127,7 @@ ItemListView.prototype.render = function(project){
       });
 
       let chk = notes.filter(function(x){
-        return x.compareTo(project.getActiveNote())
+        return x.compareTo(project.getActiveNote());
       })
       if(notes.length > 0 && chk.length === 0){
         project.toggleActiveNote(notes[0]);
@@ -157,12 +157,12 @@ ItemListView.prototype.render = function(project){
       }
 
       function dblclickItemThmb(e){
-        console.log("Double click on..")
+        console.log("Double click on..");
         if(project.getGraphMode()){
           // Project in graph mode so switch to NoteEditor and then focus on note
           self.send('transitionNoteAndEditor', project, note);
         }else{  // Same as single click
-          self.send('transitionNote', project, note)
+          self.send('transitionNote', project, note);
         }
       }
 
@@ -193,12 +193,12 @@ ItemListView.prototype.render = function(project){
             </div>
           </div>
         </div>
-      `
+      `;
     
       // Make item-thumbs draggable elements
       $(note_thumb).draggable({
         start: function(event,ui){
-          $('body').css("cursor", "no-drop")
+          $('body').css("cursor", "no-drop");
         },
         stop: function(event,ui){
           $('body').css("cursor", "initial");
@@ -206,8 +206,8 @@ ItemListView.prototype.render = function(project){
         revert: true, 
         helper: function(e,ui){
           //$($.parseHTML('<p style="background: pink">Copy!</p>'))
-          let $clone = $(this).clone()
-          $clone.children('.item-thmb').css({"background": "#f7f7f7", "border-bottom": "none"})
+          let $clone = $(this).clone();
+          $clone.children('.item-thmb').css({"background": "#f7f7f7", "border-bottom": "none"});
           
           let selection_size = project.getItemsFromSelection().length;
           if(selection_size > 1){
@@ -218,20 +218,20 @@ ItemListView.prototype.render = function(project){
             $span.html(selection_size.toString());
             $clone.append($span);
           }
-          return $clone
+          return $clone;
         }, 
         cursorAt: { left: 2, top: 2},
         appendTo: '#layout',
         distance: 20
-      })
+      });
 
-      return note_thumb
+      return note_thumb;
     })
 
   }else{
 
     graphs = project.getAllGraphs();
-    item_selection = project.getItemSelection()
+    item_selection = project.getItemSelection();
     // if(item_selection.object !== Graph){ console.error(); }
 
     thumbs = graphs.map(function(graph){
@@ -290,8 +290,8 @@ ItemListView.prototype.render = function(project){
             </div>
           </div>
         </div>
-      `
-      return graph_thumb
+      `;
+      return graph_thumb;
     })
   }
 
@@ -306,7 +306,7 @@ ItemListView.prototype.render = function(project){
   }
 
   function clickSelectNotesList(){
-    console.log("clickSelectNotesList")
+    console.log("clickSelectNotesList");
     self.objectOfDisplay = Note;
     self.send('switchItemList', self.objectOfDisplay);
   }
@@ -352,7 +352,7 @@ ItemListView.prototype.render = function(project){
         }
         
       }()}
-      </div>`  
+      </div>`;
   return notes_list;
   
 }

@@ -1,13 +1,10 @@
 module.exports = ProjectListView
 
-const EventEmitterElement = require('../_app/EventEmitterElement')
-var inherits = require('util').inherits
+const EventEmitterElement = require('../_app/EventEmitterElement');
+var inherits = require('util').inherits;
 const remote = require('electron').remote;
 const Menu = require('electron').remote.Menu;
-
-var yo = require('yo-yo')
-
-
+var yo = require('yo-yo');
 
 
 function ProjectListView(target, focus_manager) {
@@ -23,12 +20,12 @@ inherits(ProjectListView, EventEmitterElement)
 
 
 ProjectListView.prototype.createPrjctThmbDropdown = function(){
-  var self = this
+  var self = this;
   /**
    * Event handler functions
    */
   function clickRenameProject(e){
-    console.log("Click handler - RENAME")
+    console.log("Click handler - RENAME");
     let p_thumb = $(this).parent().parent().parent().parent()[0];
     let nInput = p_thumb.getElementsByClassName('prjct-name-input')[0];
     let nSpan = p_thumb.getElementsByClassName('prjct-thmb-name')[0];
@@ -50,7 +47,7 @@ ProjectListView.prototype.createPrjctThmbDropdown = function(){
   }
 
   function clickDeleteProject(e){
-    console.log("Click handler - DELETE")
+    console.log("Click handler - DELETE");
     let dd_el = $(this).parent().parent();
     dd_el.dropdown('destroy');
     let project_id = dd_el.parent().parent().attr('data-id');
@@ -85,13 +82,13 @@ ProjectListView.prototype.createPrjctThmbDropdown = function(){
         <div class="item">Open Folder</div> -->
       </div>
     </div>  
-  `
+  `;
   
-  return prjct_thmb_dp
+  return prjct_thmb_dp;
 }
 
 ProjectListView.prototype.createLeftMenuDropdown = function(recents){
-  var self = this
+  var self = this;
   
   /**
    * Event h
@@ -105,7 +102,7 @@ ProjectListView.prototype.createLeftMenuDropdown = function(recents){
   }
 
   function clickOpenRecentProject(e){
-    let path = this.getAttribute('data-path')
+    let path = this.getAttribute('data-path');
     self.send('openRecentProject', path);
   }
 
@@ -114,12 +111,12 @@ ProjectListView.prototype.createLeftMenuDropdown = function(recents){
       let path_split = path.split("/")
       let project_name = path_split[path_split.length-1].split(".")[0]
       return yo`
-      <div class="item" data-path="${path}" onclick=${clickOpenRecentProject}>
-        <!-- <div class="ui red empty circular label"></div> -->
-        ${project_name}
-      </div>
-      `
-    })
+        <div class="item" data-path="${path}" onclick=${clickOpenRecentProject}>
+          <!-- <div class="ui red empty circular label"></div> -->
+          ${project_name}
+        </div>
+        `;
+    });
   }
 
   var left_menu_dp = yo`
@@ -151,9 +148,9 @@ ProjectListView.prototype.createLeftMenuDropdown = function(recents){
         </div>
       </div>          
     </div>
-  `
+  `;
 
-  return left_menu_dp
+  return left_menu_dp;
 }
 
 /**
@@ -179,7 +176,7 @@ ProjectListView.prototype.render = function(projects, recents){
       //console.log(e.target)
       if(e.target !== this && (e.target.classList.contains('fa-ellipsis-h')
           || e.target.classList.contains("item"))){
-        return
+        return;
       }
       // if(e.target !== this){ 
       //   return
@@ -247,65 +244,65 @@ ProjectListView.prototype.render = function(projects, recents){
       // Check whether input is .hidden 
       // (i.e. event was already treated by keyup handler)
       if(this.classList.contains('hidden')){
-        return
+        return;
       }
 
-      console.log("Name input blur handler treating event.")
-      let input_str = self.sanitizeString(this.value)
+      console.log("Name input blur handler treating event.");
+      let input_str = self.sanitizeString(this.value);
       if(input_str.length < 1 || !project.validFileName(input_str)){
         if(!this.classList.contains('alert')){
-          this.classList.add('alert')
+          this.classList.add('alert');
         }
         // Refocus the input field.
-        this.focus()
-        this.select()
+        this.focus();
+        this.select();
       }else{
         if (input_str.length >= 1 && project.validFileName(input_str)){
           if(this.classList.contains('alert')){
-            this.classList.remove('alert')
+            this.classList.remove('alert');
           }
           
           // Rename project
-          project.renameProject(input_str)
-          console.log("renamed project....")
+          project.renameProject(input_str);
+          console.log("renamed project....");
           // Remove input field.
-          let p_thumb = $(this).parent()[0]
-          let nInput = p_thumb.getElementsByClassName('prjct-name-input')[0]
-          let nSpan = p_thumb.getElementsByClassName('prjct-thmb-name')[0]
+          let p_thumb = $(this).parent()[0];
+          let nInput = p_thumb.getElementsByClassName('prjct-name-input')[0];
+          let nSpan = p_thumb.getElementsByClassName('prjct-thmb-name')[0];
           // Set name in the span
-          nSpan.textContent = input_str
-          nSpan.classList.toggle('hidden')
-          nInput.classList.toggle('hidden')
+          nSpan.textContent = input_str;
+          nSpan.classList.toggle('hidden');
+          nInput.classList.toggle('hidden');
         
         }
       }
     }
 
     function keyupHandlerInput(e){
-      console.log("Name input keyup handler.")
-      let input_str = self.sanitizeString(this.value)
+      console.log("Name input keyup handler.");
+      let input_str = self.sanitizeString(this.value);
       if(input_str.length < 1 || !project.validFileName(input_str)){
         if(!this.classList.contains('alert')){
-          this.classList.add('alert')
+          this.classList.add('alert');
         }
       }else{
         if (input_str.length >= 1 && project.validFileName(input_str)){
           if(this.classList.contains('alert')){
-            this.classList.remove('alert')
+            this.classList.remove('alert');
           }
         
           if(e.keyCode === 13){
             // Rename project
-            project.renameProject(input_str)
-            console.log("renamed project....")
+            project.renameProject(input_str);
+            console.log("renamed project....");
             // Remove input field.
-            let p_thumb = $(this).parent()[0]
-            let nInput = p_thumb.getElementsByClassName('prjct-name-input')[0]
-            let nSpan = p_thumb.getElementsByClassName('prjct-thmb-name')[0]
+            let p_thumb = $(this).parent()[0];
+            let nInput = p_thumb.getElementsByClassName('prjct-name-input')[0];
+            let nSpan = p_thumb.getElementsByClassName('prjct-thmb-name')[0];
             // Set name in the span
-            nSpan.textContent = input_str
-            nSpan.classList.toggle('hidden')
-            nInput.classList.toggle('hidden')
+            nSpan.textContent = input_str;
+            nSpan.classList.toggle('hidden');
+            nInput.classList.toggle('hidden');
           }
         }
       }
@@ -315,7 +312,7 @@ ProjectListView.prototype.render = function(projects, recents){
     /* ====================================================================== */
     
     
-    var className = project.isActive() ? 'selected' : ''
+    var className = project.isActive() ? 'selected' : '';
 
     let project_thumb = yo`
       <div class="prjct-thmb ${className}" data-id="${project.uuid}"
@@ -332,7 +329,7 @@ ProjectListView.prototype.render = function(projects, recents){
           <span class="prjct-thmb-digit">${project.countNotes()}</span>
         </div>
       </div>
-    `
+    `;
 
     // Make project-thumbs droppable elements
     // $(project_thumb).droppable({
@@ -388,7 +385,7 @@ ProjectListView.prototype.render = function(projects, recents){
     //   }
     // });
 
-    return project_thumb
+    return project_thumb;
   })
 
   
@@ -399,41 +396,41 @@ ProjectListView.prototype.render = function(projects, recents){
   function clickPrjctAdd(e){
     // Trigger file prompt
     // Scroll down to the bottom of the projct list
-    console.log('Send newProject event')
-    self.send('newProject')
+    console.log('Send newProject event');
+    self.send('newProject');
   }
 
   function scrollProjectList(e){
     // Save the scroll position of project list
-    self.scrollTop = this.scrollTop
+    self.scrollTop = this.scrollTop;
   }
 
   
 
   return yo`
-    <div onclick=${clickProjectList}>
-      <div id="prjct-list-head">
-        <span>Projects</span>
+      <div onclick=${clickProjectList}>
+        <div id="prjct-list-head">
+          <span>Projects</span>
+        </div>
+
+        <!-- List of project thumbs -->
+        <div id="prjct-list-scroll" onscroll=${scrollProjectList}>
+
+          ${project_thmbs}
+
+        </div>
+      
+        <!-- Project control panel -->
+        <div id="left-menu-1-ctrls">
+          <span class="btn-add" onclick=${clickPrjctAdd}><i class="fas fa-plus"></i></span>
+          <!-- <span class="btn-options"><i class="fas fa-ellipsis-v"></i></span> -->
+          
+          <!-- Dropdown -->
+          ${self.createLeftMenuDropdown(recents)}
+
+        </div>
       </div>
-
-      <!-- List of project thumbs -->
-      <div id="prjct-list-scroll" onscroll=${scrollProjectList}>
-
-        ${project_thmbs}
-
-      </div>
-    
-      <!-- Project control panel -->
-      <div id="left-menu-1-ctrls">
-        <span class="btn-add" onclick=${clickPrjctAdd}><i class="fas fa-plus"></i></span>
-        <!-- <span class="btn-options"><i class="fas fa-ellipsis-v"></i></span> -->
-        
-        <!-- Dropdown -->
-        ${self.createLeftMenuDropdown(recents)}
-
-      </div>
-    </div>
-  `
+    `;
 }
 
 /*
@@ -460,7 +457,7 @@ ProjectListView.prototype.render = function(projects, recents){
         */
 
 ProjectListView.prototype.scrollToBottom = function (force) {
-  if (!force && !this.shouldAutoScroll) return
-  var projectList = document.getElementById('prjct-list-scroll')
-  if (projectList) projectList.scrollTop = projectList.scrollHeight
+  if (!force && !this.shouldAutoScroll) return;
+  var projectList = document.getElementById('prjct-list-scroll');
+  if (projectList) projectList.scrollTop = projectList.scrollHeight;
 }

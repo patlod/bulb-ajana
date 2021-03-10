@@ -6,8 +6,8 @@ const inherits = require('util').inherits
 
 
 function UserPreferences(path){
-  var self = this
-  AppStorageManager.call(this, path)
+  var self = this;
+  AppStorageManager.call(this, path);
 }
 inherits(UserPreferences, AppStorageManager)
 

@@ -81,7 +81,7 @@ function NotificationView(target, focus_manager) {
         }
       ]
     }
-  ]
+  ];
   this.notifications = [];
 }
 inherits(NotificationView, EventEmitterElement);
@@ -126,112 +126,58 @@ NotificationView.prototype.render = function(test = false){
       thumbs, btns;
 
   function clickCloseNotif(e){
-    if(test){
-      self.removeNotificationTEST($(this).parent().attr('data-id'));
-    }else{
-      self.removeNotification($(this).parent().attr('data-id'));
-    }
-    
+    self.removeNotification($(this).parent().attr('data-id'));
     self.send('renderLazy');
   }
 
-  if(test){
-    thumbs = self.test_notifs.map(function(n){
-      return yo`
-        <div class="notification" data-id="${n.uuid}">
-          <span class="close" onclick=${clickCloseNotif}>
-            <i class="fas fa-times"></i>
-          </span>
-          <div class="content">
-            <div class="row">
-              <div class="col-1">
-                ${function(){
-                  switch(n.type){
-                    case self.WARNING:
-                      return yo`<i class="fas fa-exclamation-circle"></i>`;
-                      break;
-                    case self.ERROR:
-                      return yo`<i class="fas fa-times-circle"></i>`;
-                      break;
-                    case self.INFO:
-                      return yo`<i class="fas fa-info-circle"></i>`;
-                      break;
-                  }
-                }()}
-                
-              </div>
-              <div class="col-2">
-                <span class="msg">${n.msg}</span>
-                <span class="src">${n.src}</span>
-              </div>
-            </div>    
-          </div>
-          <div class="ctrls">
-            ${function(){
-              btns = n.action_btns.map(function(b){
-                const cb = b.callback;
-                return yo`<span class="btn" onclick=${cb}>${b.name}</span>`;
-              });
-              return btns;
-            }()}
-          </div>
+  thumbs = self.notifications.map(function(n){
+    return yo`
+      <div class="notification" data-id="${n.uuid}">
+        <span class="close" onclick=${clickCloseNotif}>
+          <i class="fas fa-times"></i>
+        </span>
+        <div class="content">
+          <div class="row">
+            <div class="col-1">
+              ${function(){
+                switch(n.type){
+                  case self.WARNING:
+                    return yo`<i class="fas fa-exclamation-circle"></i>`;
+                    break;
+                  case self.ERROR:
+                    return yo`<i class="fas fa-times-circle"></i>`;
+                    break;
+                  case self.INFO:
+                    return yo`<i class="fas fa-info-circle"></i>`;
+                    break;
+                }
+              }()}
+              
+            </div>
+            <div class="col-2">
+              <span class="msg">${n.msg}</span>
+              <span class="src">${n.src}</span>
+            </div>
+          </div>    
         </div>
-      `;
-    });
-  }else{
-    thumbs = self.notifications.map(function(n){
-      return yo`
-        <div class="notification" data-id="${n.uuid}">
-          <span class="close" onclick=${clickCloseNotif}>
-            <i class="fas fa-times"></i>
-          </span>
-          <div class="content">
-            <div class="row">
-              <div class="col-1">
-                ${function(){
-                  switch(n.type){
-                    case self.WARNING:
-                      return yo`<i class="fas fa-exclamation-circle"></i>`;
-                      break;
-                    case self.ERROR:
-                      return yo`<i class="fas fa-times-circle"></i>`;
-                      break;
-                    case self.INFO:
-                      return yo`<i class="fas fa-info-circle"></i>`;
-                      break;
-                  }
-                }()}
-                
-              </div>
-              <div class="col-2">
-                <span class="msg">${n.msg}</span>
-                <span class="src">${n.src}</span>
-              </div>
-            </div>    
-          </div>
-          <div class="ctrls">
-            ${function(){
-              btns = n.action_btns.map(function(b){
-                const cb = b.callback;
-                return yo`<span class="btn" onclick=${cb}>${b.name}</span>`;
-              });
-              return btns;
-            }()}
-          </div>
+        <div class="ctrls">
+          ${function(){
+            btns = n.action_btns.map(function(b){
+              const cb = b.callback;
+              return yo`<span class="btn" onclick=${cb}>${b.name}</span>`;
+            });
+            return btns;
+          }()}
         </div>
-      `;
-    });
-  }
-
-  console.log(thumbs);
+      </div>
+    `;
+  });
 
   var ret = yo`
     <div class="notification-list hidden">
       ${thumbs}
     </div>
   `;
-
-  console.log(ret)
 
   return ret;
 }

@@ -1,13 +1,13 @@
-const fs = require('fs')
+const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
-const low = require('lowdb')
-const FileSync = require('lowdb/adapters/FileSync')
+const low = require('lowdb');
+const FileSync = require('lowdb/adapters/FileSync');
 
 const Note = require('../_controllers/note');
-const Project = require('../_controllers/Project')
+const Project = require('../_controllers/Project');
 
 
-const TEST_DB_PATH = "./_tests/test__Project.json"
+const TEST_DB_PATH = "./_tests/test__Project.json";
 const TEST_PRJCT_JSON = {
   uuid: uuidv4(),
   created: Date.now(),
@@ -15,16 +15,15 @@ const TEST_PRJCT_JSON = {
   tags: [],
   notes: [],
   graphs: []
-}
+};
 
-var ADAPTER = null
-var DB = null
+var ADAPTER = null;
+var DB = null;
 
 
 function emptyDBJson(){
   const json_string = JSON.stringify(TEST_PRJCT_JSON, null, 2);
-
-  fs.writeFileSync(TEST_DB_PATH, json_string)
+  fs.writeFileSync(TEST_DB_PATH, json_string);
 }
 
 // function cleanUpDBFile(){
@@ -37,16 +36,16 @@ function emptyDBJson(){
 
 
 beforeAll(() => {  
-  emptyDBJson()
-  ADAPTER = new FileSync(TEST_DB_PATH)
-  DB = low(ADAPTER)
+  emptyDBJson();
+  ADAPTER = new FileSync(TEST_DB_PATH);
+  DB = low(ADAPTER);
 
   //DB.read()
 })
 
 afterAll(() => {
-  DB = null
-  ADAPTER = null
+  DB = null;
+  ADAPTER = null;
 
   fs.unlinkSync(TEST_DB_PATH);
 })

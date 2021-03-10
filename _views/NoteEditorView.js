@@ -38,84 +38,68 @@ function NoteEditorView(target, focus_manager) {
   this.overlay_DOMEl = null;
   this.current_needle_DOMEl = null;
 }
-inherits(NoteEditorView, EventEmitterElement)
+inherits(NoteEditorView, EventEmitterElement);
 
 /**
  * Returns a (white)list of key-value pairs of global project tags
  * @param {Project} project 
  */
 NoteEditorView.prototype.fetchWhitelist = function(project){
-  let p_tag_objs = project.getAllTags()
-  let wL = p_tag_objs.map(function(t) { return {value: t.name } })
-  return wL
+  let p_tag_objs = project.getAllTags();
+  let wL = p_tag_objs.map(function(t) { return { value: t.name }; });
+  return wL;
 }
 
 NoteEditorView.prototype.addTag = function(e, tagify, note){
-  var self = this
-  console.log("addTag() - Active Note:")
-  console.log(self.active_note)
-  // console.log(e)
+  var self = this;
+
   // Add tag to list & database
-  self.active_note.addTag(e.detail.data.value)
+  self.active_note.addTag(e.detail.data.value);
 
   // Update whitelist of tagify input
-  console.log("wL before:")
-  console.log(tagify.settings.whitelist)
-  let new_wL = this.fetchWhitelist(self.active_note.project)
+  let new_wL = this.fetchWhitelist(self.active_note.project);
   // Reset tagify whitelist
-  tagify.settings.whitelist.length = 0
+  tagify.settings.whitelist.length = 0;
   // Update tagify whitelist
-  tagify.settings.whitelist.splice(0, new_wL.length, ...new_wL)
-  console.log("wL after: ")
-  console.log(tagify.settings.whitelist)
+  tagify.settings.whitelist.splice(0, new_wL.length, ...new_wL);
 
   // Trigger update of notes list
-  self.send("updateByNoteEditorContent", self.active_note)
+  self.send("updateByNoteEditorContent", self.active_note);
 }
 
 NoteEditorView.prototype.removeTag = function(e, tagify, note){
-  var self = this
-  console.log("removeTag() - Active Note:")
-  console.log(self.active_note)
+  var self = this;
+  console.log("removeTag() - Active Note:");
+  console.log(self.active_note);
   // console.log(e)
   // Remove tag from list & database
-  self.active_note.removeTag(e.detail.data.value)
+  self.active_note.removeTag(e.detail.data.value);
 
-  console.log("wL before:")
-  console.log(tagify.settings.whitelist)
-  let new_wL = this.fetchWhitelist(self.active_note.project)
+  let new_wL = this.fetchWhitelist(self.active_note.project);
   // Reset tagify whitelist
-  tagify.settings.whitelist.length = 0
+  tagify.settings.whitelist.length = 0;
   // Update tagify whitelist
-  tagify.settings.whitelist.splice(0, new_wL.length, ...new_wL)
-  console.log("wL after: ")
-  console.log(tagify.settings.whitelist)
+  tagify.settings.whitelist.splice(0, new_wL.length, ...new_wL);
   
   // Trigger update of notes list
-  self.send("updateByNoteEditorContent", self.active_note)
+  self.send("updateByNoteEditorContent", self.active_note);
 }
 
 NoteEditorView.prototype.updateTag = function(e, tagify, note){
-  var self = this
-  console.log("updateTag() - Active Note:")
-  console.log(self.active_note)
-  // console.log(e)
+  var self = this;
+
   // Update tag in list & database
-  self.active_note.updateTag(e.detail.data.value, e.detail.previousData.value)
+  self.active_note.updateTag(e.detail.data.value, e.detail.previousData.value);
   
   // Update white list
-  console.log("wL before:")
-  console.log(tagify.settings.whitelist)
-  let new_wL = this.fetchWhitelist(self.active_note.project)
+  let new_wL = this.fetchWhitelist(self.active_note.project);
   // Reset tagify whitelist
-  tagify.settings.whitelist.length = 0
+  tagify.settings.whitelist.length = 0;
   // Update tagify whitelist
-  tagify.settings.whitelist.splice(0, new_wL.length, ...new_wL)
-  console.log("wL after: ")
-  console.log(tagify.settings.whitelist)
+  tagify.settings.whitelist.splice(0, new_wL.length, ...new_wL);
 
   // Trigger update of notes list
-  self.send("updateByNoteEditorContent", self.active_note)
+  self.send("updateByNoteEditorContent", self.active_note);
 }
 
 /**
@@ -126,7 +110,7 @@ NoteEditorView.prototype.updateTag = function(e, tagify, note){
  * @param {[{Obj}]} tags 
  */
 NoteEditorView.prototype.makeTagifyValues = function(tags){
-  return JSON.stringify(tags.map(function(tag){ return { "value": tag.name } })) 
+  return JSON.stringify(tags.map(function(tag){ return { "value": tag.name } }));
 }
 
 NoteEditorView.prototype.focusNotepad = function(){
@@ -184,8 +168,8 @@ NoteEditorView.prototype.makeNotepadOverlayContent = function(haystack, needle, 
   for(i in sResults){
     offset_idx = sResults[i] - clip_length;
     cur_clip = nStr.substring(0, offset_idx);
-    html_str += cur_clip
-    html_str += "<span id='needle-idx-" + sResults[i] + "' class='needle-marker'>" + nStr.substring(offset_idx, offset_idx + needle.length) + "</span>"
+    html_str += cur_clip;
+    html_str += "<span id='needle-idx-" + sResults[i] + "' class='needle-marker'>" + nStr.substring(offset_idx, offset_idx + needle.length) + "</span>";
     nStr = nStr.substring(offset_idx + needle.length, nStr.length);
     clip_length += cur_clip.length + needle.length;
   }
@@ -265,7 +249,7 @@ NoteEditorView.prototype.resetSearch = function(){
 }
 
 NoteEditorView.prototype.toggleLocalSearch = function(){
-  let el = document.getElementById('local-search')
+  let el = document.getElementById('local-search');
   if(el){
     if(el.classList.contains('hidden')){
       el.classList.remove('hidden');
@@ -280,7 +264,7 @@ NoteEditorView.prototype.toggleLocalSearch = function(){
  * Resets the editor before new content is loaded.
  */
 NoteEditorView.prototype.resetEditorState = function(){
-  var self = this
+  var self = this;
 
   self.active_note = null;
 
@@ -301,16 +285,16 @@ NoteEditorView.prototype.resetEditorState = function(){
  * @param {Project} project 
  */
 NoteEditorView.prototype.render = function(project){
-  var self = this
+  var self = this;
 
   // Reset NoteEditorView state
-  self.resetEditorState()
+  self.resetEditorState();
 
-  if(!project){ return }
+  if(!project){ return; }
 
   // Get active note
-  self.active_note = project.getActiveNote()
-  if(!self.active_note){ return }
+  self.active_note = project.getActiveNote();
+  if(!self.active_note){ return; }
 
 
 
@@ -322,28 +306,28 @@ NoteEditorView.prototype.render = function(project){
   }
 
   function inputHandlerNotepad(e){
-    UIAssistant.resizeElementByContent(this)
+    UIAssistant.resizeElementByContent(this);
   }
 
   function keyupHandlerNotepad(e){
     // Store cursor position..
-    self.selectionStart = this.selectionStart
-    self.selectionEnd = this.selectionEnd
+    self.selectionStart = this.selectionStart;
+    self.selectionEnd = this.selectionEnd;
     
-    console.log(this.value)
+    console.log(this.value);
 
     // Save text to note object
     self.active_note.text = this.value;
 
     // Remove carriage returns and split at \newlines
-    let chk = self.active_note.needThumbUpdate(self.selectionStart, self.selectionEnd)
+    let chk = self.active_note.needThumbUpdate(self.selectionStart, self.selectionEnd);
     if(chk){
-      self.send("updateByNoteEditorContent", self.active_note)
+      self.send("updateByNoteEditorContent", self.active_note);
     }
 
     // Set dirty bit of note
     if(!self.active_note.isDirty()){ 
-      self.active_note.setDirtyBit(true) 
+      self.active_note.setDirtyBit(true);
     }
 
     // Set/Reset timer for writing to database
@@ -355,9 +339,9 @@ NoteEditorView.prototype.render = function(project){
 
       // Persist to database
       if(self.active_note){
-        self.active_note.saveText( )
-        self.active_note.setDirtyBit(false)
-        console.log("TIMEOUT: Writing text to database.")
+        self.active_note.saveText( );
+        self.active_note.setDirtyBit(false);
+        console.log("TIMEOUT: Writing text to database.");
       }
 
     }, self.SAVE_INTERVAL);  
@@ -365,8 +349,8 @@ NoteEditorView.prototype.render = function(project){
   }
 
   function clickHandlerNotepad(e){
-    self.selectionStart = this.selectionStart
-    self.selectionEnd = this.selectionEnd
+    self.selectionStart = this.selectionStart;
+    self.selectionEnd = this.selectionEnd;
   }
 
   function clickHandlerDate(e){
@@ -410,7 +394,7 @@ NoteEditorView.prototype.render = function(project){
     
     let needles = self.active_note.searchNoteText(this.value);
     self.search = new TextSearchIterator(this.value, self.active_note.text, needles);
-    self.initNotepadOverlay()
+    self.initNotepadOverlay();
 
     // Update the needle counter..
     search_in_el.getElementsByClassName('needle-count')[0].textContent = self.search.size();
@@ -476,73 +460,73 @@ NoteEditorView.prototype.render = function(project){
               <i class="fas fa-times-circle hidden" onclick=${clickClearLocalSearch}></i>
             </div>
         </div>
-    `
+    `;
   }
 
   function makeColorPaletteDropdown(active_note){
     if(!project){
-        return
+        return;
     }else{
       if(!project.getGraphMode()){
 
-        let colorCollection = CSSProcessor.getNoteBackgroundColors()
+        let colorCollection = CSSProcessor.getNoteBackgroundColors();
 
         function clickColorDPItem(e){
-          let style = window.getComputedStyle(this.getElementsByTagName('span')[0])
-          let color_str = UnitConverter.rgbToHex( style.getPropertyValue('background-color') )
+          let style = window.getComputedStyle(this.getElementsByTagName('span')[0]);
+          let color_str = UnitConverter.rgbToHex( style.getPropertyValue('background-color') );
           
           // let targetColor = colorCollection.filter(function(x){
           //   return x.color.localeCompare(color_str) === 0
           // })
 
           // Set background of the note-editor
-          document.getElementsByClassName('note-content-wrap')[0].style.backgroundColor = color_str
+          document.getElementsByClassName('note-content-wrap')[0].style.backgroundColor = color_str;
 
           
-          self.send('updateNoteColor', active_note, color_str)
+          self.send('updateNoteColor', active_note, color_str);
         }
 
-        let items_html = []
-        let el = null
+        let items_html = [];
+        let el = null;
         colorCollection.map(function(x, idx){
           if(active_note.bg_color.localeCompare(x.color) === 0){
             el = yo` 
-            <div class="item active" onclick=${clickColorDPItem}>
-                <span class="color-pickr-circle ${x.selector.substring(1)}"></span>
-            </div>
-          ` 
+              <div class="item active" onclick=${clickColorDPItem}>
+                  <span class="color-pickr-circle ${x.selector.substring(1)}"></span>
+              </div>
+            `;
           }else{
             el = yo` 
-            <div class="item" onclick=${clickColorDPItem}>
-                <span class="color-pickr-circle ${x.selector.substring(1)}"></span>
-            </div>
-          ` 
+              <div class="item" onclick=${clickColorDPItem}>
+                  <span class="color-pickr-circle ${x.selector.substring(1)}"></span>
+              </div>
+            `;
           }
           
-            items_html.push(el)
-            if((idx + 1) % 5 === 0){
-                items_html.push(yo`<div class="divider"></div>`)
-            }
+          items_html.push(el);
+          if((idx + 1) % 5 === 0){
+              items_html.push(yo`<div class="divider"></div>`);
+          }
             
         })
         
           
         return yo`
-        <div id="note-color-dp" class="ui floated dropdown">
-            <i class="fas fa-palette"></i>
-            <i class="dropdown icon"></i>
-            
-            <div class="menu">
-                <div class="header">
-                    <i class="fas fa-paint-roller"></i>
-                    Note Color
-                </div>
-                <div class="menu scrolling">
-                    ${items_html}
-                </div>
-            </div>
-        </div>
-        `
+          <div id="note-color-dp" class="ui floated dropdown">
+              <i class="fas fa-palette"></i>
+              <i class="dropdown icon"></i>
+              
+              <div class="menu">
+                  <div class="header">
+                      <i class="fas fa-paint-roller"></i>
+                      Note Color
+                  </div>
+                  <div class="menu scrolling">
+                      ${items_html}
+                  </div>
+              </div>
+          </div>
+          `;
       }
     }
   }
@@ -583,7 +567,7 @@ NoteEditorView.prototype.render = function(project){
         
       </div>
     </div>
-    `
+    `;
   /**
    * HACK because html strings are not really processable with yo-yo
    * 
@@ -591,7 +575,7 @@ NoteEditorView.prototype.render = function(project){
    */
   if(project_search !== null){
     let chk = project_search.notes.filter(function(x){ 
-      return x.note.compareTo(self.active_note) 
+      return x.note.compareTo(self.active_note);
     });
     if(chk.length === 1){
       let overlay = editor_view.getElementsByClassName('overlay')[0]
@@ -607,7 +591,7 @@ NoteEditorView.prototype.render = function(project){
   /**
    * Initialise tagify input on the UI fragment.
    */
-  var input = editor_view.querySelector('textarea[name=note-tags]')
+  var input = editor_view.querySelector('textarea[name=note-tags]');
   // Create tagify tag input on textarea
   self.tagify = new Tagify(input, {
     pattern          : /^[a-zA-ZäöüÄÖÜß0-9\-_]{0,40}$/,
@@ -623,9 +607,9 @@ NoteEditorView.prototype.render = function(project){
   });
 
   if(project_search !== null && project_search.notes.length === 0){
-    return null
+    return null;
   }else{
-    return editor_view
+    return editor_view;
   }
   
   

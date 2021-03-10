@@ -1,37 +1,37 @@
 module.exports = AppStorageManager
 
-const fs = require('fs')
+const fs = require('fs');
 
-const low = require('lowdb')
-const FileSync = require('lowdb/adapters/FileSync')
+const low = require('lowdb');
+const FileSync = require('lowdb/adapters/FileSync');
 
-const { v4: uuidv4 } = require('uuid')
-const FileDatabaseManager = require('./FileDatabaseManager')
-const { fstat } = require('fs')
+const { v4: uuidv4 } = require('uuid');
+const FileDatabaseManager = require('./FileDatabaseManager');
+const { fstat } = require('fs');
 
 
 function AppStorageManager(path) {
-  var self = this
+  var self = this;
 
-  this.path = path
+  this.path = path;
 
   try{
     if(!fs.existsSync(this.path)){
-      let nF = FileDatabaseManager.getEmptyStorageJSON()
-      fs.writeFileSync(this.path, JSON.stringify(nF, null, 2))
+      let nF = FileDatabaseManager.getEmptyStorageJSON();
+      fs.writeFileSync(this.path, JSON.stringify(nF, null, 2));
     }
   }catch(err) {
-    console.error(err)
+    console.error(err);
   }
 
-  this.adapter = new FileSync(this.path)
-  this.db = low(this.adapter)
+  this.adapter = new FileSync(this.path);
+  this.db = low(this.adapter);
   
-  this.db.read()
+  this.db.read();
 }
 
 AppStorageManager.prototype.read = function(){
-  this.db.read()
+  this.db.read();
 }
 
 /* ================================================================= */
@@ -42,21 +42,21 @@ AppStorageManager.prototype.read = function(){
  * Returns the UUID of the project
  */
 AppStorageManager.prototype.getUUID = function(){
-  return this.db.get('uuid').value()
+  return this.db.get('uuid').value();
 }
 
 /**
  * Gets created datetime of DB file
  */
 AppStorageManager.prototype.getCreated = function(){
-  return this.db.get('created').value()
+  return this.db.get('created').value();
 }
 
 /**
  * Gets name of the project DB file
  */
 AppStorageManager.prototype.getName = function(){
-  return this.db.get('name').value()
+  return this.db.get('name').value();
 }
 
 /**
@@ -64,7 +64,7 @@ AppStorageManager.prototype.getName = function(){
  * @param {string} name 
  */
 AppStorageManager.prototype.updateDBName = function(name){
-  this.db.set('name', name).write()
+  this.db.set('name', name).write();
 }
 
 
@@ -73,7 +73,7 @@ AppStorageManager.prototype.updateDBName = function(name){
 /* ================================================================= */
 
 AppStorageManager.prototype.getPath = function(){
-  return this.path
+  return this.path;
 }
 
 /* ================================================================= */

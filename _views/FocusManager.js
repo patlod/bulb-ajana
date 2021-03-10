@@ -1,5 +1,5 @@
-const EventEmitterElement = require('../_app/EventEmitterElement')
-var inherits = require('util').inherits
+const EventEmitterElement = require('../_app/EventEmitterElement');
+var inherits = require('util').inherits;
 
 
 const TITLEBAR_SEARCH   = 0;

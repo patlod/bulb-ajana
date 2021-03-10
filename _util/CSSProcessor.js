@@ -1,4 +1,4 @@
-const UnitConverter = require('./UnitConverter')
+const UnitConverter = require('./UnitConverter');
 
 /**
  * Static class object handling anything that revolves around fetching data
@@ -18,9 +18,9 @@ var CSSProcessor = {
         targetSheet = null;
 
     for(i = 0; i < document.styleSheets.length; i++){ 
-        let sHref = document.styleSheets[i].href.split("/")
+        let sHref = document.styleSheets[i].href.split("/");
         if(sHref[sHref.length - 1] === "main.css"){
-            targetSheet = document.styleSheets[i]
+            targetSheet = document.styleSheets[i];
         }
     }
     if(targetSheet !== null){
@@ -30,10 +30,10 @@ var CSSProcessor = {
             colorCollection.push({
               selector: rules[j].selectorText,
               color: UnitConverter.rgbToHex(rules[j].style['background-color'])
-            })
+            });
         }
       }
-      return colorCollection
+      return colorCollection;
     }
   }
 

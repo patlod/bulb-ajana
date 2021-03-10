@@ -1,4 +1,4 @@
-const moment = require('moment')
+const moment = require('moment');
 
 var DateFormatter = {
 
@@ -10,27 +10,27 @@ var DateFormatter = {
    * @param {Date()} date
    */
   formatDateItemThmb: function(date){
-    let now = moment(new Date())
-    let today = moment(now.format("DD-MM-YYYY"), "DD-MM-YYYY")
-    let n_date = moment(new Date(date))
-    let diff = today.diff(n_date, 'days', true)
+    let now = moment(new Date());
+    let today = moment(now.format("DD-MM-YYYY"), "DD-MM-YYYY");
+    let n_date = moment(new Date(date));
+    let diff = today.diff(n_date, 'days', true);
     
     if(diff <= 0){
-      return n_date.format("HH:MM")
+      return n_date.format("HH:MM");
     }else if(diff <= 1){
-      return "Yesterday"
+      return "Yesterday";
     }else if(diff <= 2){
-      return n_date.format("dddd")
+      return n_date.format("dddd");
     }else if(diff <= 3){
-      return n_date.format("dddd")
+      return n_date.format("dddd");
     }else if(diff <= 4){
-      return n_date.format("dddd")
+      return n_date.format("dddd");
     }else if(diff <= 5){
-      return n_date.format("dddd")
+      return n_date.format("dddd");
     }else if(diff <= 6){
-      return n_date.format("dddd")
+      return n_date.format("dddd");
     }else{
-      return n_date.format("DD.MM.YY")
+      return n_date.format("DD.MM.YY");
     }
   },
 
@@ -43,10 +43,10 @@ var DateFormatter = {
    */
   formatDateEditor: function(date){
     // Always show date in format as such 8. January 2021 at 14:56
-    let m = moment(new Date(date))
-    let d_str = m.format("DD. MMMM YYYY")
-    let t_str = m.format("HH:MM")
-    return d_str + " at " + t_str
+    let m = moment(new Date(date));
+    let d_str = m.format("DD. MMMM YYYY");
+    let t_str = m.format("HH:MM");
+    return d_str + " at " + t_str;
   }, 
 
   /**

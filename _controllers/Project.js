@@ -1,13 +1,13 @@
 module.exports = Project
 
-const fs = require('fs')
+const fs = require('fs');
 
 const FileDatabase = require("../_models/FileDatabase");
 const FileDatabaseManager = require('../_models/FileDatabaseManager');
 const Graph = require('./Graph');
 const Note = require('./note');
 const Vertex = require('./Vertex');
-const Edge = require('./Edge')
+const Edge = require('./Edge');
 
 
 
@@ -58,24 +58,24 @@ function Project(path, session, data = FileDatabaseManager.getEmptyProjectJSON()
  * @param {string} name - Project name without .json file extension
  */
 Project.prototype.renameProject = function(name){
-  console.log("renameProject():")
+  console.log("renameProject():");
   // Save name in project instance
-  this.name = name + ".json"
+  this.name = name + ".json";
   // Form paths
-  let new_path = this.getDir() + this.name
-  let old_path = this.getPath()
+  let new_path = this.getDir() + this.name;
+  let old_path = this.getPath();
   // Delete FileDatabase instance on old path
-  this.db = null
+  this.db = null;
   // Rename file
   try{
-    fs.renameSync(old_path, new_path)
+    fs.renameSync(old_path, new_path);
   } catch(err) {
-    console.error(err)
+    console.error(err);
   }
   // Create FileDatabase instance on new path
-  this.db = new FileDatabase(new_path)
+  this.db = new FileDatabase(new_path);
   // Insert name into database
-  this.db.updateDBName(this.name)
+  this.db.updateDBName(this.name);
 }
 
 /**
@@ -84,12 +84,12 @@ Project.prototype.renameProject = function(name){
  */
 Project.prototype.loadData = function(){
   console.log("loadData");
-  this.uuid = this.db.getProjectUUID()
-  this.datetime = this.db.getProjectCreated()
-  this.name = this.db.getProjectName()
-  this.tags = this.db.getProjectTags()
-  this.notes = this.loadNotes()
-  this.graphs = this.loadGraphs()
+  this.uuid = this.db.getProjectUUID();
+  this.datetime = this.db.getProjectCreated();
+  this.name = this.db.getProjectName();
+  this.tags = this.db.getProjectTags();
+  this.notes = this.loadNotes();
+  this.graphs = this.loadGraphs();
   
   // Start the first selection with the active notes
   if(this.notes.length > 0){
@@ -106,7 +106,7 @@ Project.prototype.loadData = function(){
  */
 Project.prototype.loadTags = function(){
   //this.db.read()
-  this.tags = this.db.getProjectTags()
+  this.tags = this.db.getProjectTags();
 }
 
 /**
@@ -123,7 +123,7 @@ Project.prototype.saveData = function(){
 Project.prototype.getActiveNote = function(){
   if(this.notes.length === 0) return null;
   for(var i in this.notes){
-    if(this.notes[i].isActive()) return this.notes[i]
+    if(this.notes[i].isActive()) return this.notes[i];
   }
 }
 
@@ -148,13 +148,13 @@ Project.prototype.toggleActiveNote = function(target = null){
   console.log("after if");
   for(var i in this.notes){
     // Did not work with getActiveProject, probably because the return hands back a value..
-    if(this.notes[i].isActive()) this.notes[i].deactivate()
+    if(this.notes[i].isActive()) this.notes[i].deactivate();
   }
   if(target){
     console.log("active target note");
     console.log(target);
-    target.activate()
-    return target
+    target.activate();
+    return target;
   } // else no note will be activated
 }
 
@@ -163,16 +163,16 @@ Project.prototype.toggleActiveNote = function(target = null){
  */
 Project.prototype.setActiveNoteAtIndex = function(index){
   if(this.notes.length === 0){ return; }
-  return this.toggleActiveNote(this.notes[index])
+  let aN = this.toggleActiveNote(this.notes[index]);
   this.startSelectionWith(this.notes[index]);
-  return aN
+  return aN;
 }
 
 /**
  * Resets active notes of project to 'NO ACTIVE NOTE'
  */
 Project.prototype.resetActiveNote = function(){
-  this.toggleActiveNote()
+  this.toggleActiveNote();
   this.clearItemSelection();
 }
 
@@ -185,18 +185,18 @@ Project.prototype.resetActiveNote = function(){
  * 
  */
 Project.prototype.getEmptyNotes = function(){
-  let empties = []
+  let empties = [];
   for(var i in this.notes){
     if(this.notes[i].isEmpty()){
-      empties.push(this.notes[i])
+      empties.push(this.notes[i]);
     }
   }
   //console.log(empties)
   if(empties.length > 1){
-    console.error("ERROR: More than one empty note in project")
-    return null
+    console.error("ERROR: More than one empty note in project");
+    return null;
   }
-  return empties
+  return empties;
 }
 
 /**
@@ -208,18 +208,18 @@ Project.prototype.getEmptyNotes = function(){
  * 
  */
 Project.prototype.getEmptyGraphs = function(){
-  let empties = []
+  let empties = [];
   for(var i in this.graphs){
     if(this.graphs[i].isEmpty()){
-      empties.push(this.graphs[i])
+      empties.push(this.graphs[i]);
     }
   }
   //console.log(empties)
   if(empties.length > 1){
-    console.error("ERROR: More than one empty graph in project")
-    return null
+    console.error("ERROR: More than one empty graph in project");
+    return null;
   }
-  return empties
+  return empties;
 }
 
 /**
@@ -231,30 +231,24 @@ Project.prototype.getEmptyGraphs = function(){
 Project.prototype.getActiveGraph = function(){
   if(this.graphs.length === 0) return null;
   for(var i in this.graphs){
-    if(this.graphs[i].isActive()) return this.graphs[i]
+    if(this.graphs[i].isActive()) return this.graphs[i];
   }
 }
 
-// Project.prototype.activateGraph = function(graph){
-//   graph.activate();
-//   // In case no selection exists set one with the current note
-//   if(!this.item_selection || this.item_selection.object !== Graph){
-//     this.startSelectionWith(graph);
-//   }
-// }
-
 /**
- * TODO
+ * Disactivates the active graph and activates the target graph.
+ * 
+ * @param {Graph} target -- Graph to be activated.
  */
 Project.prototype.toggleActiveGraph = function(target = null){
   if(this.graphs.length === 0) return null;
   for(var i in this.graphs){
     // Did not work with getActiveProject, probably because the return hands back a value..
-    if(this.graphs[i].isActive()) this.graphs[i].deactivate()
+    if(this.graphs[i].isActive()) this.graphs[i].deactivate();
   }
   if(target){
-    target.activate()
-    return target
+    target.activate();
+    return target;
   } // else no graph will be activated
 }
 
@@ -263,7 +257,7 @@ Project.prototype.toggleActiveGraph = function(target = null){
  */
 Project.prototype.setActiveGraphAtIndex = function(index){
   if(this.graphs.length === 0){ return; }
-  return this.toggleActiveGraph(this.graphs[index])
+  return this.toggleActiveGraph(this.graphs[index]);
 }
 
 /**
@@ -278,14 +272,14 @@ Project.prototype.resetActiveGraph = function(){
  * Returns the graph of the project
  */
 Project.prototype.getGraphMode = function(){
-  return this.graph_mode
+  return this.graph_mode;
 }
 
 /**
  * Sets the graph of the project
  */
 Project.prototype.setGraphMode = function(val){
-  this.graph_mode = val
+  this.graph_mode = val;
 }
 
 /**
@@ -294,23 +288,23 @@ Project.prototype.setGraphMode = function(val){
  * the same objects!
  */
 Project.prototype.loadGraphs = function(){
-  var self = this
+  var self = this;
 
   // Get notes from database
-  let g_query = this.db.selectAllGraphs()
-  let graphs = []
+  let g_query = this.db.selectAllGraphs();
+  let graphs = [];
   
   if(typeof g_query === "undefined"){
     // Graph table does not exist yet...
-    self.db.makeGraphTable()
-    graphs.push(new Graph(this))
-    self.db.insertGraph(graphs[graphs.length - 1].getGraphJSON())
+    self.db.makeGraphTable();
+    graphs.push(new Graph(this));
+    self.db.insertGraph(graphs[graphs.length - 1].getGraphJSON());
   }else if(g_query !== null && g_query.length === 0 && self.graphs.length === 0){ 
     // As long as multiple graphs is not possible..and graph is not existing
     // Create new empty graph instance
-    graphs.push(new Graph(this))
+    graphs.push(new Graph(this));
     // Insert into database
-    self.db.insertGraph(graphs[graphs.length - 1].getGraphJSON())
+    self.db.insertGraph(graphs[graphs.length - 1].getGraphJSON());
   }else{
     
     // TODO: Maybe check here whether loadNotes has been called already
@@ -318,26 +312,26 @@ Project.prototype.loadGraphs = function(){
 
     for(var i in g_query){
       // Create graph instance
-      let g = new Graph(this, g_query[i])
+      let g = new Graph(this, g_query[i]);
       // Get vertices from graph
-      let v_query = this.db.selectAllVertices(g_query[i].uuid)
+      let v_query = this.db.selectAllVertices(g_query[i].uuid);
       // Find the right note object that matches reference
       let vertices = [],
           n_obj = null,
           v = null;
       for(var j in v_query){
-        n_obj = self.notes.filter(n => n.uuid === v_query[j].note)
+        n_obj = self.notes.filter(n => n.uuid === v_query[j].note);
         if(n_obj !== null && n_obj.length === 1){
           // Set references to Note instance
-          v_query[j].note = n_obj[0]
+          v_query[j].note = n_obj[0];
           // Add to vertices
-          v = new Vertex(g, v_query[j])
-          vertices.push(v)
+          v = new Vertex(g, v_query[j]);
+          vertices.push(v);
         }
       }
       
       // Get edges from graph
-      let ed_query = this.db.selectAllEdges(g_query[i].uuid)
+      let ed_query = this.db.selectAllEdges(g_query[i].uuid);
       // Find the right vertices that match references
       let edges = [],
         source_obj = null,
@@ -345,30 +339,30 @@ Project.prototype.loadGraphs = function(){
         ed = null;
       for(var j in ed_query){
         // Match source and target vertex objects of the list created above
-        source_obj = vertices.filter(v => v.uuid === ed_query[j].source)
-        target_obj = vertices.filter(v => v.uuid === ed_query[j].target)
+        source_obj = vertices.filter(v => v.uuid === ed_query[j].source);
+        target_obj = vertices.filter(v => v.uuid === ed_query[j].target);
         if(source_obj !== null && target_obj !== null 
           && source_obj.length === 1 && target_obj.length === 1){
           // Set references to Note instances
-          ed_query[j].source = source_obj[0]
-          ed_query[j].target = target_obj[0]
+          ed_query[j].source = source_obj[0];
+          ed_query[j].target = target_obj[0];
           // Add to edges
-          ed = new Edge(g, ed_query[j])
-          edges.push(ed)
+          ed = new Edge(g, ed_query[j]);
+          edges.push(ed);
         }
       }
 
       // Update graph object and save in graphs list
-      g.vertices = vertices
-      g.edges = edges
-      graphs.push(g)
+      g.vertices = vertices;
+      g.edges = edges;
+      graphs.push(g);
     }
   }
   graphs.sort(descend_DateCreated)
   if(graphs.length > 0){
     graphs[0].activate();
   }
-  return graphs
+  return graphs;
 }
 
 Project.prototype.getGraphByIndex = function(index){
@@ -384,15 +378,15 @@ Project.prototype.getAllGraphs = function(){
  */
 Project.prototype.createNewGraph = function(){
   // Create empty note instance
-  let nG = new Graph(this, FileDatabaseManager.getEmptyGraphJSON())
+  let nG = new Graph(this, FileDatabaseManager.getEmptyGraphJSON());
   // Store in fleeting storage
-  this.graphs.unshift(nG)
+  this.graphs.unshift(nG);
   // Write to database
   //this.db.insertNote(FileDatabaseManager.getEmptyNoteJSON())
   // Toggle active note 
-  this.toggleActiveGraph(nG)
+  this.toggleActiveGraph(nG);
   this.startSelectionWith(nG);
-  return nG
+  return nG;
 }
 
 /**
@@ -401,19 +395,19 @@ Project.prototype.createNewGraph = function(){
  *  @param {Graph} graph 
  */ 
 Project.prototype.deleteGraph = function(graph){
-  let graph_ids = this.graphs.map(function(g) { return g.uuid; })
+  let graph_ids = this.graphs.map(function(g) { return g.uuid; });
   let idx = graph_ids.indexOf(graph.uuid);
   if(idx < 0 ){
-    console.log("Project.deleteGraph() -- Graph with id " + graph.uuid + " is not existing.")
-    return
+    console.log("Project.deleteGraph() -- Graph with id " + graph.uuid + " is not existing.");
+    return;
   }
   // Remove note from cache array at idx
-  this.graphs.splice(idx, 1)
+  this.graphs.splice(idx, 1);
   
   // Delete note from database file
-  g_arr = []
-  g_arr.push(graph.getGraphJSON())
-  this.db.deleteGraphs(g_arr)
+  g_arr = [];
+  g_arr.push(graph.getGraphJSON());
+  this.db.deleteGraphs(g_arr);
 
   // Toggle active note
   if( idx <= this.graphs.length - 1 ){
@@ -421,7 +415,7 @@ Project.prototype.deleteGraph = function(graph){
     this.startSelectionWith(this.graphs[idx]);
   }
   if( idx > (this.graphs.length - 1 )){
-    this.toggleActiveGraph(this.graphs[idx - 1])
+    this.toggleActiveGraph(this.graphs[idx - 1]);
     this.startSelectionWith(this.graphs[idx - 1]);
   }
 }
@@ -431,15 +425,15 @@ Project.prototype.deleteGraph = function(graph){
  */
 Project.prototype.createNewNote = function(){
   // Create empty note instance
-  let nn = new Note(this, FileDatabaseManager.getEmptyNoteJSON())
+  let nn = new Note(this, FileDatabaseManager.getEmptyNoteJSON());
   // Store in fleeting storage
-  this.notes.unshift(nn)
+  this.notes.unshift(nn);
   // Write to database
   //this.db.insertNote(FileDatabaseManager.getEmptyNoteJSON())
   // Toggle active note 
-  this.toggleActiveNote(nn)
+  this.toggleActiveNote(nn);
   this.startSelectionWith(nn);
-  return nn
+  return nn;
 }
 
 /**
@@ -451,25 +445,25 @@ Project.prototype.deleteNote = function(note){
   let note_ids = this.notes.map(function(n) { return n.uuid; })
   let idx = note_ids.indexOf(note.uuid);
   if(idx < 0 ){
-    console.log("Project.deleteNote() -- Note with id " + note.uuid + " is not existing.")
-    return
+    console.log("Project.deleteNote() -- Note with id " + note.uuid + " is not existing.");
+    return;
   }
   // Remove note from instance array at idx
-  this.notes.splice(idx, 1)
+  this.notes.splice(idx, 1);
   
   // Delete note from database file
-  n_arr = []
-  n_arr.push(note.getNoteJSON())
-  this.db.deleteNotes(n_arr)
+  n_arr = [];
+  n_arr.push(note.getNoteJSON());
+  this.db.deleteNotes(n_arr);
 
   // Toggle active note
   if( idx <= this.notes.length - 1 ){
-    this.toggleActiveNote(this.notes[idx])
-    this.startSelectionWith(this.notes[idx])
+    this.toggleActiveNote(this.notes[idx]);
+    this.startSelectionWith(this.notes[idx]);
   }
   if( idx > (this.notes.length - 1 )){
-    this.toggleActiveNote(this.notes[idx - 1])
-    this.startSelectionWith(this.notes[idx - 1])
+    this.toggleActiveNote(this.notes[idx - 1]);
+    this.startSelectionWith(this.notes[idx - 1]);
   }
 }
 
@@ -479,20 +473,20 @@ Project.prototype.deleteNote = function(note){
 Project.prototype.loadNotes = function(){
   
   // Get notes from database
-  let n_query = this.db.selectAllNotes()
-  let notes = []
-  var t_query = null
+  let n_query = this.db.selectAllNotes();
+  let notes = [];
+  var t_query = null;
   for(var i in n_query){
     // First resolve references to tags
-    t_query = this.db.getNoteTags(n_query[i].uuid)
-    n_query[i].tags = t_query
-    notes.push(new Note(this, n_query[i]))
+    t_query = this.db.getNoteTags(n_query[i].uuid);
+    n_query[i].tags = t_query;
+    notes.push(new Note(this, n_query[i]));
   }
-  notes.sort(descend_DateCreated)
+  notes.sort(descend_DateCreated);
   if(notes.length > 0){
     notes[0].activate();
   }
-  return notes
+  return notes;
 }
 
 /**
@@ -500,9 +494,9 @@ Project.prototype.loadNotes = function(){
  */
 Project.prototype.prepNoteForTrans = function(note){
   if(note && note.isDirty()){
-    note.saveText()
-    note.setDirtyBit(false)
-    console.log("App - prepProjectForTrans - Writing text to database.")
+    note.saveText();
+    note.setDirtyBit(false);
+    console.log("App - prepProjectForTrans - Writing text to database.");
   }
 }
 
@@ -511,7 +505,7 @@ Project.prototype.prepNoteForTrans = function(note){
  * Returns all Note object of this project
  */
 Project.prototype.getAllNotes = function(){
-  return this.notes
+  return this.notes;
 }
 
 /**
@@ -520,13 +514,13 @@ Project.prototype.getAllNotes = function(){
  * @param {String} note_id 
  */
 Project.prototype.getNoteByUUID = function(note_id){
-  var self = this
+  var self = this;
   
-  let chks = self.notes.filter(function(n){ return n.uuid.localeCompare(note_id) === 0})
+  let chks = self.notes.filter(function(n){ return n.uuid.localeCompare(note_id) === 0});
   if(chks.length === 1){
-    return chks[0]
+    return chks[0];
   }
-  return null
+  return null;
 }
 
 Project.prototype.getNoteByIndex = function(index){
@@ -538,7 +532,7 @@ Project.prototype.getNoteByIndex = function(index){
  * @param {} note 
  */
 Project.prototype.getTagByName = function(tag_name){
-  return null
+  return null;
 }
 
 /**
@@ -546,12 +540,12 @@ Project.prototype.getTagByName = function(tag_name){
  * @param {} tag_id 
  */
 Project.prototype.getTagByUUID = function(tag_id){
-  var self = this
-  let chks = self.tags.filter(function(t){ t => t.uuid === note_id})
+  var self = this;
+  let chks = self.tags.filter(function(t){ t => t.uuid === note_id});
   if(chks.length === 1){
-    return chks[0]
+    return chks[0];
   }
-  return null
+  return null;
 }
 
 /**
@@ -560,14 +554,14 @@ Project.prototype.getTagByUUID = function(tag_id){
  * Used with cmd+click
  */
 Project.prototype.selectNote = function(note){
-  return this.selected_notes.push(note)
+  return this.selected_notes.push(note);
 }
 
 /**
  * Fetch all tags
  */
 Project.prototype.getAllTags = function(){
-  return this.tags
+  return this.tags;
 }
 
 
@@ -595,7 +589,7 @@ Project.prototype.searchAllNotesTexts = function(needle){
       results.push({
         note: this.notes[i], 
         results: cur
-      })
+      });
     }
   }
   return results;
@@ -612,14 +606,14 @@ Project.prototype.searchAllNotesTextsAndTags = function(needle){
         note: this.notes[i], 
         results: cur_txt_pins,
         tags: cur_tags_pins
-      })
+      });
     }else{
       if(cur_tags_pins.length > 0){
         results.push({
           note: this.notes[i],
           results: cur_txt_pins,
           tags: cur_tags_pins
-        })
+        });
       }
     }
   }
@@ -671,7 +665,7 @@ Project.prototype.startSelectionWith = function(item){
                 return false;
               }
             })
-    }
+    };
   }else{
     // TODO: Analogue to notes support the search.
     if(item instanceof Graph){
@@ -686,7 +680,7 @@ Project.prototype.startSelectionWith = function(item){
             return false;
           }
         })
-      }
+      };
     }
   }
 }
@@ -705,7 +699,7 @@ Project.prototype.getItemSelection = function(){
 
 Project.prototype.getSelectedNotes = function(){
   var self = this;
-  if(!this.item_selection){return;}
+  if(!this.item_selection){ return; }
   if(this.item_selection.object !== Note){ return; }
 
   if(this.search){
@@ -721,7 +715,7 @@ Project.prototype.getSelectedNotes = function(){
 }
 Project.prototype.getSelectedGraphs = function(){
   var self = this;
-  if(!this.item_selection){return;}
+  if(!this.item_selection){ return; }
   if(this.item_selection.object !== Graph){ return; }
 
   // TODO: Support search for graphs.
@@ -744,7 +738,7 @@ Project.prototype.getItemsFromSelection = function(){
 }
 
 Project.prototype.deleteSelectedNotes = function(){
-  if(!this.item_selection){return;}
+  if(!this.item_selection){ return; }
   if(this.item_selection.object !== Note){ return; }
 
   let i, j,
@@ -773,7 +767,7 @@ Project.prototype.deleteSelectedNotes = function(){
 }
 
 Project.prototype.deleteSelectedGraphs = function(){
-  if(!this.item_selection){return;}
+  if(!this.item_selection){ return; }
   if(this.item_selection.object !== Graph){ return; }
 
   let i,
@@ -996,7 +990,7 @@ Project.prototype.toggleNoteInSelection = function(note){
 
   // UNSELECT
   if(this.item_selection.shadows[target_idx]){
-    count = this.item_selection.shadows.filter(function(x){ return x }).length
+    count = this.item_selection.shadows.filter(function(x){ return x }).length;
     // Unset, only if it is not the last one selected
     if(count > 1){ 
       this.unselectItemInSelection(target_idx);
@@ -1023,7 +1017,7 @@ Project.prototype.toggleGraphInSelection = function(graph){
 
   // UNSELECT
   if(this.item_selection.shadows[target_idx]){
-    count = this.item_selection.shadows.filter(function(x){ return x }).length
+    count = this.item_selection.shadows.filter(function(x){ return x }).length;
     // Unset, only if it is not the last one selected
     if(count > 1){ 
       this.unselectItemInSelection(target_idx);
@@ -1372,11 +1366,11 @@ Project.prototype.garbageDisposal = function(){
  */
 
 Project.prototype.getPath = function(){
-  return this.db.path
+  return this.db.path;
 }
 
 Project.prototype.setPath = function(path){
-  this.db.path = path
+  this.db.path = path;
 }
 
 Project.prototype.getDir = function(){
@@ -1388,38 +1382,38 @@ Project.prototype.getDir = function(){
  * @param {string} fn 
  */
 Project.prototype.validFileName = function(fn){
-  let path = this.getDir() + fn
+  let path = this.getDir() + fn;
   try {
     if (fs.existsSync(path)) {
-      return false
+      return false;
     }else{
-      return true
+      return true;
     }
   } catch(err) {
-    console.error(err)
+    console.error(err);
   }
 }
 
 Project.prototype.getName = function(){
-  var path_split = this.db.getPath().split('/')
-  var file_name_split = path_split[path_split.length - 1].split('.')
-  return file_name_split[0]
+  var path_split = this.db.getPath().split('/');
+  var file_name_split = path_split[path_split.length - 1].split('.');
+  return file_name_split[0];
 }
 
 Project.prototype.countNotes = function(){
-  return this.notes.length
+  return this.notes.length;
 }
 
 Project.prototype.isActive = function(){
-  return this.active
+  return this.active;
 }
 
 Project.prototype.activate = function(){
-  return this.active = true
+  return this.active = true;
 }
 
 Project.prototype.deactivate = function(){
-  return this.active = false
+  return this.active = false;
 }
 
 /* ============================================================= */

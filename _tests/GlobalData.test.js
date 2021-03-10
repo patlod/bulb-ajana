@@ -1,30 +1,20 @@
-const fs = require('fs')
-const low = require('lowdb')
-const FileSync = require('lowdb/adapters/FileSync')
-const FileDatabase = require('../_models/FileDatabase');
-const FileDatabaseManager = require('../_models/FileDatabaseManager')
-//const ConfigManager = require('../_app/ConfigurationManager')
-
-const { v4: uuidv4 } = require('uuid');
-const { hasUncaughtExceptionCaptureCallback } = require('process');
-const { equal } = require('assert');
-const { TestScheduler } = require('jest');
+const fs = require('fs');
+const low = require('lowdb');
+const FileSync = require('lowdb/adapters/FileSync');
+const FileDatabaseManager = require('../_models/FileDatabaseManager');
 const GlobalData = require('../_models/GlobalData');
-const { csvFormatValue } = require('d3');
-const { find } = require('yo-yo/update-events');
 
-const TEST_DIR = "./_tests/"
-const TEST_DB_PATH = "./_tests/test__GlobalData.json"
-const TEST_PRJCT_JSON = FileDatabaseManager.getEmptyStorageJSON()
+const TEST_DIR = "./_tests/";
+const TEST_DB_PATH = "./_tests/test__GlobalData.json";
+const TEST_PRJCT_JSON = FileDatabaseManager.getEmptyStorageJSON();
 
 
-var ADAPTER = null
-var DB = null
+var ADAPTER = null;
+var DB = null;
 
 
 function emptyDBJson(){
   const json_string = JSON.stringify(TEST_PRJCT_JSON, null, 2);
-
   fs.writeFileSync(TEST_DB_PATH, json_string)
 }
 
