@@ -202,19 +202,20 @@ Session.prototype.transToProject = function(project, callback){
       cur_active_project.startSelectionWith(cur_active_project.notes[0]);
     }
     
-    if(typeof callback === "function"){
-      if(prior_project_gm && cur_active_project.getGraphMode()){
-        // For some reason the graph only loads when DOM element is force cleaned.
-        self.app.views.graph.forceClearContentDOMEl();
-      }
-      callback();
+    // if(typeof callback === "function"){
+    if(prior_project_gm && cur_active_project.getGraphMode()){
+      // For some reason the graph only loads when DOM element is force cleaned.
+      self.app.views.graph.forceClearContentDOMEl();
     }
+    self.app.render();
+    // }
     // Reset the scroll position of NotesListView
     //self.app.views.items.scrollTop = 0
   }else{
-    if(typeof callback === "function"){
-      callback(true);
-    }
+    // if(typeof callback === "function"){
+    //   callback(true);
+    // }
+    self.app.render(true);
   }
 
   
@@ -286,9 +287,10 @@ Session.prototype.newProject = function(callback){
   // Similar as this from Left App: 
   // left.go.to_page(this.pages.length - 1)
 
-  if(typeof callback === "function"){
-    callback();
-  }
+  // if(typeof callback === "function"){
+  //   callback();
+  // }
+  self.app.render();
 }
 
 Session.prototype.openProjectWithPath = function(path, callback){
@@ -327,9 +329,10 @@ Session.prototype.openProjectWithPath = function(path, callback){
   self.app.appGlobalData.addRecentProject(path);
 
   // Trigger re-render
-  if(typeof callback === "function"){
-    callback();
-  }
+  // if(typeof callback === "function"){
+  //   callback();
+  // }
+  self.app.render();
 }
 
 Session.prototype.openProjectDialog = function(callback){
@@ -379,9 +382,10 @@ Session.prototype.openProjectDialog = function(callback){
     self.toggleActiveProject(first);
 
     // Trigger re-render
-    if(typeof callback === "function"){
-      callback();
-    }
+    // if(typeof callback === "function"){
+    //   callback();
+    // }
+    self.app.render();
   }
 
   //setTimeout(() => { left.navi.next_page(); left.update() }, 200)
@@ -426,9 +430,10 @@ Session.prototype.closeProject = function(project_id, callback){
   self.spliceByUUID(targets[0].uuid);
   
   // Rerender UI
-  if(typeof callback === "function"){
-    callback();
-  }
+  // if(typeof callback === "function"){
+  //   callback();
+  // }
+  self.app.render();
   
 }
 
@@ -496,8 +501,9 @@ Session.prototype.deleteProject = function(project_id, callback){
   }
 
   // Rerender UI
-  if(typeof callback === "function"){
-    callback();
-  }
+  // if(typeof callback === "function"){
+  //   callback();
+  // }
+  self.app.render();
 }
 

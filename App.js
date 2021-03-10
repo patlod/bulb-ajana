@@ -8,15 +8,15 @@ const remote = require('electron').remote;
 const Menu = require('electron').remote.Menu;
 const MenuItem = require('electron').remote.MenuItem;
 
-const FocusManager = require('./_views/FocusManager');
-
 const yo = require('yo-yo');
 // const d3 = require('d3')
 
-// App Peripherals
+// App Core
 const ConfigManager = require('./_app/ConfigurationManager');
 // const UserPreferences = require('./_models/UserPreferences')
 const GlobalData = require('./_models/GlobalData');
+const CommandManager = require('./_app/commands/CommandManager');
+const Command = require('./_app/commands/Command');
 
 // Controllers
 const Session = require('./_controllers/Session.js');
@@ -25,6 +25,7 @@ const Note = require('./_controllers/Note');
 const Graph = require('./_controllers/Graph');
 
 // Views
+const FocusManager = require('./_views/FocusManager');
 const AppView = require('./_views/AppView');
 const NotificationView = require('./_views/NotificationView');
 const TitlebarView = require('./_views/TitlebarView');
@@ -57,8 +58,11 @@ function App(el){
   // self.appUserPreferences = new UserPreferences(USER_PREFS_PATH)
   self.appGlobalData = new GlobalData(GLOBAL_DATA_PATH);
 
+  self.commandManager = new CommandManager(self);
+
   self.session = new Session(self);     // The session stores all the open projects with notes
   self.appControls = new AppControls();
+
 
   self.focusManager = new FocusManager.constructor(el);
   self.focusManager.setFocusObject(self.focusManager.PROJECT_LIST);
@@ -126,13 +130,17 @@ function App(el){
   }
   self.appControls.addSpacer('default', 'File', 'Close');
   self.appControls.add('default', 'File', 'Close Project...', () => { 
-    self.session.closeProject(self.session.getActiveProject().uuid, render);
+    self.session.closeProject(self.session.getActiveProject().uuid, self.render);
    }, 'Shift+CmdOrCtrl+P');
   // self.appControls.add('default', 'File', 'Close Window...', () => { console.log("Close") }, 'CmdOrCtrl+W');
 
   // Edit
-  self.appControls.addRole('default', 'Edit', 'undo');       // REFACTOR: Requries Custom implementation
-  self.appControls.addRole('default', 'Edit', 'redo');       // REFACTOR: Requries Custom implementation
+  self.appControls.add('default', 'Edit', 'Undo', (menuItem, BrowserWindow, event) => {
+    self.commandManager.undo();
+  }, 'CmdOrCtrl+Z');      
+  self.appControls.add('default', 'Edit', 'Redo', () => {
+    self.commandManager.redo();
+  }, 'CmdOrCtrl+Shift+Z');
   self.appControls.addSpacer('default', 'Edit', 'Copy&Paste');
   self.appControls.addRole('default', 'Edit', 'cut');
   self.appControls.addRole('default', 'Edit', 'copy');
@@ -140,6 +148,11 @@ function App(el){
   self.appControls.addSpacer('default', 'Edit', 'delete');
   self.appControls.add('default', 'Edit', 'Delete Selected Items', () => { 
     if(self.views.items.objectOfDisplay === Note){
+      // let cmd = new Command(
+      //   self,
+      //   deleteSelectedNotes
+      //   )
+      self.commandManager.executeCmd();
       deleteSelectedNotes();
     }else{
       deleteSelectedGraphs();
@@ -225,9 +238,9 @@ function App(el){
   
 
   /* === Initial DOM tree render ================= */
-  var tree = self.render();
-  console.log(tree);
-  el.appendChild(tree);
+  this.tree = this.renderMain();
+  console.log(this.tree);
+  el.appendChild(this.tree);
   // Render the AppView separately
   self.views.app.render();
   /* ============================================= */
@@ -255,107 +268,11 @@ function App(el){
    *    - This means that the initialisation of the html elements has to be done again.
    */
 
-  function render (lazy_load = false) {
-    var newTree = self.render(lazy_load);
-    yo.update(tree, newTree);
-    // Recreate split screen on new dom tree with sizes from old one
-    self.split_manager.recreateFromBuffer();
-    // Reinitialise the semantic UI left-menu dropdown
-    $('.ui.dropdown').dropdown({
-      silent: true
-    });
-
-    // Reinitialise the project-thumb dropdowns
-    $('.prjct-thmb-dropdown').dropdown({
-      silent: true
-    });
-
-    if(!self.session.getGraphMode()){
-      // Adjust height of the textarea in NoteEditorView to fit content
-      UIAssistant.resizeElementByContent($('#notepad')[0]);
-    }else{
-      // Adjust height of the textarea in right-side-menu to fit content
-      UIAssistant.resizeElementByContent($('#graph-description')[0]);
-      // Make the #content container of the graph a droppable element for the notes
-      $('#content').droppable({
-        accept:'.item-thmb-wrap',
-        tolerance: 'pointer',
-        classes: {
-          "ui-droppable-active": "graph-droppable-active",
-          "ui-droppable-hover": "graph-droppable-hover"
-        },
-        over: function(event, ui) {
-          $('body').css("cursor", "copy");
-        },
-        out: function(event, ui) {
-          $('body').css("cursor", "no-drop");
-        },
-        drop: function(event,ui){
-          console.log("Dropped note in graph at position...");
-
-          let $item_thmb = ui.draggable.find('.item-thmb'),
-              data_object = $item_thmb.attr('data-object'),
-              item_id = null;
-
-          // For now dropping graphs into graphs is not supported..
-          if(data_object !== "note"){ return; }
-          item_id = $item_thmb.attr('data-id');
-
-          let active_project = self.session.getActiveProject(),
-              active_graph = active_project.getActiveGraph(),
-              selected_notes = active_project.getItemsFromSelection(),
-              note = active_project.getNoteByUUID(item_id),
-              drag_notes = [];
-          
-          console.log(note);
-          
-          if(!note){
-            console.error("Note associated with UI element could not be found.");
-            return;
-          }
-          // Selected thumb was dragged => Drags all selected thumbs.
-          if(selected_notes.indexOf(note) >= 0){
-            drag_notes = selected_notes;
-          }else{  // Unselected note thumb was dragged
-            drag_notes.push(note);
-          }
-
-          console.log("calcDropZone coordinates...")
-          let i = 0, nV = null,
-              coords = self.views.graph.calcRelativeDropZone(ui.position),
-              newVertices = [];
-          if(drag_notes.length > 0){
-            console.log("..note selection exists, so add it...");
-            for(i in drag_notes){
-              nV = active_graph.createNewVertexForNote(coords, drag_notes[i]);
-              coords.x = coords.x + 10;
-              coords.y = coords.y + 10;
-              if(nV){
-                nV.saveData();
-                newVertices.push(nV);
-              }else{
-                self.views.notifications.addNotification(
-                  self.views.notifications.INFO,
-                  "Note already has vertex in selected graph."
-                );
-                render(true);
-              }
-            }
-            if(newVertices.length > 0){
-              console.log(newVertices.length + " notes added to graph..");
-              self.views.graph.updateGraph(active_graph);
-              // Update the create new graph button
-              self.views.titlebar.updateCreateNewBtn(el, active_graph);
-              render(true);
-            }
-          }
-        }
-      });
-    }
-  }
+  
 
   function addSelectedNotesToGraph(){
-    let i = 0, nV = null, box_offset = 500,
+    let self = this,
+        i = 0, nV = null, box_offset = 500,
         active_project = self.session.getActiveProject(),
         selected_notes = active_project.getItemsFromSelection(),
         active_graph = active_project.getActiveGraph(),
@@ -379,7 +296,7 @@ function App(el){
           self.views.notifications.INFO,
           "Note already has vertex in selected graph."
         );
-        render(true);
+        self.render(true);
       }
     }
     if(active_project.getGraphMode() && newVertices.length > 0){
@@ -387,7 +304,7 @@ function App(el){
       self.views.graph.updateGraph(active_graph);
       // Update the create new graph button
       self.views.titlebar.updateCreateNewBtn(el, active_graph);
-      render(true);
+      self.render(true);
     }
   }
 
@@ -398,16 +315,16 @@ function App(el){
     // if(self.session.getGraphMode()){
     //   self.views.graph.forceClearContentDOMEl();
     // }
-    render();
+    this.render();
   });
 
   self.on('renderLazy', function(){
-    render(true);
+    this.render(true);
   });
 
   self.on('arrowNavigationToHead', function(){
     console.log("App.js => arrowNavigationToHead");
-    let idx, active_project, active_item;
+    let self = this, idx, active_project, active_item;
     switch(self.focusManager.getFocusObject()){
       case self.focusManager.PROJECT_LIST:
         console.log("focusManager.PROJECT_LIST");
@@ -450,7 +367,7 @@ function App(el){
         if(self.session.getGraphMode()){
           self.views.graph.forceClearContentDOMEl();
         }
-        render();
+        self.render();
 
         break;
     }
@@ -458,7 +375,7 @@ function App(el){
 
   self.on('arrowNavigationToTail', function(){
     console.log("App.js => arrowNavigationToTail");
-    let idx, active_project, active_item, premise;
+    let self = this, idx, active_project, active_item, premise;
     switch(self.focusManager.getFocusObject()){
       case self.focusManager.PROJECT_LIST:
         console.log("focusManager.PROJECT_LIST");
@@ -500,12 +417,13 @@ function App(el){
         if(self.session.getGraphMode()){
           self.views.graph.forceClearContentDOMEl();
         }
-        render();
+        self.render();
         break;
     }
   });
 
   self.on('arrowShiftSelectToHead', function(){
+    var self = this;
     console.log("App.js => arrowShiftSelectToHead");
     switch(self.focusManager.getFocusObject()){
       case self.focusManager.ITEM_LIST:
@@ -516,7 +434,7 @@ function App(el){
         if(self.session.getGraphMode()){
           self.views.graph.forceClearContentDOMEl();
         }
-        render();
+        self.render();
         
         break;
     }
@@ -533,13 +451,14 @@ function App(el){
         if(self.session.getGraphMode()){
           self.views.graph.forceClearContentDOMEl();
         }
-        render();
+        self.render();
 
         break;
     }
   });
 
   self.on('shiftClickItemSelection', function(item){
+    var self = this;
     console.log("App.js => shiftClickItemSelection");
     let active_project = self.session.getActiveProject();
     active_project.shiftExpandItemSelection(item);
@@ -552,10 +471,11 @@ function App(el){
     if(self.session.getGraphMode()){
       self.views.graph.forceClearContentDOMEl();
     }
-    render();
+    self.render();
   });
 
   self.on('toggleItemInSelection', function(item){
+    var self = this;
     console.log("App.js => toggleItemInSelection");
     let active_project = self.session.getActiveProject();
     active_project.toggleItemInSelection(item);
@@ -568,24 +488,26 @@ function App(el){
     if(self.session.getGraphMode()){
       self.views.graph.forceClearContentDOMEl();
     }
-    render();
+    self.render();
   });
 
   function transToGraphEditor(){
-    let active_p = self.session.getActiveProject();
+    let self = this,
+        active_p = self.session.getActiveProject();
     if(!active_p.getGraphMode()){
       self.session.setGraphMode(true);
-      render();
+      self.render();
     }
   }
   self.on('transToGraphEditor', transToGraphEditor);
 
   function transToNoteEditor(){
-    let active_p = self.session.getActiveProject();
+    let self = this,
+        active_p = self.session.getActiveProject();
     if(active_p.getGraphMode()){
       self.session.setGraphMode(false);
       self.views.graph.takedown();
-      render();
+      self.render();
     }
   }
   self.on('transToNoteEditor', transToNoteEditor);
@@ -593,7 +515,7 @@ function App(el){
   function transitionToProject(project){
     // For currently active project save the content of active note
     // in case it exists..
-    self.session.transToProject(project, render);
+    self.session.transToProject(project, self.render);
   }
   self.on('transitionProject', function(project){
     transitionToProject(project);
@@ -613,6 +535,7 @@ function App(el){
   });
 
   function openRecentProject(path){
+    const render = self.render;
     self.session.openProjectWithPath(path, render);
 
     // Empty trash of the opened if necessary
@@ -627,16 +550,18 @@ function App(el){
 
   self.on('closeProject', function(project_id){
     console.log("App -- Close Project..");
-    self.session.closeProject(project_id, render);
+    self.session.closeProject(project_id, self.render);
   });
 
   self.on('deleteProject', function(project_id){
+    var self = this;
     console.log("App -- Delete Project..");
-    self.session.deleteProject(project_id, render);
+    self.session.deleteProject(project_id, self.render);
   });
 
   function switchItemList(objectOfDisplay){
-    let active_project = self.session.getActiveProject();
+    let self = this,
+        active_project = self.session.getActiveProject();
     switch(objectOfDisplay){
       case Note:
         active_project.startSelectionWith(active_project.getActiveNote());
@@ -645,14 +570,15 @@ function App(el){
         active_project.startSelectionWith(active_project.getActiveGraph());
         break;
     }
-    render(true);
+    self.render(true);
   }
   self.on('switchItemList', function(objectOfDisplay){
     switchItemList(objectOfDisplay);
   });
 
   function transitionNote(project, note, trigger='item-thumb'){
-    let active_note = project.getActiveNote();
+    let self = this,
+        active_note = project.getActiveNote();
     if(!active_note || active_note === undefined){
       console.error("Error: No active note set.");
       return;
@@ -676,7 +602,7 @@ function App(el){
     }else{
       project.startSelectionWith(active_note);
     }
-    render(true);
+    self.render(true);
   }
 
   self.on('transitionNote', function(project, note, trigger='item-thumb'){
@@ -685,7 +611,8 @@ function App(el){
 
   self.on('transitionNoteAndEditor', function(project, note){
     console.log("transitionNoteAndEditor");
-    let active_note = project.getActiveNote();
+    let self = this,
+        active_note = project.getActiveNote();
     if(!active_note || active_note === undefined){
       console.error("Error: No active note set.");
       return;
@@ -697,7 +624,7 @@ function App(el){
       project.startSelectionWith(note);
       project.setGraphMode(false);
       self.views.graph.takedown();
-      render();
+      self.render();
     }else{
       if(active_note.uuid.localeCompare(note.uuid) === 0){
         return;
@@ -705,7 +632,7 @@ function App(el){
       self.session.prepProjectForTrans(project);
       project.toggleActiveNote(note);
       project.startSelectionWith(note);
-      render(true);
+      self.render(true);
     }
     
   });
@@ -755,12 +682,11 @@ function App(el){
     let nn = self.session.getActiveProject().createNewNote();
     nn.saveData(); // REFACTOR: Maybe better move this in createNewNote()
 
-    //render(true)
     if(self.session.getGraphMode()){
       transToNoteEditor();
-      render();
+      self.render();
     }else{
-      render();
+      self.render();
     }
     
     self.views.editor.focusNotepad();
@@ -777,7 +703,7 @@ function App(el){
       console.log("App listener createNewNote -- No active project.");
       return;
     }
-    let i,
+    let i, self = this,
         active_project = self.session.getActiveProject(),
         active_note = active_project.getActiveNote(),
         // active_graph = active_project.getActiveGraph(),
@@ -794,12 +720,8 @@ function App(el){
     active_project.deleteNote(active_note);
 
     self.views.graph.forceClearContentDOMEl();
-    render();
+    self.render();
   });
-
-  function deleteSpecificNote(note){
-    
-  }
 
   function deleteSelectedNotes(){
     if(self.session.getActiveProject() === null){
@@ -813,7 +735,7 @@ function App(el){
     active_project.deleteSelectedItems();
 
     self.views.graph.forceClearContentDOMEl();
-    render();
+    self.render();
   }
 
   self.on('deleteSelectedNotes', function(){
@@ -846,7 +768,8 @@ function App(el){
   });
 
   self.on('updateGlobalSearch', function(needle){
-    let active_project = self.session.getActiveProject();
+    let self = this,
+        active_project = self.session.getActiveProject();
     active_project.search = {
       needle: needle,
       notes: self.session.getActiveProject().searchAllNotesTextsAndTags(needle)
@@ -856,16 +779,17 @@ function App(el){
     console.log(active_project.search);
     console.log(active_project.getGraphMode())
     if(active_project.getGraphMode()){
-      render(true);
+      self.render(true);
       self.views.graph.updateGraph();
     }else{
-      render();
+      self.render();
     }
     
   });
   self.on('clearGlobalSearch', function(){
     // Clear the search state in the active project.
-    let active_project = self.session.getActiveProject(),
+    let self = this,
+        active_project = self.session.getActiveProject(),
         active_note = active_project.getActiveNote();
 
     // Delete/Clear the project search
@@ -873,10 +797,10 @@ function App(el){
     // Reset the note selection
     active_project.startSelectionWith(active_note);
     if(active_project.getGraphMode()){
-      render(true);
+      self.render(true);
       self.views.graph.updateGraph();
     }else{
-      render();
+      self.render();
     }
   });
 
@@ -889,8 +813,9 @@ function App(el){
      * For now: New empty note is directly inserted into database
      * Better: Only insert once there is at least one char content.
      */
-    let active_project = self.session.getActiveProject();
-    let active_graph = active_project.getActiveGraph();
+    let self = this,
+        active_project = self.session.getActiveProject(),
+        active_graph = active_project.getActiveGraph();
 
     if( active_project === null || active_graph === null){
       console.log("createNewNoteVertexGraph -- No active project or graph.");
@@ -916,7 +841,7 @@ function App(el){
     
     self.views.graph.updateGraph(active_graph);
 
-    render(true);
+    self.render(true);
   });
 
   self.on('addNotesToGraph', function(coords){ 
@@ -976,8 +901,9 @@ function App(el){
      * For now: New empty note is directly inserted into database
      * Better: Only insert once there is at least one char content.
      */
-    let active_project = self.session.getActiveProject();
-    let active_graph = active_project.getActiveGraph();
+    let self = this, 
+        active_project = self.session.getActiveProject(),
+        active_graph = active_project.getActiveGraph();
 
     if( active_project === null || active_graph === null){
       console.log("createNewNoteVertexGraph -- No active project or graph.");
@@ -1025,7 +951,7 @@ function App(el){
     
     self.views.graph.updateGraph(active_graph);
 
-    render(true);
+    self.render(true);
   });
 
 
@@ -1037,7 +963,8 @@ function App(el){
     // if(!project.getGraphMode()){
     //   self.session.prepProjectForTrans(project)
     // }
-    let active_graph = project.getActiveGraph();
+    let self = this,
+        active_graph = project.getActiveGraph();
     if(!active_graph || active_graph === undefined){
       console.error("Error: No active graph set.");
       return;
@@ -1051,10 +978,10 @@ function App(el){
       if(project.getGraphMode() && trigger.localeCompare('item-thumb') === 0){
         self.views.graph.forceClearContentDOMEl();
       }
-      render();
+      self.render();
     }else{
       project.startSelectionWith(active_graph);
-      render(true);
+      self.render(true);
     }
   }
 
@@ -1067,7 +994,8 @@ function App(el){
   self.on('transitionGraphAndEditor', function(project, graph){
     console.log('transitionGraphAndEditor');
 
-    let active_graph = project.getActiveGraph();
+    let self = this,
+        active_graph = project.getActiveGraph();
     if(!active_graph || active_graph === undefined){
       console.error("Error: No active graph set.");
       return;
@@ -1076,7 +1004,7 @@ function App(el){
     if(!project.getGraphMode()){
       project.toggleActiveGraph(graph);
       project.setGraphMode(true);
-      render();
+      self.render();
     }else{
       if(active_graph.uuid.localeCompare(graph.uuid) === 0){
         return;
@@ -1088,7 +1016,7 @@ function App(el){
       project.toggleActiveGraph(graph);
       project.startSelectionWith(graph);
       self.views.graph.forceClearContentDOMEl();
-      render();
+      self.render();
     }
   });
 
@@ -1132,7 +1060,7 @@ function App(el){
       // Not in graph mode so transition to..
       self.session.setGraphMode(true);
     }
-    render();
+    self.render();
   }
   self.on('createNewGraph', function(){
     console.log("App.js: createNewGraph");
@@ -1141,7 +1069,7 @@ function App(el){
 
   self.on('DEPRECATED -- deleteSelectedGraphs', function(){
     console.log("App.js: deleteSelectedGraphs");
-
+    var self = this;
     /**
      * For now: 
      *  - Selection of multiple graphs not possible.
@@ -1162,7 +1090,7 @@ function App(el){
     if(active_p.getGraphMode()){
       self.views.graph.forceClearContentDOMEl();
     }
-    render();
+    self.render();
   });
   
   function deleteSelectedGraphs(){
@@ -1176,7 +1104,7 @@ function App(el){
     active_project.deleteSelectedItems();
 
     self.views.graph.forceClearContentDOMEl();
-    render();
+    self.render();
   }
 
   self.on('deleteSelectedGraphs', function(){
@@ -1258,7 +1186,7 @@ App.prototype.renderRightSideMenu = function(lazy_load = false){
   return self.views.graph.renderRightSideMenu();
 }
 
-App.prototype.render = function (lazy_load = false) {
+App.prototype.renderMain = function (lazy_load = false) {
   var self = this;
   var views = self.views;
 
@@ -1329,6 +1257,106 @@ App.prototype.render = function (lazy_load = false) {
     `;
   }
   
+}
+
+App.prototype.render = function(lazy_load = false) {
+  var self = this,
+      newTree = this.renderMain(lazy_load);
+  yo.update(this.tree, newTree);
+  // Recreate split screen on new dom tree with sizes from old one
+  self.split_manager.recreateFromBuffer();
+  // Reinitialise the semantic UI left-menu dropdown
+  $('.ui.dropdown').dropdown({
+    silent: true
+  });
+
+  // Reinitialise the project-thumb dropdowns
+  $('.prjct-thmb-dropdown').dropdown({
+    silent: true
+  });
+
+  if(!self.session.getGraphMode()){
+    // Adjust height of the textarea in NoteEditorView to fit content
+    UIAssistant.resizeElementByContent($('#notepad')[0]);
+  }else{
+    // Adjust height of the textarea in right-side-menu to fit content
+    UIAssistant.resizeElementByContent($('#graph-description')[0]);
+    // Make the #content container of the graph a droppable element for the notes
+    $('#content').droppable({
+      accept:'.item-thmb-wrap',
+      tolerance: 'pointer',
+      classes: {
+        "ui-droppable-active": "graph-droppable-active",
+        "ui-droppable-hover": "graph-droppable-hover"
+      },
+      over: function(event, ui) {
+        $('body').css("cursor", "copy");
+      },
+      out: function(event, ui) {
+        $('body').css("cursor", "no-drop");
+      },
+      drop: function(event,ui){
+        console.log("Dropped note in graph at position...");
+
+        let $item_thmb = ui.draggable.find('.item-thmb'),
+            data_object = $item_thmb.attr('data-object'),
+            item_id = null;
+
+        // For now dropping graphs into graphs is not supported..
+        if(data_object !== "note"){ return; }
+        item_id = $item_thmb.attr('data-id');
+
+        let active_project = self.session.getActiveProject(),
+            active_graph = active_project.getActiveGraph(),
+            selected_notes = active_project.getItemsFromSelection(),
+            note = active_project.getNoteByUUID(item_id),
+            drag_notes = [];
+        
+        console.log(note);
+        
+        if(!note){
+          console.error("Note associated with UI element could not be found.");
+          return;
+        }
+        // Selected thumb was dragged => Drags all selected thumbs.
+        if(selected_notes.indexOf(note) >= 0){
+          drag_notes = selected_notes;
+        }else{  // Unselected note thumb was dragged
+          drag_notes.push(note);
+        }
+
+        console.log("calcDropZone coordinates...")
+        let i = 0, nV = null,
+            coords = self.views.graph.calcRelativeDropZone(ui.position),
+            newVertices = [];
+        if(drag_notes.length > 0){
+          console.log("..note selection exists, so add it...");
+          for(i in drag_notes){
+            nV = active_graph.createNewVertexForNote(coords, drag_notes[i]);
+            coords.x = coords.x + 10;
+            coords.y = coords.y + 10;
+            if(nV){
+              nV.saveData();
+              newVertices.push(nV);
+            }else{
+              self.views.notifications.addNotification(
+                self.views.notifications.INFO,
+                "Note already has vertex in selected graph."
+              );
+              self.render(true);
+            }
+          }
+          if(newVertices.length > 0){
+            console.log(newVertices.length + " notes added to graph..");
+            self.views.graph.updateGraph(active_graph);
+            // Update the create new graph button
+            self.views.titlebar.updateCreateNewBtn(el, active_graph);
+            self.render(true);
+          }
+        }
+      }
+    });
+  }
 }
 
 module.exports = window.App = App
