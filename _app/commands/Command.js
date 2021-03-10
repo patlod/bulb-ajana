@@ -5,6 +5,10 @@ module.exports = Command
 
 /**
  * 
+ * Command class serves more or less as template or abstract class
+ * for the actual commands, so that the core structure of the commands
+ * is implemented at a central place.
+ * 
  * @param {App} app -- Instance of the central App controller
  * @param {*} exec_cb - Callback for executing the command
  * @param {*} undo_cb - Callback for undoing the command

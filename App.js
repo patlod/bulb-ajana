@@ -109,10 +109,10 @@ function App(el){
   self.appControls.add('default', 'File', 'New Note', () => { 
     switch(self.views.items.objectOfDisplay){
       case Note:
-        createNewNote();
+        self.createNewNote();
         break;
       case Graph:
-        createNewGraph();
+        self.createNewGraph();
         break;
     }
   }, 'CmdOrCtrl+N');
@@ -213,7 +213,7 @@ function App(el){
     self.views.items.objectOfDisplay = Graph;
     switchItemList(self.views.items.objectOfDisplay);
     // Create new graph (checks whether empty one already exists..)
-    createNewGraph();
+    self.createNewGraph();
    }, '');
   self.appControls.add('default', 'Graph', 'Add Selected Notes', () => { 
     addSelectedNotesToGraph();
@@ -665,7 +665,7 @@ function App(el){
         label: 'New Note',
         click: () => {
           console.log("Context-Menu - New Note clicked on element:")
-          createNewNote();
+          self.createNewNote();
         }
       }
     ];
@@ -673,7 +673,8 @@ function App(el){
     self.views.items.showContextMenuFromTemplate(template);
   });
 
-  function createNewNote(){
+  this.createNewNote = function(){
+    var self = this;
     if(self.session.getActiveProject() === null){
       console.log("App listener createNewNote -- No active project.");
       return;
@@ -694,7 +695,7 @@ function App(el){
 
   self.on('createNewNote', function(){
     console.log("App received: CREATE NEW NOTE");
-    createNewNote();
+    self.createNewNote();
   });
 
   self.on('DEPRECATED -- deleteSelectedNotes', function(){
@@ -1038,14 +1039,14 @@ function App(el){
         label: 'New Graph',
         click: () => {
           console.log("Context-Menu - New Graph clicked on element:")
-          createNewGraph();
+          self.createNewGraph();
         }
       }
     ];
     self.views.items.showContextMenuFromTemplate(template);
   });
 
-  function createNewGraph(){
+  this.createNewGraph = function(){
     if(self.session.getActiveProject() === null){
       console.log("App listener createNewNote -- No active project.");
       return;
@@ -1062,9 +1063,10 @@ function App(el){
     }
     self.render();
   }
+
   self.on('createNewGraph', function(){
     console.log("App.js: createNewGraph");
-    createNewGraph();
+    self.createNewGraph();
   });
 
   self.on('DEPRECATED -- deleteSelectedGraphs', function(){

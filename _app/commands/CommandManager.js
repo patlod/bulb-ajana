@@ -9,6 +9,11 @@ function CommandManager(){
   this.redo_stack = new Stack();
 }
 
+CommandManager.prototype.clearHistory = function(){
+  this.undo_stack = new Stack();
+  this.redo_stack = new Stack();
+}
+
 CommandManager.prototype.executeCmd = function(cmd){
   this.redo_stack = new Stack();
   cmd.execute();
