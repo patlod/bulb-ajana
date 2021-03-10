@@ -10,9 +10,10 @@ const GRAPH_EDITOR      = 4;
 const RIGHT_MENU        = 5;
 
 function FocusManager(target, focus_object = null){
-    var self = this
+    var self = this;
+    EventEmitterElement.call(this, target);
 
-    EventEmitterElement.call(this, target)
+    this.app = target;
 
     this.TITLEBAR_SEARCH = TITLEBAR_SEARCH;
     this.PROJECT_LIST = PROJECT_LIST;
@@ -26,6 +27,9 @@ function FocusManager(target, focus_object = null){
 inherits(FocusManager, EventEmitterElement)
 
 FocusManager.prototype.setFocusObject = function(focus_object){
+  if(this.focus_object !== focus_object){
+    this.app.commandManager.clearHistory();
+  }
   this.focus_object = focus_object;
 }
 

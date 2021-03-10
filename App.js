@@ -17,6 +17,8 @@ const ConfigManager = require('./_app/ConfigurationManager');
 const GlobalData = require('./_models/GlobalData');
 const CommandManager = require('./_app/commands/CommandManager');
 const Command = require('./_app/commands/Command');
+const NewNoteCmd = require('./_app/commands/NewNoteCmd');
+const DeleteSelectedNotesCmd = require('./_app/commands/DeleteSelectedNotesCmd');
 
 // Controllers
 const Session = require('./_controllers/Session.js');
@@ -64,7 +66,7 @@ function App(el){
   self.appControls = new AppControls();
 
 
-  self.focusManager = new FocusManager.constructor(el);
+  self.focusManager = new FocusManager.constructor(self);
   self.focusManager.setFocusObject(self.focusManager.PROJECT_LIST);
   /* ====== Views ====== */
   // All view instance for different parts of the app's UI
@@ -107,12 +109,17 @@ function App(el){
     self.session.newProject(render);
   }, 'CmdOrCtrl+P');
   self.appControls.add('default', 'File', 'New Note', () => { 
+    let cmd = null;
     switch(self.views.items.objectOfDisplay){
       case Note:
-        self.createNewNote();
+        cmd = new NewNoteCmd(self);
+        self.commandManager.executeCmd(cmd);
+        // self.createNewNote();
         break;
       case Graph:
-        self.createNewGraph();
+        cmd = new NewGraphCmd(self);
+        self.commandManager.executeCmd(cmd);
+        // self.createNewGraph();
         break;
     }
   }, 'CmdOrCtrl+N');
@@ -148,14 +155,13 @@ function App(el){
   self.appControls.addSpacer('default', 'Edit', 'delete');
   self.appControls.add('default', 'Edit', 'Delete Selected Items', () => { 
     if(self.views.items.objectOfDisplay === Note){
-      // let cmd = new Command(
-      //   self,
-      //   deleteSelectedNotes
-      //   )
-      self.commandManager.executeCmd();
-      deleteSelectedNotes();
+      let cmd = new DeleteSelectedNotesCmd(self);
+      self.commandManager.executeCmd(cmd);
+      // self.deleteSelectedNotes();
     }else{
-      deleteSelectedGraphs();
+      let cmd = new DeleteSelectedGraphsCmd(self);
+      self.commandManager.executeCmd(cmd);
+      // self.deleteSelectedGraphs();
     }
   }, 'CmdOrCtrl+Backspace');
   // self.appControls.addRole('default', 'Edit', 'delete')
@@ -213,7 +219,9 @@ function App(el){
     self.views.items.objectOfDisplay = Graph;
     switchItemList(self.views.items.objectOfDisplay);
     // Create new graph (checks whether empty one already exists..)
-    self.createNewGraph();
+    let cmd = new NewGraphCmd(self);
+    self.commandManager.executeCmd(cmd);
+    // self.createNewGraph();
    }, '');
   self.appControls.add('default', 'Graph', 'Add Selected Notes', () => { 
     addSelectedNotesToGraph();
@@ -559,7 +567,7 @@ function App(el){
     self.session.deleteProject(project_id, self.render);
   });
 
-  function switchItemList(objectOfDisplay){
+  this.switchItemList = function(objectOfDisplay){
     let self = this,
         active_project = self.session.getActiveProject();
     switch(objectOfDisplay){
@@ -573,12 +581,11 @@ function App(el){
     self.render(true);
   }
   self.on('switchItemList', function(objectOfDisplay){
-    switchItemList(objectOfDisplay);
+    self.switchItemList(objectOfDisplay);
   });
 
   function transitionNote(project, note, trigger='item-thumb'){
-    let self = this,
-        active_note = project.getActiveNote();
+    let active_note = project.getActiveNote();
     if(!active_note || active_note === undefined){
       console.error("Error: No active note set.");
       return;
@@ -648,7 +655,7 @@ function App(el){
       {
         label: 'Show in Graph',
         click: () => {
-          console.log("Context-Menu - New Note clicked on element:")
+          console.log("Context-Menu - New Note clicked on element:");
           transToGraphEditor();
         }
       },
@@ -656,16 +663,20 @@ function App(el){
       {
         label: 'Delete',
         click: () => {
-          console.log("Context-Menu - Delete clicked on element:")
-          deleteSelectedNotes();
+          console.log("Context-Menu - Delete clicked on element:");
+          let cmd = new DeleteSelectedNotesCmd(self);
+          self.commandManager.executeCmd(cmd);
+          // self.deleteSelectedNotes();
         }
       },
       { type: 'separator' },
       {
         label: 'New Note',
         click: () => {
-          console.log("Context-Menu - New Note clicked on element:")
-          self.createNewNote();
+          console.log("Context-Menu - New Note clicked on element:");
+          let cmd = new NewNoteCmd(self);
+          self.commandManager.executeCmd(cmd);
+          // self.createNewNote();
         }
       }
     ];
@@ -695,7 +706,9 @@ function App(el){
 
   self.on('createNewNote', function(){
     console.log("App received: CREATE NEW NOTE");
-    self.createNewNote();
+    let cmd = new NewNoteCmd(self);
+    self.commandManager.executeCmd(cmd);
+    // self.createNewNote();
   });
 
   self.on('DEPRECATED -- deleteSelectedNotes', function(){
@@ -724,7 +737,7 @@ function App(el){
     self.render();
   });
 
-  function deleteSelectedNotes(){
+  this.deleteSelectedNotes = function(){
     if(self.session.getActiveProject() === null){
       console.log("App listener createNewNote -- No active project.");
       return;
@@ -741,7 +754,9 @@ function App(el){
 
   self.on('deleteSelectedNotes', function(){
     console.log("App received: DELETE SELECTED NOTES");
-    deleteSelectedNotes();
+    // let cmd = new DeleteSelectedNotesCmd(self);
+    // self.commandManager.executeCmd(cmd);
+    self.deleteSelectedNotes();
   });
 
   
@@ -1030,16 +1045,20 @@ function App(el){
       {
         label: 'Delete',
         click: () => {
-          console.log("Context-Menu - Delete clicked on element:")
-          deleteSelectedGraphs();
+          console.log("Context-Menu - Delete clicked on element:");
+          let cmd = new DeleteSelectedGraphsCmd(self);
+          self.commandManager.executeCmd(cmd);
+          // self.deleteSelectedGraphs();
         }
       },
       { type: 'separator'},
       {
         label: 'New Graph',
         click: () => {
-          console.log("Context-Menu - New Graph clicked on element:")
-          self.createNewGraph();
+          console.log("Context-Menu - New Graph clicked on element:");
+          let cmd = new NewGraphCmd(self);
+          self.commandManager.executeCmd(cmd);
+          // self.createNewGraph();
         }
       }
     ];
@@ -1066,7 +1085,9 @@ function App(el){
 
   self.on('createNewGraph', function(){
     console.log("App.js: createNewGraph");
-    self.createNewGraph();
+    let cmd = new NewGraphCmd(self);
+    self.commandManager.executeCmd(cmd);
+    // self.createNewGraph();
   });
 
   self.on('DEPRECATED -- deleteSelectedGraphs', function(){
@@ -1095,7 +1116,7 @@ function App(el){
     self.render();
   });
   
-  function deleteSelectedGraphs(){
+  this.deleteSelectedGraphs = function(){
     console.log("App received: DELETE SELECTED NOTES");
     if(self.session.getActiveProject() === null){
       console.log("App listener createNewNote -- No active project.");
@@ -1111,7 +1132,9 @@ function App(el){
 
   self.on('deleteSelectedGraphs', function(){
     console.log("App.js: deleteSelectedGraphs");
-    deleteSelectedGraphs();    
+    let cmd = new DeleteSelectedGraphsCmd(self);
+    self.commandManager.executeCmd(cmd);
+    // self.deleteSelectedGraphs();    
   });
 
 
@@ -1262,6 +1285,7 @@ App.prototype.renderMain = function (lazy_load = false) {
 }
 
 App.prototype.render = function(lazy_load = false) {
+  console.log(this.commandManager);
   var self = this,
       newTree = this.renderMain(lazy_load);
   yo.update(this.tree, newTree);

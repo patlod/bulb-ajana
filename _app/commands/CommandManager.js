@@ -17,25 +17,25 @@ CommandManager.prototype.clearHistory = function(){
 CommandManager.prototype.executeCmd = function(cmd){
   this.redo_stack = new Stack();
   cmd.execute();
-  undo_stack.push(cmd);
+  this.undo_stack.push(cmd);
 }
 
 CommandManager.prototype.undo = function(){
   console.log("CommandManager: undo()");
-  // if(this.undo_stack.isEmpty()){
-  //   return;
-  // }
-  // this.undo_stack.top().undo();
-  // this.redo_stack.push(this.undo_stack.top());
-  // this.undo_stack.pop();
+  if(this.undo_stack.isEmpty()){
+    return;
+  }
+  this.undo_stack.top().undo();
+  this.redo_stack.push(this.undo_stack.top());
+  this.undo_stack.pop();
 }
 
 CommandManager.prototype.redo = function(){
   console.log("CommandManager: redo()");
-  // if(this.redo_stack.isEmpty()){
-  //   return;
-  // }
-  // this.redo_stack.top().redo();
-  // this.undo_stack.push(this.redo_stack.top());
-  // this.redo_stack.pop();
+  if(this.redo_stack.isEmpty()){
+    return;
+  }
+  this.redo_stack.top().redo();
+  this.undo_stack.push(this.redo_stack.top());
+  this.redo_stack.pop();
 }

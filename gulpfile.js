@@ -80,43 +80,39 @@ gulp.task('watch', function(){
     });
   
   gulp.watch(['./scripts/*.*'], { events: 'all' }, function(cb){
-    /* callback function and event object are async completion code so that 
-    watch function not only exectutes once but on every event*/ 
     server.restart();
     cb();
   });
 
   gulp.watch(['./_views/*.*'], { events: 'all' }, function(cb){
-    /* callback function and event object are async completion code so that 
-    watch function not only exectutes once but on every event*/ 
     server.restart();
     cb();
   });
 
   gulp.watch(['./_controllers/*.*'], { events: 'all' }, function(cb){
-    /* callback function and event object are async completion code so that 
-    watch function not only exectutes once but on every event*/ 
     server.restart();
     cb();
   });
 
   gulp.watch(['./_models/*.*'], { events: 'all' }, function(cb){
-    /* callback function and event object are async completion code so that 
-    watch function not only exectutes once but on every event*/ 
     server.restart();
     cb();
   });
 
   gulp.watch(['./_app/*.*'], { events: 'all' }, function(cb){
-    /* callback function and event object are async completion code so that 
-    watch function not only exectutes once but on every event*/ 
+    server.restart();
+    cb();
+  });
+  gulp.watch(['./_app/*.*'], { events: 'all' }, function(cb){ 
+    server.restart();
+    cb();
+  });
+  gulp.watch(['./_app/commands/*.*'], { events: 'all' }, function(cb){ 
     server.restart();
     cb();
   });
 
   gulp.watch(['./_util/*.*'], { events: 'all' }, function(cb){
-    /* callback function and event object are async completion code so that 
-    watch function not only exectutes once but on every event*/ 
     server.restart();
     cb();
   });
