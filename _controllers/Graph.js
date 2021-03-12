@@ -17,6 +17,7 @@ function Graph(project, data = FileDatabaseManager.getEmptyGraphJSON())
   this.modified = data.modified;
   this.description = data.description;
   this.position = data.position;
+  this.tags = data.tags;
   this.vertices = data.vertices;
   this.edges = data.edges;
 
@@ -270,6 +271,73 @@ Graph.prototype.getVerticesBoundingBox = function(){
     width: dWestEast,     // Dimensions
     height: dNorthSouth,
   };
+}
+
+/* ================================================================= */
+/* Tag functions                                                     */
+/*                                                                   */
+/* ================================================================= */
+
+// TODO
+Graph.prototype.addTag = function(tag_value){
+  // // Insert to database
+  // let tag = this.getDB().insertNoteTag(this.uuid, tag_value);
+  // // Add tag to tag array 
+  // this.tags.push(tag);
+
+  // // Reload project's tag list
+  // this.project.loadTags();
+}
+
+// TODO
+Graph.prototype.removeTag = function(tag_value){
+  // // Find tag_id and index in tag list from tag_value
+  // let index = 0;
+  // let tag_id = "";
+  // for(var i in this.tags){
+  //   if(this.tags[i].name.localeCompare(tag_value) === 0){
+  //     index = i;
+  //     tag_id = this.tags[i].uuid;
+  //   }
+  // }
+  // // Remove from database
+  // if(tag_id.length == 0){
+  //   console.log("Tag ID can note be found in note object data");
+  // }
+  // this.getDB().removeNoteTag(this.uuid, tag_id)
+  // // Remove tag from tag array
+  // this.tags.splice(index, 1);
+  // // Reload project's tag list
+  // this.project.loadTags();
+}
+
+// TODO
+Graph.prototype.updateTag = function(new_val, pre_val){
+  // // Insert new tag to database
+  // let tag = this.getDB().insertNoteTag(this.uuid, new_val);
+  // // Insert tag into tag list
+  // this.tags.push(tag);
+
+  // // Find tag_id and index in tag list from previous value
+  // let index = 0;
+  // let pre_tag_id = "";
+  // for(var i in this.tags){
+  //   if(this.tags[i].name.localeCompare(pre_val) === 0){
+  //     index = i;
+  //     pre_tag_id = this.tags[i].uuid;
+  //   }
+  // }
+  // // Remove new tag to database 
+  // this.getDB().removeNoteTag(this.uuid, pre_tag_id);
+  // // Remove old tag from tags list
+  // this.tags.splice(index, 1);
+
+  // // Reload project's tag list
+  // this.project.loadTags();
+}
+
+Graph.prototype.getTags = function(){
+  return this.tags;
 }
 
 /**

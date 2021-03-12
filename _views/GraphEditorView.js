@@ -940,6 +940,84 @@ GraphEditorView.prototype.forceClearContentDOMEl = function(){
 /* ============================================================================== */
 /* ============================================================================== */
 
+// TODO
+/**
+ * Returns a (white)list of key-value pairs of global project tags
+ * @param {Project} project 
+ */
+// GraphEditorView.prototype.fetchWhitelist = function(project){
+//   let p_tag_objs = project.getAllTags();
+//   let wL = p_tag_objs.map(function(t) { return { value: t.name }; });
+//   return wL;
+// }
+
+// TODO
+GraphEditorView.prototype.addTag = function(e, tagify, note){
+  // var self = this;
+
+  // // Add tag to list & database
+  // // REFACTOR
+  // // self.active_note.addTag(e.detail.data.value);
+
+  // // Update whitelist of tagify input
+  // let new_wL = this.fetchWhitelist(self.active_note.project);
+  // // Reset tagify whitelist
+  // tagify.settings.whitelist.length = 0;
+  // // Update tagify whitelist
+  // tagify.settings.whitelist.splice(0, new_wL.length, ...new_wL);
+
+  // // Trigger update of notes list
+  // self.send("updateByNoteEditorContent", self.active_note);
+}
+
+// TODO
+GraphEditorView.prototype.removeTag = function(e, tagify, note){
+  // var self = this;
+  // // Remove tag from list & database
+  // // REFACTOR
+  // // self.active_note.removeTag(e.detail.data.value);
+
+  // let new_wL = this.fetchWhitelist(self.active_note.project);
+  // // Reset tagify whitelist
+  // tagify.settings.whitelist.length = 0;
+  // // Update tagify whitelist
+  // tagify.settings.whitelist.splice(0, new_wL.length, ...new_wL);
+  
+  // // Trigger update of notes list
+  // self.send("updateByNoteEditorContent", self.active_note);
+}
+
+// TODO
+GraphEditorView.prototype.updateTag = function(e, tagify, note){
+  // var self = this;
+
+  // // Update tag in list & database
+  // // REFACTOR
+  // // self.active_note.updateTag(e.detail.data.value, e.detail.previousData.value);
+  
+  // // Update white list
+  // let new_wL = this.fetchWhitelist(self.active_note.project);
+  // // Reset tagify whitelist
+  // tagify.settings.whitelist.length = 0;
+  // // Update tagify whitelist
+  // tagify.settings.whitelist.splice(0, new_wL.length, ...new_wL);
+
+  // // Trigger update of notes list
+  // self.send("updateByNoteEditorContent", self.active_note);
+}
+
+// TODO
+/**
+ * Creates a list with the tag values each wrapped in JSON object
+ * 
+ * Takes array of tags as JSON objects
+ * 
+ * @param {[{Obj}]} tags 
+ */
+// GraphEditorView.prototype.makeTagifyValues = function(tags){
+//   return JSON.stringify(tags.map(function(tag){ return { "value": tag.name } }));
+// }
+
 GraphEditorView.prototype.toggleRightSideMenu = function(){
   let self = this;
   let el = document.getElementById('right-side-menu'),
@@ -1019,7 +1097,6 @@ GraphEditorView.prototype.render = function(project){
 
 GraphEditorView.prototype.renderRightSideMenu = function(){
   let self = this;
-
 
   function clickRightMenu(e){
     self.focus_manager.setFocusObject(self.focus_manager.RIGHT_MENU);
