@@ -826,6 +826,13 @@ function App(el){
 /* ============================================================================== */
 /*  Graph Event Listeners                                                         */
 /* ============================================================================== */
+  self.on('updateByGraphEditorContent', function(active_graph){
+    console.log("App received: LIVE UPDATE TEXT OF NOTE THUMB");
+    
+    // self.views.titlebar.updateCreateNewBtn(el, active_graph);
+    self.views.items.updateActiveGraphThumb(el, active_graph);
+  });
+
   self.on('createNewNoteVertexGraph', function(coords){
     console.log('createNewNoteVertexGraph triggered');
     /**

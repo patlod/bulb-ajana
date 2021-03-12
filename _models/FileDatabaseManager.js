@@ -34,7 +34,8 @@ var FileDatabaseManager = {
       created:      Date.now(),
       modified:     Date.now(),
       name:         "",
-      notes:        [], 
+      notes:        [],
+      graphs:       [] 
     }
     return empty_tag
   },

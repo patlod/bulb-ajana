@@ -291,8 +291,8 @@ Project.prototype.loadGraphs = function(){
   var self = this;
 
   // Get notes from database
-  let g_query = this.db.selectAllGraphs();
-  let graphs = [];
+  let g_query = this.db.selectAllGraphs(),
+      graphs = [];
   
   if(typeof g_query === "undefined"){
     // Graph table does not exist yet...
@@ -309,17 +309,21 @@ Project.prototype.loadGraphs = function(){
     
     // TODO: Maybe check here whether loadNotes has been called already
     //       (algorithm works with references to existing Note objects)
-
-    for(var i in g_query){
+    var i, j;
+    for(i in g_query){
       // Create graph instance
-      let g = new Graph(this, g_query[i]);
+      let g = new Graph(this, g_query[i]),
+          t_query = null, tags = [], 
+          v_query = null, vertices = [], n_obj = null, v = null,
+          ed_query = null, edges = [], source_obj = null, target_obj = null, ed = null; 
+
+      // Get tags for graph
+      t_query = this.db.getGraphTags(g_query[i].uuid);
+
       // Get vertices from graph
-      let v_query = this.db.selectAllVertices(g_query[i].uuid);
+      v_query = this.db.selectAllVertices(g_query[i].uuid);
       // Find the right note object that matches reference
-      let vertices = [],
-          n_obj = null,
-          v = null;
-      for(var j in v_query){
+      for(j in v_query){
         n_obj = self.notes.filter(n => n.uuid === v_query[j].note);
         if(n_obj !== null && n_obj.length === 1){
           // Set references to Note instance
@@ -331,13 +335,9 @@ Project.prototype.loadGraphs = function(){
       }
       
       // Get edges from graph
-      let ed_query = this.db.selectAllEdges(g_query[i].uuid);
+      ed_query = this.db.selectAllEdges(g_query[i].uuid);
       // Find the right vertices that match references
-      let edges = [],
-        source_obj = null,
-        target_obj = null,
-        ed = null;
-      for(var j in ed_query){
+      for(j in ed_query){
         // Match source and target vertex objects of the list created above
         source_obj = vertices.filter(v => v.uuid === ed_query[j].source);
         target_obj = vertices.filter(v => v.uuid === ed_query[j].target);
@@ -353,6 +353,7 @@ Project.prototype.loadGraphs = function(){
       }
 
       // Update graph object and save in graphs list
+      g.tags = t_query;
       g.vertices = vertices;
       g.edges = edges;
       graphs.push(g);

@@ -27,20 +27,19 @@ function ItemListView(target, focus_manager) {
 inherits(ItemListView, EventEmitterElement)
 
 
-ItemListView.prototype.tagsHTML = function(note, pureHTML = false){
+ItemListView.prototype.tagsHTML = function(item, pureHTML = false){
   // TODO: Limit the amount of tags shown.
-  //console.log(note.getTags())
   if(pureHTML){
     let div =  document.createElement("div");
     div.classList = "item-thmb-tags";
-    note.getTags().map(function(tag){
+    item.getTags().map(function(tag){
       let span = document.createElement("span")
       span.textContent = tag.name
       div.appendChild(span)
     });
     return div;
   }else{
-    let tags = note.getTags().map(function(tag){
+    let tags = item.getTags().map(function(tag){
       return yo` 
       <span>${tag.name} </span>
       `;
@@ -77,6 +76,7 @@ ItemListView.prototype.updateActiveGraphThumb = function(dom_el, active_graph){
   let nThmb_content = active_graph_thmb.getElementsByClassName('item-thmb-content');
   nThmb_content[0].textContent = active_graph.getContentPreview();
   nThmb_content[1].textContent = active_graph.getNumberOfNotes() + "Notes linked";
+  active_graph_thmb.getElementsByClassName('item-thmb-tags')[0].replaceWith(self.tagsHTML(active_graph, true));
 }
 
 ItemListView.prototype.updateActiveGraphNoteCount = function(dom_el, active_graph){
@@ -287,6 +287,9 @@ ItemListView.prototype.render = function(project){
             </div>
             <div class="flex-wrap">
               <span class="item-thmb-content">${graph.getNumberOfNotes()} Notes linked</span>
+            </div>
+            <div class="flex-wrap">
+              ${self.tagsHTML(graph)}
             </div>
           </div>
         </div>

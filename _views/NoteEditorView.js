@@ -50,7 +50,7 @@ NoteEditorView.prototype.fetchWhitelist = function(project){
   return wL;
 }
 
-NoteEditorView.prototype.addTag = function(e, tagify, note){
+NoteEditorView.prototype.addTag = function(e, tagify){
   var self = this;
 
   // Add tag to list & database
@@ -67,7 +67,7 @@ NoteEditorView.prototype.addTag = function(e, tagify, note){
   self.send("updateByNoteEditorContent", self.active_note);
 }
 
-NoteEditorView.prototype.removeTag = function(e, tagify, note){
+NoteEditorView.prototype.removeTag = function(e, tagify){
   var self = this;
   console.log("removeTag() - Active Note:");
   console.log(self.active_note);
@@ -85,7 +85,7 @@ NoteEditorView.prototype.removeTag = function(e, tagify, note){
   self.send("updateByNoteEditorContent", self.active_note);
 }
 
-NoteEditorView.prototype.updateTag = function(e, tagify, note){
+NoteEditorView.prototype.updateTag = function(e, tagify){
   var self = this;
 
   // Update tag in list & database

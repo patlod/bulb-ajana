@@ -268,7 +268,7 @@ FileDatabase.prototype.countNotes = function(){
 
 
 /* ================================================================= */
-/* Operations on tag data                                            */
+/* Operations on note tag data                                       */
 /* ================================================================= */
 
 /**
@@ -317,7 +317,8 @@ FileDatabase.prototype.insertNoteTag = function(note_id, tag_name){
       name: tag_name,
       notes: [
         note_id
-      ]
+      ],
+      graphs: []
     };
     // Add & increment note references to tag in project's global tag listread
     this.db.get('tags').push(tag).write();
@@ -334,6 +335,7 @@ FileDatabase.prototype.insertNoteTag = function(note_id, tag_name){
 }
 
 /**
+ * [!!OBSOLETE!!]
  * Called when a tag name is updated in a note
  * 
  * @param {string} note_id 
@@ -355,7 +357,8 @@ FileDatabase.prototype.updateNoteTagName = function(note_id, cur_tag_id, new_nam
       created: Date.now(), 
       modified: Date.now(), 
       name: new_name, 
-      notes: [note_id]
+      notes: [note_id],
+      graphs: []
     })
     .write();
 
@@ -364,22 +367,16 @@ FileDatabase.prototype.updateNoteTagName = function(note_id, cur_tag_id, new_nam
     if(ref_count_old > 1){
       this.db.get('tags').find({uuid: cur_tag_id}).assign({modified: Date.now()}).get('notes').remove({uuid: note_id}).write();
     }else{
-      this.db.get('tags').remove({uuid: old_tag_id}).write();
+      // Check whether graphs are referenced
+      ref_count_old = this.db.get('tags').find({uuid: cur_tag_id}).get('graphs').size().value();
+      if(ref_count_old > 1){
+        this.db.get('tags').find({uuid: cur_tag_id}).assign({modified: Date.now()}).get('notes').remove({uuid: note_id}).write();
+      }else{
+        // No more references
+        this.db.get('tags').remove({uuid: old_tag_id}).write();
+      }
     }
   }
-}
-
-/**
- * Deletes the tag globally from DB file 
- * @param {string} tag_id 
- */
-FileDatabase.prototype.deleteTagGlobally = function(tag_id){
-  this.db.read();
-
-  console.log("deleteTagGlobally: ");
-  console.log("Tag-ID: " + tag_id);
-
-  this.db.get('tags').remove({uuid: tag_id}).write();
 }
 
 /**
@@ -391,9 +388,9 @@ FileDatabase.prototype.deleteTagGlobally = function(tag_id){
  */
 FileDatabase.prototype.removeNoteTag = function(note_id, tag_id){
   this.db.read();
-  console.log("removeNoteTag: ");
-  console.log("Note-ID: " + note_id);
-  console.log("Tag-ID: " + tag_id);
+  // console.log("removeNoteTag: ");
+  // console.log("Note-ID: " + note_id);
+  // console.log("Tag-ID: " + tag_id);
   // Remove tag from tags list in note
   let val = this.db.get('notes')
               .find({uuid: note_id})
@@ -404,7 +401,7 @@ FileDatabase.prototype.removeNoteTag = function(note_id, tag_id){
 
   // Remove & decrement references in tags list of project
   var ref_count_old = this.db.get('tags').find({uuid: tag_id}).get('notes').size().value();
-  console.log("ref_count_old: " + ref_count_old);
+  // console.log("ref_count_old: " + ref_count_old);
   if(ref_count_old > 1){
     this.db.get('tags')
       .find({uuid: tag_id})
@@ -413,19 +410,19 @@ FileDatabase.prototype.removeNoteTag = function(note_id, tag_id){
       .remove(function(x){ return x === note_id })
       .write();
   }else{
-    this.deleteTagGlobally(tag_id);
+    // Check for graph references
+    ref_count_old = this.db.get('tags').find({uuid: tag_id}).get('graphs').size().value();
+    if(ref_count_old > 1){
+      this.db.get('tags')
+      .find({uuid: tag_id})
+      .assign({modified: Date.now()})
+      .get('notes')
+      .remove(function(x){ return x === note_id })
+      .write();
+    }else{
+      this.deleteTagGlobally(tag_id);
+    }
   }
-}
-
-/**
- * Deletes tag from project (globally)
- * @param {string} tag_id 
- */
-FileDatabase.prototype.deleteTagFromProject = function(tag_id){
-  this.db.read();
-  // Deleting tags only from notes should be enough...
-  // Since it is only removable if it has no references to notes
-  this.db.get('tags').remove({uuid: tag_id}).write();
 }
 
 /**
@@ -449,6 +446,7 @@ FileDatabase.prototype.getNoteTags = function(note_id){
 }
 
 /**
+ * [!!OBSOLETE!!]
  * Returns all notes the tag with tag_id points to 
  * 
  * @param {string} tag_id
@@ -465,6 +463,30 @@ FileDatabase.prototype.getNotesFromTag = function(tag_id){
 }
 
 /**
+ * Deletes the tag globally from DB file 
+ * @param {string} tag_id 
+ */
+ FileDatabase.prototype.deleteTagGlobally = function(tag_id){
+  this.db.read();
+
+  console.log("deleteTagGlobally: ");
+  console.log("Tag-ID: " + tag_id);
+
+  this.db.get('tags').remove({uuid: tag_id}).write();
+}
+
+/**
+ * Deletes tag from project (globally)
+ * @param {string} tag_id 
+ */
+FileDatabase.prototype.deleteTagFromProject = function(tag_id){
+  this.db.read();
+  // Deleting tags only from notes should be enough...
+  // Since it is only removable if it has no references to notes
+  this.db.get('tags').remove({uuid: tag_id}).write();
+}
+
+/**
  * Returns all tags of the project.
  */
 FileDatabase.prototype.getProjectTags = function(){
@@ -473,6 +495,188 @@ FileDatabase.prototype.getProjectTags = function(){
   return this.db.get('tags').value();
 }
 
+/* ============================================================ */
+/**
+ * Insert a tag to graph.
+ * Checks whether graph already exists and sets references
+ * 
+ * @param {string} graph_id 
+ * @param {string} tag_name 
+ */
+FileDatabase.prototype.insertGraphTag = function(graph_id, tag_name){
+  this.db.read();
+  
+  // Check if tag is already existing in project's tag list
+  let s = this.db.get('tags').find({name: tag_name}).value();
+  // console.log(s)
+  if(s){
+    // Check whether the given graph id is referenced from this tag
+    ss = this.db.get('tags').find({name: tag_name}).get('graphs').find({uuid: graph_id}).size().value();
+    console.log(ss);
+    if(ss < 1){
+      // Add & increment note references to tag in project's global tag list
+      this.db.get('tags')
+      .find({name: tag_name})
+      .assign({modified: Date.now()})
+      .get('graphs')
+      .push(graph_id)
+      .write();
+    }
+    // Update graph here too!!
+    this.db.get('graphs')
+    .find({uuid: graph_id})
+    .assign({modified: Date.now()})
+    .get('tags')
+    .push(s.uuid)
+    .write();
+
+    return this.db.get('tags').find({name: tag_name}).value();
+  }else{
+    // Create tag and insert
+    let tag = {
+      uuid: uuidv4(),
+      created: Date.now(),
+      modified: Date.now(),
+      name: tag_name,
+      note: [],
+      graphs: [
+        graph_id
+      ]
+    };
+    // Add & increment note references to tag in project's global tag listread
+    this.db.get('tags').push(tag).write();
+    // Add tag reference to note
+    this.db.get('graphs')
+    .find({uuid: graph_id})
+    .assign({modified: Date.now()})
+    .get('tags')
+    .push(tag.uuid)
+    .write();
+    
+    return tag;
+  }
+}
+/**
+ * [!!OBSOLETE!!]
+ * Called when a tag name is updated in a graph
+ * 
+ * @param {string} graph_id 
+ * @param {string} cur_tag_id 
+ * @param {string} new_name 
+ */
+FileDatabase.prototype.updateGraphTagName = function(graph_id, cur_tag_id, new_name){
+  this.db.read();
+  // Check if the new name is in the project tag list 
+  let sample = this.db.get('tags').find({name: new_name}).value();
+  if(sample){    // Tag with suggested name already exists..
+    this.db.get('tags').find({name: new_name}).get('graphs').push(graph_id).write();
+    this.db.get('tags').find({uuid: cur_tag_id}).get('graphs').remove(graph_id).write();
+  }else{    
+    // Create tag with new name add reference
+    
+    this.db.get('tags').push({
+      uuid: uuidv4(), 
+      created: Date.now(), 
+      modified: Date.now(), 
+      name: new_name, 
+      notes: [],
+      graphs: [graph_id]
+    })
+    .write();
+
+    // Remove note reference from prior tag
+    var ref_count_old = this.db.get('tags').find({uuid: cur_tag_id}).get('graphs').size().value();
+    if(ref_count_old > 1){
+      this.db.get('tags').find({uuid: cur_tag_id}).assign({modified: Date.now()}).get('graphs').remove({uuid: graph_id}).write();
+    }else{
+      // Check whether graphs are referenced
+      ref_count_old = this.db.get('tags').find({uuid: cur_tag_id}).get('notes').size().value();
+      if(ref_count_old > 1){
+        this.db.get('tags').find({uuid: cur_tag_id}).assign({modified: Date.now()}).get('graphs').remove({uuid: graph_id}).write();
+      }else{
+        // No more references
+        this.db.get('tags').remove({uuid: old_tag_id}).write();
+      }
+    }
+  }
+}
+/**
+ * Removes tag from a note. If there are no more references to the note
+ * the tag will globally deleted.
+ * 
+ * @param {string} graph_id 
+ * @param {string} tag_id 
+ */
+FileDatabase.prototype.removeGraphTag = function(graph_id, tag_id){
+  this.db.read();
+  // Remove tag from tags list in note
+  let val = this.db.get('graphs')
+              .find({uuid: graph_id})
+              .assign({modified: Date.now()})
+              .get('tags')
+              .remove(function(x){ return x === tag_id })
+              .write();
+
+  // Remove & decrement references in tags list of project
+  var ref_count_old = this.db.get('tags').find({uuid: tag_id}).get('graphs').size().value();
+  // console.log("ref_count_old: " + ref_count_old);
+  if(ref_count_old > 1){
+    this.db.get('tags')
+      .find({uuid: tag_id})
+      .assign({modified: Date.now()})
+      .get('graphs')
+      .remove(function(x){ return x === graph_id })
+      .write();
+  }else{
+    // Check for note references
+    ref_count_old = this.db.get('tags').find({uuid: tag_id}).get('notes').size().value();
+    if(ref_count_old > 1){
+      this.db.get('tags')
+      .find({uuid: tag_id})
+      .assign({modified: Date.now()})
+      .get('graphs')
+      .remove(function(x){ return x === graph_id })
+      .write();
+    }else{
+      this.deleteTagGlobally(tag_id);
+    }
+  }
+}
+/**
+ * Returns all the tags and their data for a specific graph
+ * @param {string} graph_id 
+ */
+FileDatabase.prototype.getGraphTags = function(graph_id){
+  this.db.read();
+  // Resolve references to project's tag list
+  let tag_pointers = this.db.get('graphs').find({uuid: graph_id}).get('tags').value();
+  // Join data
+  let arr = [],
+      cur = null,
+      tag_ids = tag_pointers.map(function(id){ return { uuid: id } });
+  
+  for(var i in tag_ids){
+    cur = this.db.get('tags').find({ uuid: tag_ids[i].uuid}).value();
+    arr.push(cur);
+  }
+  return arr;
+}
+/**
+ * [!!OBSOLETE!!]
+ * Returns all graphs the tag with tag_id points to 
+ * 
+ * @param {string} tag_id
+ */
+FileDatabase.prototype.getGraphsFromTag = function(tag_id){
+  this.db.read();
+  let graphs = [],
+      graph_pointers = this.db.get('tags').find({uuid: tag_id}).get('graphs').value();
+  
+  for(var i in graph_pointers){
+    graphs.push(this.db.get('graphs').find({uuid: graph_pointers[i]}).value());
+  }
+  return graphs;
+}
 
 /* ================================================================= */
 /* Graph data                                                        */

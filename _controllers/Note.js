@@ -45,7 +45,7 @@ Note.prototype.saveText = function(){
 
 /**
  * NOTE: Duplicates are blocked by the tag input.
- * @param {} tag_value 
+ * @param {string} tag_value 
  */
 Note.prototype.addTag = function(tag_value){
   // Insert to database
@@ -57,7 +57,11 @@ Note.prototype.addTag = function(tag_value){
   this.project.loadTags();
 }
 
-
+/**
+ * Removes tag from tag list in this object.
+ * 
+ * @param {string} tag_value 
+ */
 Note.prototype.removeTag = function(tag_value){
   // Find tag_id and index in tag list from tag_value
   let index = 0;
@@ -69,7 +73,7 @@ Note.prototype.removeTag = function(tag_value){
     }
   }
   // Remove from database
-  if(tag_id.length == 0){
+  if(tag_id.length === 0){
     console.log("Tag ID can note be found in note object data");
   }
   this.getDB().removeNoteTag(this.uuid, tag_id)
@@ -82,8 +86,8 @@ Note.prototype.removeTag = function(tag_value){
 /**
  * 
  * NOTE: Duplicates are blocked by the tag input.
- * @param {*} new_val 
- * @param {*} pre_val 
+ * @param {string} new_val 
+ * @param {string} pre_val 
  */
 Note.prototype.updateTag = function(new_val, pre_val){
   // Insert new tag to database
