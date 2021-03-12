@@ -13,12 +13,15 @@ const yo = require('yo-yo');
 
 // App Core
 const ConfigManager = require('./_app/ConfigurationManager');
-// const UserPreferences = require('./_models/UserPreferences')
 const GlobalData = require('./_models/GlobalData');
+
+// Commandss
 const CommandManager = require('./_app/commands/CommandManager');
 const Command = require('./_app/commands/Command');
 const NewNoteCmd = require('./_app/commands/NewNoteCmd');
 const DeleteSelectedNotesCmd = require('./_app/commands/DeleteSelectedNotesCmd');
+const NewGraphCmd = require('./_app/commands/NewGraphCmd');
+const DeleteSelectedGraphsCmd = require('./_app/commands/DeleteSelectedGraphsCmd');
 
 // Controllers
 const Session = require('./_controllers/Session.js');
@@ -51,6 +54,8 @@ inherits(App, EventEmitter);
 function App(el){
   var self = this;
   if (!(self instanceof App)) return new App(el);
+
+  self.el = el;
 
   /* ===== Controllers ===== */
   self.appConfigManager = new ConfigManager();
@@ -500,8 +505,7 @@ function App(el){
   });
 
   function transToGraphEditor(){
-    let self = this,
-        active_p = self.session.getActiveProject();
+    let active_p = self.session.getActiveProject();
     if(!active_p.getGraphMode()){
       self.session.setGraphMode(true);
       self.render();
@@ -510,8 +514,7 @@ function App(el){
   self.on('transToGraphEditor', transToGraphEditor);
 
   function transToNoteEditor(){
-    let self = this,
-        active_p = self.session.getActiveProject();
+    let active_p = self.session.getActiveProject();
     if(active_p.getGraphMode()){
       self.session.setGraphMode(false);
       self.views.graph.takedown();
@@ -731,7 +734,7 @@ function App(el){
       //   self.views.graph.updateGraph(active_graph)
       // }
     }
-    active_project.deleteNote(active_note);
+    active_project.deleteNotes([active_note]);
 
     self.views.graph.forceClearContentDOMEl();
     self.render();
@@ -754,9 +757,9 @@ function App(el){
 
   self.on('deleteSelectedNotes', function(){
     console.log("App received: DELETE SELECTED NOTES");
-    // let cmd = new DeleteSelectedNotesCmd(self);
-    // self.commandManager.executeCmd(cmd);
-    self.deleteSelectedNotes();
+    let cmd = new DeleteSelectedNotesCmd(self);
+    self.commandManager.executeCmd(cmd);
+    // self.deleteSelectedNotes();
   });
 
   
@@ -979,8 +982,7 @@ function App(el){
     // if(!project.getGraphMode()){
     //   self.session.prepProjectForTrans(project)
     // }
-    let self = this,
-        active_graph = project.getActiveGraph();
+    let active_graph = project.getActiveGraph();
     if(!active_graph || active_graph === undefined){
       console.error("Error: No active graph set.");
       return;
@@ -1107,7 +1109,7 @@ function App(el){
     let active_g = active_p.getActiveGraph();
     console.log(active_g);
     if(active_g !== null ){
-      active_p.deleteGraph(active_g);
+      active_p.deleteGraphs([active_g]);
     }
 
     if(active_p.getGraphMode()){
@@ -1376,7 +1378,7 @@ App.prototype.render = function(lazy_load = false) {
             console.log(newVertices.length + " notes added to graph..");
             self.views.graph.updateGraph(active_graph);
             // Update the create new graph button
-            self.views.titlebar.updateCreateNewBtn(el, active_graph);
+            self.views.titlebar.updateCreateNewBtn(self.el, active_graph);
             self.render(true);
           }
         }

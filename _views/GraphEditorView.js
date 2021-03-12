@@ -23,6 +23,8 @@ function GraphEditorView(target, focus_manager) {
   var self = this;
   EventEmitterElement.call(this, target);
 
+  this.app = target;
+
   this.focus_manager = focus_manager;
 
   this.RENDER_TIMEOUT = 50;
@@ -480,7 +482,8 @@ GraphEditorView.prototype.svgKeyDown = function() {
   case consts.DELETE_KEY:
     d3.event.preventDefault();
   case consts.BACKSPACE_KEY:
-    if (selectedNode){
+    if ( this.focus_manager.getFocusObject() === this.focus_manager.GRAPH_EDITOR
+      && selectedNode){
       // Remove from dirty vertices to not get written to database again.
       let v_ids = self.dirty_vertices.map(function(v) { return v.uuid; });
       let idx = v_ids.indexOf(selectedNode.uuid);

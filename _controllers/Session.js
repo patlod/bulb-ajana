@@ -165,7 +165,7 @@ Session.prototype.prepProjectForTrans = function(project){
     let active_note = project.getActiveNote();
     let empty_notes = project.getEmptyNotes();
     if(empty_notes.length === 1 && active_note.compareTo(empty_notes[0])){
-      project.deleteNote(active_note);
+      project.deleteNotes([active_note]);
       if(active_graph !== null){
         active_graph.deleteVerticesForNote(active_note);
         if(project.getGraphMode()){

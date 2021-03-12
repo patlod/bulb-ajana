@@ -394,19 +394,22 @@ Project.prototype.createNewGraph = function(){
  * 
  *  @param {Graph} graph 
  */ 
-Project.prototype.deleteGraph = function(graph){
-  let graph_ids = this.graphs.map(function(g) { return g.uuid; });
-  let idx = graph_ids.indexOf(graph.uuid);
-  if(idx < 0 ){
-    console.log("Project.deleteGraph() -- Graph with id " + graph.uuid + " is not existing.");
-    return;
-  }
-  // Remove note from cache array at idx
-  this.graphs.splice(idx, 1);
+Project.prototype.deleteGraphs = function(graphs){
+  let i, idx,
+      g_arr = [];
   
-  // Delete note from database file
-  g_arr = [];
-  g_arr.push(graph.getGraphJSON());
+  for(i in graphs){
+    idx = this.graphs.indexOf(graphs[i]);
+    if(idx >= 0){
+      // Remove graph from instance array at idx
+      this.graphs.splice(idx, 1);
+      g_arr.push(graphs[i].getGraphJSON());
+    }
+  }
+  console.log(g_arr);
+  
+  
+  // Delete graphs from database file
   this.db.deleteGraphs(g_arr);
 
   // Toggle active note
@@ -439,21 +442,23 @@ Project.prototype.createNewNote = function(){
 /**
  * Delete either single note
  * 
- *  @param {Note} note 
+ *  @param {[Note]} notes -- Array of objects of notes that shall be deleted..
  */ 
-Project.prototype.deleteNote = function(note){
-  let note_ids = this.notes.map(function(n) { return n.uuid; })
-  let idx = note_ids.indexOf(note.uuid);
-  if(idx < 0 ){
-    console.log("Project.deleteNote() -- Note with id " + note.uuid + " is not existing.");
-    return;
+Project.prototype.deleteNotes = function(notes){
+  let i, idx, 
+      n_arr = [];
+
+  for(i in notes){
+    idx = this.notes.indexOf(notes[i]);
+    if(idx >= 0){
+      // Remove note from instance array at idx
+      this.notes.splice(idx, 1);
+      n_arr.push(notes[i].getNoteJSON());
+    }
   }
-  // Remove note from instance array at idx
-  this.notes.splice(idx, 1);
-  
-  // Delete note from database file
-  n_arr = [];
-  n_arr.push(note.getNoteJSON());
+  console.log(n_arr);
+
+  // Delete notes from database file
   this.db.deleteNotes(n_arr);
 
   // Toggle active note
@@ -1360,6 +1365,34 @@ Project.prototype.garbageDisposal = function(){
   this.db.emptyGraphsTrash(this.DELTA_DAYS_GARBAGE_DISPOSAL);
 }
 
+/**
+ * Recreates notes from trash
+ */
+Project.prototype.reviveNotes = function(notes){  
+  // Convert handed note instance to JSON objects
+  n_arr = notes.map(function(n){
+    return n.getNoteJSON();
+  });
+
+  // Revive Notes in database
+  this.db.reviveNotes(n_arr);
+
+  // Load notes from database and activate 
+  this.notes = this.loadNotes();
+}
+
+Project.prototype.reviveGraphs = function(graphs){  
+  // Convert handed note instance to JSON objects
+  g_arr = graphs.map(function(g){
+    return g.getGraphJSON();
+  });
+
+  // Revive Notes in database
+  this.db.reviveGraphs(g_arr);
+
+  // Load notes from database and activate 
+  this.graphs = this.loadGraphs();
+}
 
 /**
  * ====== Helper functions =====================================

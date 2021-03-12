@@ -386,6 +386,18 @@ Graph.prototype.getNumberOfNotes = function(){
   return notes.length;
 }
 
+/**
+ * Compares this graph to another oner. 
+ * 
+ * NOTE: This is shallow compare solely content based. Where as deep compare would
+ *       compare whether it is same instance..
+ * 
+ * @param {Graph} graph
+ */
+ Graph.prototype.compareTo = function(graph){
+  return ( JSON.stringify(this.getGraphJSON()).localeCompare( JSON.stringify(graph.getGraphJSON()) ) === 0 );
+}
+
 
 Graph.prototype.getGraphJSON = function(){
   return {

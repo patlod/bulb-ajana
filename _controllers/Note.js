@@ -33,10 +33,6 @@ Note.prototype.saveData = function(){
   // Or update existing..
 }
 
-Note.prototype.deleteNote = function(){
-  return;
-}
-
 Note.prototype.saveText = function(){
   // Persist to database
   this.getDB().updateNoteText(this.getNoteJSON());
@@ -186,7 +182,10 @@ Note.prototype.setDirtyBit = function(val){
 }
 
 /**
- * Compares this note to anohter note
+ * Compares this note to another note. 
+ * 
+ * NOTE: This is shallow compare solely content based. Where as deep compare would
+ *       compare whether it is same instance..
  * 
  * @param {Note} note
  */

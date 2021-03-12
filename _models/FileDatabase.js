@@ -229,6 +229,7 @@ FileDatabase.prototype.deleteNotes = function(data){
   }
 }
 
+
 /**
  * Selects one or many notes.
  * Takes array of notes data as argument
@@ -666,10 +667,74 @@ FileDatabase.prototype.emptyGraphsTrash = function(delta){
   .write();
 }
 
-FileDatabase.prototype.reviveDeletedNote = function(note_id){
-  // TODO
-  // ATTENTION: Check whether tag references are still valid, i.e.
-  // whether referenced tags are still existing.
+/**
+ * Brings back notes from trash. (Reverse operation to delete Notes)
+ * 
+ * NOTE: Removes invalid tag reference. (i.e. references to tags that are
+ *       not existing anymore at the point of revival)
+ * 
+ * @param {object} data -- Array of Note JSON objects
+ */
+FileDatabase.prototype.reviveNotes = function(data){
+  this.db.read();
+  
+  let i, j, chk,
+      zombie = null,
+      arr = data.map(function(x){ return { uuid: x.uuid } } );
+  for(i in arr){
+    zombie = this.db.get('trash.notes').find(arr[i]).value();
+    if(zombie !== null){
+      // Check whether tag references are still valid, remove the invalid
+      for(j in zombie.tags){
+        chk = this.db.get('tags').find({uuid: zombie.tags[j].uuid}).value();
+        if(!chk){
+          zombie.tags.splice(j, 1);
+        }
+      }
+      zombie.modified = Date.now();
+      this.db.get('notes').push(zombie).write(); 
+    }
+    this.db.get('trash.notes').remove(arr[i]).write();
+  }
+}
+
+/**
+ * Brings back graphs from trash. (Reverse operation to delete graphs)
+ * 
+ * NOTE: Removes invalid note references. (i.e. references to note that are
+ *       not existing anymore at the point of revival)
+ * 
+ * @param {object} data -- Array of graph JSON objects
+ */
+ FileDatabase.prototype.reviveGraphs = function(data){
+  this.db.read();
+  
+  let i, j, k, chk,
+      zombie = null,
+      arr = data.map(function(x){ return { uuid: x.uuid } } );
+  for(i in arr){
+    zombie = this.db.get('trash.graphs').find(arr[i]).value();
+    if(zombie !== null){
+      // Check whether notes references in vertices are still valid, remove the invalid
+      for(j in zombie.vertices){
+        chk = this.db.get('notes').find({uuid: zombie.vertices[j].note}).value();
+        if(!chk){
+          // Delete edges linked to vertex
+          for(k in zombie.edges){
+            if(zombie.edges[k].source === zombie.vertices[j].uuid
+              || zombie.edges[k].target === zombie.vertices[j].uuid){
+                zombie.edges.splice(k, 1);
+              }
+          }
+          // Delete vertex
+          zombie.vertices.splice(j, 1);
+        }
+      }
+      zombie.modified = Date.now();
+      this.db.get('graphs').push(zombie).write(); 
+    }
+    this.db.get('trash.graphs').remove(arr[i]).write();
+  }
 }
 
 /* ================================================================= */
