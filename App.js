@@ -863,11 +863,6 @@ function App(el){
     self.render(true);
   });
 
-  self.on('addNotesToGraph', function(coords){ 
-    // TODO: 
-    console.log("Call addNotesToGraph..");
-  });
-
   self.on('deleteVertexInGraph', function(selectedVertex){
     console.log("deleteVertexInGraph: ");
 
