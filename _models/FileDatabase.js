@@ -280,12 +280,9 @@ FileDatabase.prototype.countNotes = function(){
  */
 FileDatabase.prototype.insertNoteTag = function(note_id, tag_name){
   this.db.read();
-  // console.log("insertNoteTag: ")
-  // console.log("Note-ID: " + note_id)
   
   // Check if tag is already existing in project's tag list
   let s = this.db.get('tags').find({name: tag_name}).value();
-  // console.log(s)
   if(s){
     // Check whether the given note id is referenced from this tag
     ss = this.db.get('tags').find({name: tag_name}).get('notes').find({uuid: note_id}).size().value();
@@ -388,9 +385,6 @@ FileDatabase.prototype.updateNoteTagName = function(note_id, cur_tag_id, new_nam
  */
 FileDatabase.prototype.removeNoteTag = function(note_id, tag_id){
   this.db.read();
-  // console.log("removeNoteTag: ");
-  // console.log("Note-ID: " + note_id);
-  // console.log("Tag-ID: " + tag_id);
   // Remove tag from tags list in note
   let val = this.db.get('notes')
               .find({uuid: note_id})
