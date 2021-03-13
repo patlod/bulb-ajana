@@ -1395,6 +1395,15 @@ Project.prototype.reviveGraphs = function(graphs){
   this.graphs = this.loadGraphs();
 }
 
+Project.prototype.makeDataBackup = function(){
+  return this.db.makeBackup();
+}
+
+Project.prototype.restoreDataBackup = function(backup){
+  this.db.restoreFromBackup(backup);
+  this.loadData();
+}
+
 /**
  * ====== Helper functions =====================================
  */

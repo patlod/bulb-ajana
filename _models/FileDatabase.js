@@ -1,5 +1,6 @@
 module.exports = FileDatabase
 
+const fs = require('fs');
 const FDM = require('./FileDatabaseManager');
 
 const low = require('lowdb');
@@ -932,6 +933,30 @@ FileDatabase.prototype.reviveNotes = function(data){
       this.db.get('graphs').push(zombie).write(); 
     }
     this.db.get('trash.graphs').remove(arr[i]).write();
+  }
+}
+
+/**
+ * Creates backup of the database file in string format.
+ */
+FileDatabase.prototype.makeBackup = function(){
+  try{
+    const data = fs.readFileSync(this.path, 'utf-8');
+    return data;
+  }catch(err){
+    console.error(err);
+  }
+}
+
+/**
+ * Restores the database file to specific backup string.
+ * @param {string} backup -- Backup to set database file to
+ */
+FileDatabase.prototype.restoreFromBackup = function(backup){
+  try{
+    fs.writeFileSync(this.path, backup);
+  }catch(err){
+    console.error(err);
   }
 }
 
