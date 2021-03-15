@@ -135,7 +135,7 @@ GraphEditorView.prototype.init = function(svg){
   self.dragLine = svgG.append('svg:path')
         .attr('class', 'link dragline hidden')
         .attr('d', 'M0,0L0,0')
-        .style('marker-end', 'url(#mark-end-arrow)');
+        // .style('marker-end', 'url(#mark-end-arrow)');
 
   self.center = svgG.append('svg:path')
         .attr('class', 'graph-center')
@@ -727,11 +727,10 @@ GraphEditorView.prototype.updateGraph = function(graph = null){
   var paths = self.paths;
 
   // Update existing paths
-  paths.style('marker-end', 'url(#end-arrow)')
-    .classed(self.consts.selectedClass, function(d){
+  paths.classed(self.consts.selectedClass, function(d){
       // TODO: User proper compare
       return d === self.state.selectedEdge;
-    })
+    })// .style('marker-end', 'url(#end-arrow)')
     .attr("d", function(d){
       // TODO: Refactor the to use Wrapper
       let source_midCoords = d.source.calcDOMCenterCoords();
@@ -742,7 +741,7 @@ GraphEditorView.prototype.updateGraph = function(graph = null){
   // Add new paths
   paths.enter()
     .append("path")
-    .style('marker-end','url(#end-arrow)')
+    // .style('marker-end','url(#end-arrow)')
     .classed("link", true)
     .attr("d", function(d){
       // console.log(d)
