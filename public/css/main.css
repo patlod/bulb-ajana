@@ -597,8 +597,8 @@ body {
 }
 #local-search > .fa-search {
   position: absolute;
-  left: 1em;
-  top: 0.25em;
+  left: 1.1em;
+  top: 0.35em;
   color: #666666;
 }
 #local-search > .right-ctrls {
