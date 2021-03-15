@@ -29,11 +29,11 @@ function GraphEditorView(target, focus_manager) {
 
   this.RENDER_TIMEOUT = 50;
   this.dragTimeout = null;
-  this.POSITION_SAVE_INTERVAL = 3000;   // Save repositioning the vertices every 3s
+  this.POSITION_SAVE_INTERVAL = 2000;   // Save repositioning the vertices every 3s
   this.zoomTimeout = null;
   this.ZOOM_TIMER_INTERVAL = 500;
   this.descriptionTimeout = null;
-  this.DESCRIPTION_TIMER_INTERVAL = 3000;
+  this.DESCRIPTION_TIMER_INTERVAL = 1000;
 
   this.openSidemenu = false;
   this.descInputSelectionStart = 0;
