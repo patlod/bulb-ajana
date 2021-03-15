@@ -20,35 +20,7 @@ function NewNoteFromGraphCmd(app, params){
 inherits(NewNoteFromGraphCmd, Command);
 
 
-NewNoteFromGraphCmd.prototype.saveBackup = function(){
-  this.backup = this.app.session.getActiveProject().makeDataBackup();
-}
-
 NewNoteFromGraphCmd.prototype.execute = function(){
   this.saveBackup();
   self.app.createNewNoteVertexGraph(this.params.coords);
-}
-
-NewNoteFromGraphCmd.prototype.undo = function(){
-  var self = this,
-      aP = this.app.session.getActiveProject(),
-      tmp_backup = this.backup;
-  this.saveBackup();
-  aP.restoreDataBackup(tmp_backup);
-  if(this.app.session.getGraphMode()){
-    this.app.views.graph.forceClearContentDOMEl();
-  }
-  this.app.render();
-}
-
-NewNoteFromGraphCmd.prototype.redo = function(){
-  var self = this,
-      aP = this.app.session.getActiveProject(),
-      tmp_backup = this.backup;
-  this.saveBackup();
-  aP.restoreDataBackup(tmp_backup);
-  if(this.app.session.getGraphMode()){
-    this.app.views.graph.forceClearContentDOMEl();
-  }
-  this.app.render();
 }

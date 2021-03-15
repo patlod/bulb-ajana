@@ -20,35 +20,7 @@ function DnDAddNotesToGraphCmd(app, params){
 inherits(DnDAddNotesToGraphCmd, Command);
 
 
-DnDAddNotesToGraphCmd.prototype.saveBackup = function(){
-  this.backup = this.app.session.getActiveProject().makeDataBackup();
-}
-
 DnDAddNotesToGraphCmd.prototype.execute = function(){
   this.saveBackup();
   self.app.addNotesToGraphDnD(this.params.graph, this.params.notes, this.params.position);
-}
-
-DnDAddNotesToGraphCmd.prototype.undo = function(){
-  var self = this,
-      aP = this.app.session.getActiveProject(),
-      tmp_backup = this.backup;
-  this.saveBackup();
-  aP.restoreDataBackup(tmp_backup);
-  if(this.app.session.getGraphMode()){
-    this.app.views.graph.forceClearContentDOMEl();
-  }
-  this.app.render();
-}
-
-DnDAddNotesToGraphCmd.prototype.redo = function(){
-  var self = this,
-      aP = this.app.session.getActiveProject(),
-      tmp_backup = this.backup;
-  this.saveBackup();
-  aP.restoreDataBackup(tmp_backup);
-  if(this.app.session.getGraphMode()){
-    this.app.views.graph.forceClearContentDOMEl();
-  }
-  this.app.render();
 }
