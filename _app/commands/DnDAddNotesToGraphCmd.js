@@ -1,25 +1,35 @@
-module.exports = NewNoteCmd
+module.exports = DnDAddNotesToGraphCmd
 
 const inherits = require('util').inherits;
 
 const Command = require('./Command');
 
-function NewNoteCmd(app){
+
+/**
+ * Command class wrapping the mechanism of adding notes to a graph with 
+ * drag'n'drop.
+ * 
+ * @param {App} app -- Instance of central App controller
+ * @param {Object} params -- Object of parameters needed for executing
+ */
+function DnDAddNotesToGraphCmd(app, params){
   Command.call(this, app);
+
+  this.params = params;
 }
-inherits(NewNoteCmd, Command);
+inherits(DnDAddNotesToGraphCmd, Command);
 
 
-NewNoteCmd.prototype.saveBackup = function(){
+DnDAddNotesToGraphCmd.prototype.saveBackup = function(){
   this.backup = this.app.session.getActiveProject().makeDataBackup();
 }
 
-NewNoteCmd.prototype.execute = function(){
+DnDAddNotesToGraphCmd.prototype.execute = function(){
   this.saveBackup();
-  this.app.createNewNote();
+  self.app.addNotesToGraphDnD(this.params.graph, this.params.notes, this.params.position);
 }
 
-NewNoteCmd.prototype.undo = function(){
+DnDAddNotesToGraphCmd.prototype.undo = function(){
   var self = this,
       aP = this.app.session.getActiveProject(),
       tmp_backup = this.backup;
@@ -31,7 +41,7 @@ NewNoteCmd.prototype.undo = function(){
   this.app.render();
 }
 
-NewNoteCmd.prototype.redo = function(){
+DnDAddNotesToGraphCmd.prototype.redo = function(){
   var self = this,
       aP = this.app.session.getActiveProject(),
       tmp_backup = this.backup;

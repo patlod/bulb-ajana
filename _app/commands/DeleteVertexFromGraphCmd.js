@@ -1,25 +1,35 @@
-module.exports = NewNoteCmd
+module.exports = DeleteVertexFromGraphCmd
 
 const inherits = require('util').inherits;
 
 const Command = require('./Command');
 
-function NewNoteCmd(app){
+
+/**
+ * Command class wrapping the mechanism of adding notes to a graph with 
+ * drag'n'drop.
+ * 
+ * @param {App} app -- Instance of central App controller
+ * @param {Object} params -- Object of parameters needed for executing
+ */
+function DeleteVertexFromGraphCmd(app, params){
   Command.call(this, app);
+
+  this.params = params;
 }
-inherits(NewNoteCmd, Command);
+inherits(DeleteVertexFromGraphCmd, Command);
 
 
-NewNoteCmd.prototype.saveBackup = function(){
+DeleteVertexFromGraphCmd.prototype.saveBackup = function(){
   this.backup = this.app.session.getActiveProject().makeDataBackup();
 }
 
-NewNoteCmd.prototype.execute = function(){
+DeleteVertexFromGraphCmd.prototype.execute = function(){
   this.saveBackup();
-  this.app.createNewNote();
+  this.app.deleteVertexInGraph(this.params.selectedVertex);
 }
 
-NewNoteCmd.prototype.undo = function(){
+DeleteVertexFromGraphCmd.prototype.undo = function(){
   var self = this,
       aP = this.app.session.getActiveProject(),
       tmp_backup = this.backup;
@@ -31,7 +41,7 @@ NewNoteCmd.prototype.undo = function(){
   this.app.render();
 }
 
-NewNoteCmd.prototype.redo = function(){
+DeleteVertexFromGraphCmd.prototype.redo = function(){
   var self = this,
       aP = this.app.session.getActiveProject(),
       tmp_backup = this.backup;

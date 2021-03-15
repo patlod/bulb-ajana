@@ -22,6 +22,12 @@ const NewNoteCmd = require('./_app/commands/NewNoteCmd');
 const DeleteSelectedNotesCmd = require('./_app/commands/DeleteSelectedNotesCmd');
 const NewGraphCmd = require('./_app/commands/NewGraphCmd');
 const DeleteSelectedGraphsCmd = require('./_app/commands/DeleteSelectedGraphsCmd');
+const DnDAddNotesToGraphCmd = require('./_app/commands/DnDAddNotesToGraphCmd');
+const AddSelectedNotesToGraphCmd = require('./_app/commands/AddSelectedNotesToGraphCmd');
+const NewNoteFromGraphCmd = require('./_app/commands/NewNoteFromGraphCmd');
+const DeleteVertexFromGraphCmd = require('./_app/commands/DeleteVertexFromGraphCmd');
+const NewEdgeGraphCmd = require('./_app/commands/NewEdgeGraphCmd');
+const DeleteEdgeFromGraphCmd = require('./_app/commands/DeleteEdgeFromGraphCmd');
 
 // Controllers
 const Session = require('./_controllers/Session.js');
@@ -114,6 +120,10 @@ function App(el){
     self.session.newProject(render);
   }, 'CmdOrCtrl+P');
   self.appControls.add('default', 'File', 'New Note', () => { 
+    if(!self.session.getActiveProject()){ 
+      console.log("No project selected as active.");
+      return; 
+    }
     let cmd = null;
     switch(self.views.items.objectOfDisplay){
       case Note:
@@ -220,6 +230,10 @@ function App(el){
 
   // Graph
   self.appControls.add('default', 'Graph', 'New Graph', () => { 
+    if(!self.session.getActiveProject()){ 
+      console.log("No project selected as active.");
+      return; 
+    }
     // Set item list object of display & transition to graph list
     self.views.items.objectOfDisplay = Graph;
     switchItemList(self.views.items.objectOfDisplay);
@@ -229,7 +243,8 @@ function App(el){
     // self.createNewGraph();
    }, '');
   self.appControls.add('default', 'Graph', 'Add Selected Notes', () => { 
-    addSelectedNotesToGraph();
+    let cmd = new AddSelectedNotesToGraphCmd(self);
+    self.commandManager.executeCmd(cmd);
   }, '');
   self.appControls.addSpacer('default', 'Graph', 'orient');
   self.appControls.add('default', 'Graph', 'Refresh Orientation', () => { 
@@ -271,55 +286,6 @@ function App(el){
     to.appendChild(script_el);
   }
   addScripts(document.getElementById('layout'));
-  
-
-  /**
-   * - After the call of this render the UI is completely messed up:
-   * - This is because the Tagify, Split.js and dropdowns are initialised in index.html
-   *   right after the first creation of the dom.
-   *    - When using yo.update() the problem is that the defined dom-tree is swapped.
-   *    - This means that the initialisation of the html elements has to be done again.
-   */
-
-  
-
-  function addSelectedNotesToGraph(){
-    let self = this,
-        i = 0, nV = null, box_offset = 500,
-        active_project = self.session.getActiveProject(),
-        selected_notes = active_project.getItemsFromSelection(),
-        active_graph = active_project.getActiveGraph(),
-        bounding_box = active_graph.getVerticesBoundingBox(),
-        newVertices = [],
-        coords = {
-          x: bounding_box.startX + bounding_box.width + box_offset,
-          y: bounding_box.startY + bounding_box.height/2
-        };
-
-    console.log("..note selection exists, so add it...");
-    for(i in selected_notes){
-      nV = active_graph.createNewVertexForNote(coords, selected_notes[i]);
-      coords.x = coords.x + 100;
-      coords.y = coords.y + 100;
-      if(nV){
-        nV.saveData();
-        newVertices.push(nV);
-      }else{
-        self.views.notifications.addNotification(
-          self.views.notifications.INFO,
-          "Note already has vertex in selected graph."
-        );
-        self.render(true);
-      }
-    }
-    if(active_project.getGraphMode() && newVertices.length > 0){
-      console.log(newVertices.length + " notes added to graph..");
-      self.views.graph.updateGraph(active_graph);
-      // Update the create new graph button
-      self.views.titlebar.updateCreateNewBtn(el, active_graph);
-      self.render(true);
-    }
-  }
 
   /**
    * == Listeners EventEmitter =====================================
@@ -709,6 +675,10 @@ function App(el){
 
   self.on('createNewNote', function(){
     console.log("App received: CREATE NEW NOTE");
+    if(!self.session.getActiveProject()){ 
+      console.log("No project selected as active.");
+      return; 
+    }
     let cmd = new NewNoteCmd(self);
     self.commandManager.executeCmd(cmd);
     // self.createNewNote();
@@ -833,28 +803,27 @@ function App(el){
     self.views.items.updateActiveGraphThumb(el, active_graph);
   });
 
-  self.on('createNewNoteVertexGraph', function(coords){
-    console.log('createNewNoteVertexGraph triggered');
-    /**
+  this.createNewNoteVertexGraph = function(coords){
+        /**
      * For now: New empty note is directly inserted into database
      * Better: Only insert once there is at least one char content.
      */
     let self = this,
         active_project = self.session.getActiveProject(),
         active_graph = active_project.getActiveGraph();
-
+ 
     if( active_project === null || active_graph === null){
       console.log("createNewNoteVertexGraph -- No active project or graph.");
       return;
     }
-
+ 
     // Check whether empty note exists already
     let empty_notes = active_project.getEmptyNotes();
     if(empty_notes === null || empty_notes.length === 1){
       console.log("Still empty note found...");
       return;
     }
-
+ 
     let nn = active_project.createNewNote();
     nn.saveData(); // REFACTOR: Maybe move to createNewNote()
     
@@ -868,9 +837,16 @@ function App(el){
     self.views.graph.updateGraph(active_graph);
 
     self.render(true);
+  }
+
+  self.on('createNewNoteVertexGraph', function(coords){
+    console.log('createNewNoteVertexGraph triggered');
+    let params = { coords: coords };
+    let cmd = new NewNoteFromGraphCmd(self, params);
+    self.commandManager.executeCmd(cmd);
   });
 
-  self.on('deleteVertexInGraph', function(selectedVertex){
+  this.deleteVertexInGraph = function(selectedVertex){
     console.log("deleteVertexInGraph: ");
 
     let g = self.session.getActiveGraph();
@@ -883,9 +859,15 @@ function App(el){
     self.views.items.updateActiveGraphNoteCount(el, g);
 
     self.views.graph.updateGraph(g);
+  }
+
+  self.on('deleteVertexInGraph', function(selectedVertex){
+    let params = { selectedVertex: selectedVertex };
+    let cmd = new DeleteVertexFromGraphCmd(self, params);
+    self.commandManager.executeCmd(cmd);
   });
 
-  self.on('createNewEdgeInGraph', function(vPair){
+  this.createNewEdgeInGraph = function(vPair){
     console.log("createNewEdgeInGraph: ");
     let g = self.session.getActiveGraph();
 
@@ -903,9 +885,15 @@ function App(el){
 
       self.views.graph.updateGraph(g);
     }
+  }
+
+  self.on('createNewEdgeInGraph', function(vPair){
+    let params = { vPair: vPair };
+    let cmd = new NewEdgeGraphCmd(self, params);
+    self.commandManager.executeCmd(cmd);
   });
 
-  self.on('deleteEdgeInGraph', function(selectedEdge){
+  this.deleteEdgeInGraph = function(selectedEdge){
     console.log("deleteEdgeInGraph: ");
     let g = self.session.getActiveGraph();
     g.deleteEdge(selectedEdge);
@@ -913,6 +901,12 @@ function App(el){
     self.views.graph.removeSelectFromEdge();
 
     self.views.graph.updateGraph(g);
+  }
+
+  self.on('deleteEdgeInGraph', function(selectedEdge){
+    let params = { selectedEdge: selectedEdge };
+    let cmd = new DeleteEdgeFromGraphCmd(self, params);
+    self.commandManager.executeCmd(cmd);
   });
 
   self.on('createNewNoteLinkedVertexGraph', function(sourceVertex){
@@ -975,8 +969,6 @@ function App(el){
     self.render(true);
   });
 
-
-  // TODO
   function transitionGraph(project, graph, trigger='item-thumb'){
     // TODO: 
     //   - In case graph is empty delte it in prepProjectForTrans
@@ -1010,7 +1002,6 @@ function App(el){
     transitionGraph(project, graph, trigger);
   });
 
-  // TODO
   self.on('transitionGraphAndEditor', function(project, graph){
     console.log('transitionGraphAndEditor');
 
@@ -1089,6 +1080,10 @@ function App(el){
 
   self.on('createNewGraph', function(){
     console.log("App.js: createNewGraph");
+    if(!self.session.getActiveProject()){ 
+      console.log("No project selected as active.");
+      return; 
+    }
     let cmd = new NewGraphCmd(self);
     self.commandManager.executeCmd(cmd);
     // self.createNewGraph();
@@ -1167,10 +1162,78 @@ function App(el){
    */
   ipcRenderer.on('saveEdits', (event) => {
    closeApp();
-  })
+  });
+}
 
-  
+App.prototype.addSelectedNotesToGraph = function(){
+  let self = this,
+      i = 0, nV = null, box_offset = 500,
+      active_project = self.session.getActiveProject(),
+      selected_notes = active_project.getItemsFromSelection(),
+      active_graph = active_project.getActiveGraph(),
+      bounding_box = active_graph.getVerticesBoundingBox(),
+      newVertices = [],
+      coords = {
+        x: bounding_box.startX + bounding_box.width + box_offset,
+        y: bounding_box.startY + bounding_box.height/2
+      };
 
+  console.log("..note selection exists, so add it...");
+  for(i in selected_notes){
+    nV = active_graph.createNewVertexForNote(coords, selected_notes[i]);
+    coords.x = coords.x + 100;
+    coords.y = coords.y + 100;
+    if(nV){
+      nV.saveData();
+      newVertices.push(nV);
+    }else{
+      self.views.notifications.addNotification(
+        self.views.notifications.INFO,
+        "Note already has vertex in selected graph."
+      );
+      self.render(true);
+    }
+  }
+  if(active_project.getGraphMode() && newVertices.length > 0){
+    console.log(newVertices.length + " notes added to graph..");
+    self.views.graph.updateGraph(active_graph);
+    // Update the create new graph button
+    self.views.titlebar.updateCreateNewBtn(self.el, active_graph);
+    self.render(true);
+  }
+}
+
+App.prototype.addNotesToGraphDnD = function(graph, notes, position){
+  console.log("calcDropZone coordinates...")
+  let self = this,
+      i = 0, nV = null,
+      coords = self.views.graph.calcRelativeDropZone(position),
+      newVertices = [];
+  if(notes.length > 0){
+    console.log("..note selection exists, so add it...");
+    for(i in notes){
+      nV = graph.createNewVertexForNote(coords, notes[i]);
+      coords.x = coords.x + 10;
+      coords.y = coords.y + 10;
+      if(nV){
+        nV.saveData();
+        newVertices.push(nV);
+      }else{
+        self.views.notifications.addNotification(
+          self.views.notifications.INFO,
+          "Note already has vertex in selected graph."
+        );
+        self.render(true);
+      }
+    }
+    if(newVertices.length > 0){
+      console.log(newVertices.length + " notes added to graph..");
+      self.views.graph.updateGraph(graph);
+      // Update the create new graph button
+      self.views.titlebar.updateCreateNewBtn(self.el, graph);
+      self.render(true);
+    }
+  }
 }
 
 /**
@@ -1336,13 +1399,13 @@ App.prototype.render = function(lazy_load = false) {
         if(data_object !== "note"){ return; }
         item_id = $item_thmb.attr('data-id');
 
+        // Pack this in a method
+
         let active_project = self.session.getActiveProject(),
             active_graph = active_project.getActiveGraph(),
             selected_notes = active_project.getItemsFromSelection(),
             note = active_project.getNoteByUUID(item_id),
             drag_notes = [];
-        
-        console.log(note);
         
         if(!note){
           console.error("Note associated with UI element could not be found.");
@@ -1355,38 +1418,19 @@ App.prototype.render = function(lazy_load = false) {
           drag_notes.push(note);
         }
 
-        console.log("calcDropZone coordinates...")
-        let i = 0, nV = null,
-            coords = self.views.graph.calcRelativeDropZone(ui.position),
-            newVertices = [];
-        if(drag_notes.length > 0){
-          console.log("..note selection exists, so add it...");
-          for(i in drag_notes){
-            nV = active_graph.createNewVertexForNote(coords, drag_notes[i]);
-            coords.x = coords.x + 10;
-            coords.y = coords.y + 10;
-            if(nV){
-              nV.saveData();
-              newVertices.push(nV);
-            }else{
-              self.views.notifications.addNotification(
-                self.views.notifications.INFO,
-                "Note already has vertex in selected graph."
-              );
-              self.render(true);
-            }
-          }
-          if(newVertices.length > 0){
-            console.log(newVertices.length + " notes added to graph..");
-            self.views.graph.updateGraph(active_graph);
-            // Update the create new graph button
-            self.views.titlebar.updateCreateNewBtn(self.el, active_graph);
-            self.render(true);
-          }
-        }
+        const params = {
+              graph: active_graph,
+              notes: drag_notes,
+              position: ui.position
+            };
+        let cmd = new DnDAddNotesToGraphCmd(self, params);
+        self.commandManager.executeCmd(cmd);
+        
       }
     });
   }
 }
+
+
 
 module.exports = window.App = App

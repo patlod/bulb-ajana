@@ -10,9 +10,6 @@ module.exports = Command
  * is implemented at a central place.
  * 
  * @param {App} app -- Instance of the central App controller
- * @param {*} exec_cb - Callback for executing the command
- * @param {*} undo_cb - Callback for undoing the command
- * @param {*} redo_cb - Callback for redoing the command
  */
 function Command(app){
   var self = this;

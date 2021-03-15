@@ -1,25 +1,35 @@
-module.exports = NewNoteCmd
+module.exports = NewEdgeGraphCmd
 
 const inherits = require('util').inherits;
 
 const Command = require('./Command');
 
-function NewNoteCmd(app){
+
+/**
+ * Command class wrapping the mechanism of adding notes to a graph with 
+ * drag'n'drop.
+ * 
+ * @param {App} app -- Instance of central App controller
+ * @param {Object} params -- Object of parameters needed for executing
+ */
+function NewEdgeGraphCmd(app, params){
   Command.call(this, app);
+
+  this.params = params;
 }
-inherits(NewNoteCmd, Command);
+inherits(NewEdgeGraphCmd, Command);
 
 
-NewNoteCmd.prototype.saveBackup = function(){
+NewEdgeGraphCmd.prototype.saveBackup = function(){
   this.backup = this.app.session.getActiveProject().makeDataBackup();
 }
 
-NewNoteCmd.prototype.execute = function(){
+NewEdgeGraphCmd.prototype.execute = function(){
   this.saveBackup();
-  this.app.createNewNote();
+  this.app.createNewEdgeInGraph(this.params.vPair);
 }
 
-NewNoteCmd.prototype.undo = function(){
+NewEdgeGraphCmd.prototype.undo = function(){
   var self = this,
       aP = this.app.session.getActiveProject(),
       tmp_backup = this.backup;
@@ -31,7 +41,7 @@ NewNoteCmd.prototype.undo = function(){
   this.app.render();
 }
 
-NewNoteCmd.prototype.redo = function(){
+NewEdgeGraphCmd.prototype.redo = function(){
   var self = this,
       aP = this.app.session.getActiveProject(),
       tmp_backup = this.backup;
