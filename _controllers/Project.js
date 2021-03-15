@@ -530,7 +530,24 @@ Project.prototype.getNoteByUUID = function(note_id){
 }
 
 Project.prototype.getNoteByIndex = function(index){
+  if(this.search !== null){
+    return this.search.notes[index].note;
+  }
   return this.notes[index];
+}
+
+Project.prototype.getNoteIndex = function(note){
+  if(this.search !== null){
+    let idx = 0;
+    for(var i in this.search.notes){
+      if(this.search.notes[i].note.compareTo(note)){
+        return idx;
+      }
+      idx++;
+    }
+  }else{
+    return this.notes.indexOf(note);
+  }
 }
 
 /**

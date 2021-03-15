@@ -280,7 +280,7 @@ ItemListView.prototype.render = function(project){
             ondblclick=${dblclickItemThmb}
             oncontextmenu=${rightClickGraphThmb}>
             <div class="flex-wrap">
-            <span class="item-thmb-head">${graph.getHeader()}</span>
+              <span class="item-thmb-head">${graph.getHeader()}</span>
             </div>
             <div class="flex-wrap">
               <span class="item-thmb-datetime">${DateFormatter.formatDateItemThmb(graph.getCreated())}:</span> <span class="item-thmb-content">${graph.getContentPreview()}</span>

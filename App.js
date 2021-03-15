@@ -323,18 +323,30 @@ function App(el){
 
         if(self.views.items.objectOfDisplay === Note){
           active_item = active_project.getActiveNote();
-          idx = active_project.notes.indexOf(active_item);
+          // Check whether search is active..
+          if(active_project.search !== null){
+            idx = active_project.getNoteIndex(active_item);
+          }else{
+            idx = active_project.getNoteIndex(active_item);
+          }
         }else{
           if(self.views.items.objectOfDisplay === Graph){
             active_item = active_project.getActiveGraph();
             idx = active_project.graphs.indexOf(active_item);
+            // Search is not implemented for graphs yet..
           }
         }
 
         if(self.views.items.objectOfDisplay === Note){
-          if(active_project.notes.length > 1 && idx >= 1){
-            transitionNote(active_project, active_project.getNoteByIndex(idx - 1));
-          }
+            if(active_project.search !== null){
+              if(active_project.search.notes.length > 1 && idx >= 1){
+                transitionNote(active_project, active_project.getNoteByIndex(idx - 1));
+              }
+            }else{
+              if(active_project.notes.length > 1 && idx >= 1){
+                transitionNote(active_project, active_project.getNoteByIndex(idx - 1));
+              }
+            }
         }else{
           if(self.views.items.objectOfDisplay === Graph){
             if(active_project.graphs.length > 1 && idx >= 1){
@@ -347,7 +359,6 @@ function App(el){
           self.views.graph.forceClearContentDOMEl();
         }
         self.render();
-
         break;
     }
   });
@@ -373,7 +384,11 @@ function App(el){
 
         if(self.views.items.objectOfDisplay === Note){
           active_item = active_project.getActiveNote();
-          idx = active_project.notes.indexOf(active_item);
+          if(active_project.search !== null){
+            idx = active_project.getNoteIndex(active_item);
+          }else{
+            idx = active_project.getNoteIndex(active_item);
+          }
         }else{
           if(self.views.items.objectOfDisplay === Graph){
             active_item = active_project.getActiveGraph();
@@ -382,12 +397,18 @@ function App(el){
         }
 
         if(self.views.items.objectOfDisplay === Note){
-          if(active_project.notes.length > 1 && idx <= active_project.notes.length - 2){
-            transitionNote(active_project, active_project.getNoteByIndex(idx + 1));
+          if(active_project.search !== null){
+            if(active_project.search.notes.length > 1 && idx <= active_project.search.notes.length - 2){
+              transitionNote(active_project, active_project.getNoteByIndex(idx + 1));
+            }
+          }else{
+            if(active_project.notes.length > 1 && idx <= active_project.notes.length - 2){
+              transitionNote(active_project, active_project.getNoteByIndex(idx + 1));
+            }
           }
         }else{
           if(self.views.items.objectOfDisplay === Graph){
-            if(active_project.graphs.length > 1 && idx <= active_project.notes.length - 2){
+            if(active_project.graphs.length > 1 && idx <= active_project.graphs.length - 2){
               transitionGraph(active_project, active_project.getGraphByIndex(idx + 1));
             }
           }
