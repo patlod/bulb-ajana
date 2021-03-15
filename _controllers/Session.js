@@ -85,6 +85,7 @@ Session.prototype.getDBFileNameFrom = function(path){
 Session.prototype.getActiveProject = function(){
   if(this.projects.length === 0) return null;
   for(var i in this.projects){
+    console.log(this.projects[i]);
     if(this.projects[i].isActive()) return this.projects[i];
   }
 }

@@ -48,7 +48,7 @@ function Project(path, session, data = FileDatabaseManager.getEmptyProjectJSON()
 
   // Load data on creation
   this.loadData();
-  
+  console.log(this)
 }
 
 
@@ -319,7 +319,6 @@ Project.prototype.loadGraphs = function(){
 
       // Get tags for graph
       t_query = this.db.getGraphTags(g_query[i].uuid);
-
       // Get vertices from graph
       v_query = this.db.selectAllVertices(g_query[i].uuid);
       // Find the right note object that matches reference
