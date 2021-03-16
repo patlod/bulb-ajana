@@ -14,7 +14,6 @@ function Edge(graph, data = FileDatabaseManager.getEmptyEdgeJSON())
   this.target = data.target;
 
   this.graph = graph;
-
 }
 
 
@@ -27,14 +26,13 @@ Edge.prototype.getGraph = function(){
 }
 
 /**
- * Compares this note to anohter note
+ * Compares this object to another object
  * 
- * @param {Note} note
+ * @param {Edge} edge
  */
 Edge.prototype.compareTo = function(edge){
   return ( JSON.stringify(this.getEdgeJSON()).localeCompare( JSON.stringify(edge.getEdgeJSON()) ) === 0 );
 }
-
 
 Edge.prototype.getEdgeJSON = function(){
   return { 

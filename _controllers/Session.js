@@ -3,13 +3,10 @@ module.exports = Session
 const { remote } = require('electron');
 const { app, dialog } = remote;
 const fs = require('fs');
-
-const FileDatabaseManager = require('../_models/FileDatabaseManager');
 const { v4: uuidv4 } = require('uuid');
 
-//const Config = require('../config.js')
-
 const App = require('../App.js');
+const FileDatabaseManager = require('../_models/FileDatabaseManager');
 const Project = require('./Project');
 const Note = require('./Note');
 const { path } = require('d3');
@@ -19,7 +16,7 @@ const EventEmitterElement = require('../_app/EventEmitterElement');
 
 
 /**
- * Manages the current session
+ * Instance of the session class manages the current session
  */
 function Session(app) {
   this.self = this;
@@ -46,6 +43,7 @@ Session.prototype.getProjects = function(){
 
 /**
  * Gets a project by its name
+ * 
  */
 Session.prototype.getProjectByPath = function(path){
   return this.projects.filter(p => ( p.db.path.localeCompare(path) === 0 ) );
@@ -204,19 +202,14 @@ Session.prototype.transToProject = function(project, callback){
       cur_active_project.startSelectionWith(cur_active_project.notes[0]);
     }
     
-    // if(typeof callback === "function"){
     if(prior_project_gm && cur_active_project.getGraphMode()){
       // For some reason the graph only loads when DOM element is force cleaned.
       self.app.views.graph.forceClearContentDOMEl();
     }
     self.app.render();
-    // }
     // Reset the scroll position of NotesListView
     //self.app.views.items.scrollTop = 0
   }else{
-    // if(typeof callback === "function"){
-    //   callback(true);
-    // }
     self.app.render(true);
   }
 
@@ -226,11 +219,7 @@ Session.prototype.transToProject = function(project, callback){
 Session.prototype.newProject = function(callback){
   var self = this;
 
-  //console.log('Create new project')
-
-  /**
-   * showSaveDialogSync will check and alert if file already exists!!!
-   */
+  // showSaveDialogSync will check and alert if file already exists!!!
   let options = {
     title : "Create New Project File", 
     buttonLabel : "Create",
@@ -285,13 +274,6 @@ Session.prototype.newProject = function(callback){
   // Save path to 'Recent Projects'
   self.app.appGlobalData.addRecentProject(path);
 
-
-  // Similar as this from Left App: 
-  // left.go.to_page(this.pages.length - 1)
-
-  // if(typeof callback === "function"){
-  //   callback();
-  // }
   self.app.views.items.objectOfDisplay = Note;
   self.app.render();
 }
@@ -353,7 +335,6 @@ Session.prototype.openProjectDialog = function(callback){
   };
 
   const paths = dialog.showOpenDialogSync(app.win, options);
-
   console.log(paths);
   if (!paths) { console.log('Nothing to load'); return; }
   
@@ -370,7 +351,6 @@ Session.prototype.openProjectDialog = function(callback){
     }else{
       self.projects.push(new Project(paths[idx], self));
     }
-
     // Save path to 'Recent Projects'
     self.app.appGlobalData.addRecentProject(paths[idx]);
   }
@@ -388,8 +368,6 @@ Session.prototype.openProjectDialog = function(callback){
     // Trigger re-render
     self.app.render();
   }
-
-  //setTimeout(() => { left.navi.next_page(); left.update() }, 200)
 }
 
 
@@ -408,8 +386,7 @@ Session.prototype.closeProject = function(project_id, callback){
     return;
   }
 
-  // Check whether matching project is active and save the text of 
-  // note that is currently active within in it, in case it exists..
+  // Save text of currently active note.
   if(targets[0].isActive()){
     // Prepare currently active project for transition
     self.prepProjectForTrans(targets[0]);
@@ -423,23 +400,17 @@ Session.prototype.closeProject = function(project_id, callback){
           new_active_p.startSelectionWith(new_active_p.notes[0]);
         }
       }
-      
     }
   }
-
   // Remove the project
   self.spliceByUUID(targets[0].uuid);
-  
   // Rerender UI
-  // if(typeof callback === "function"){
-  //   callback();
-  // }
   self.app.render();
-  
 }
 
 /**
  * Deletes a specific project. 
+ * 
  * Opens a message box asking whether user is sure to delete.
  */
 Session.prototype.deleteProject = function(project_id, callback){
@@ -454,25 +425,21 @@ Session.prototype.deleteProject = function(project_id, callback){
 
   console.log(p);
   let options = {
-    // See place holder 1 in above image
     type : "question",
     buttons: ["Yes", "No"],
     defaultId: 1,
     title: "Delete Project",
     message: "Are you sure you want to delete this project?",
     detail: "WARNING: This will delete permanently from file system.\n\nProject at path: "  + p[0].getPath(), 
-    // icon: // Not yet...
+    // icon: // TODO
     cancelId: 1
   };
 
   // Trigger electron dialog window here..
   let choice = dialog.showMessageBoxSync(app.win, options);
-
-  console.log("User choice: " + choice);
   if(choice === 1){
     return;
   }
-
   // Delete the project PERMANENTLY from file system.
   try{
     fs.unlinkSync(p[0].getPath());
@@ -495,16 +462,12 @@ Session.prototype.deleteProject = function(project_id, callback){
           }
         }
       }
-
       // Remove the project
       this.projects.splice(i, 1);
     }
   }
 
   // Rerender UI
-  // if(typeof callback === "function"){
-  //   callback();
-  // }
   self.app.render();
 }
 

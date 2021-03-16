@@ -10,7 +10,6 @@ const Vertex = require('./Vertex');
 const Edge = require('./Edge');
 
 
-
 /**
  * Class that represents a notes project.
  * - Objects can only be instantiated with a file at path
@@ -18,9 +17,6 @@ const Edge = require('./Edge');
  *    - Data has to be loaded from the database explicitly
  */
 function Project(path, session, data = FileDatabaseManager.getEmptyProjectJSON()) {
-  /*if(typeof path !== String)
-    return null;*/
-
   var self = this;
 
   // Database interface object
@@ -95,17 +91,12 @@ Project.prototype.loadData = function(){
   if(this.notes.length > 0){
     this.startSelectionWith(this.notes[0]);
   }
-  
-
-  console.log("item_selection");
-  console.log(this.item_selection);
 }
 
 /**
  * Fetches global project tags from database
  */
 Project.prototype.loadTags = function(){
-  //this.db.read()
   this.tags = this.db.getProjectTags();
 }
 
@@ -126,14 +117,6 @@ Project.prototype.getActiveNote = function(){
     if(this.notes[i].isActive()) return this.notes[i];
   }
 }
-
-// Project.prototype.activateNote = function(note){
-//   note.activate();
-//   // In case no selection exists set one with the current note
-//   if(!this.item_selection || this.item_selection.object !== Note){
-//     this.startSelectionWith(note);
-//   }
-// }
 
 /**
  * Activates the handed target note and deactivates the current active note.
@@ -191,7 +174,6 @@ Project.prototype.getEmptyNotes = function(){
       empties.push(this.notes[i]);
     }
   }
-  //console.log(empties)
   if(empties.length > 1){
     console.error("ERROR: More than one empty note in project");
     return null;
@@ -214,7 +196,6 @@ Project.prototype.getEmptyGraphs = function(){
       empties.push(this.graphs[i]);
     }
   }
-  //console.log(empties)
   if(empties.length > 1){
     console.error("ERROR: More than one empty graph in project");
     return null;
@@ -225,8 +206,6 @@ Project.prototype.getEmptyGraphs = function(){
 /**
  * Returns the active graph of this project
  * 
- * NOTE: For now just returns the graph variable that is initialised with only one graph
- *       Later this might become a list with several active graphs similar as projects in sessions.
  */
 Project.prototype.getActiveGraph = function(){
   if(this.graphs.length === 0) return null;
@@ -243,7 +222,6 @@ Project.prototype.getActiveGraph = function(){
 Project.prototype.toggleActiveGraph = function(target = null){
   if(this.graphs.length === 0) return null;
   for(var i in this.graphs){
-    // Did not work with getActiveProject, probably because the return hands back a value..
     if(this.graphs[i].isActive()) this.graphs[i].deactivate();
   }
   if(target){
@@ -284,8 +262,8 @@ Project.prototype.setGraphMode = function(val){
 
 /**
  * Loads all the graphs. 
- * It is important that notes where loaded before to reference
- * the same objects!
+ * 
+ * NOTE: Notes must be loaded before to reference the same objects!
  */
 Project.prototype.loadGraphs = function(){
   var self = this;
@@ -300,14 +278,13 @@ Project.prototype.loadGraphs = function(){
     graphs.push(new Graph(this));
     self.db.insertGraph(graphs[graphs.length - 1].getGraphJSON());
   }else if(g_query !== null && g_query.length === 0 && self.graphs.length === 0){ 
-    // As long as multiple graphs is not possible..and graph is not existing
     // Create new empty graph instance
     graphs.push(new Graph(this));
     // Insert into database
     self.db.insertGraph(graphs[graphs.length - 1].getGraphJSON());
   }else{
     
-    // TODO: Maybe check here whether loadNotes has been called already
+    // TODO: Check here whether loadNotes has been called already
     //       (algorithm works with references to existing Note objects)
     var i, j;
     for(i in g_query){
@@ -406,8 +383,6 @@ Project.prototype.deleteGraphs = function(graphs){
       g_arr.push(graphs[i].getGraphJSON());
     }
   }
-  console.log(g_arr);
-  
   
   // Delete graphs from database file
   this.db.deleteGraphs(g_arr);
@@ -495,7 +470,7 @@ Project.prototype.loadNotes = function(){
 }
 
 /**
- * 
+ * Prepares note object for transfert to other note i.e. persisting data to database.
  */
 Project.prototype.prepNoteForTrans = function(note){
   if(note && note.isDirty()){
@@ -505,9 +480,8 @@ Project.prototype.prepNoteForTrans = function(note){
   }
 }
 
-
 /**
- * Returns all Note object of this project
+ * Returns all Note objects of this project
  */
 Project.prototype.getAllNotes = function(){
   return this.notes;
@@ -551,7 +525,7 @@ Project.prototype.getNoteIndex = function(note){
 
 /**
  * 
- * @param {} note 
+ * @param {string} tag_name -- Name of the tag to fetch by.
  */
 Project.prototype.getTagByName = function(tag_name){
   return null;
@@ -559,7 +533,8 @@ Project.prototype.getTagByName = function(tag_name){
 
 /**
  * Returns tag that matches the given UUID string
- * @param {} tag_id 
+ * 
+ * @param {uuidv4} tag_id 
  */
 Project.prototype.getTagByUUID = function(tag_id){
   var self = this;
@@ -642,7 +617,6 @@ Project.prototype.searchAllNotesTextsAndTags = function(needle){
   return results;
 }
 
-
 /* ================================================================= */
 /* Selection functions                                               */
 /*                                                                   */
@@ -718,7 +692,6 @@ Project.prototype.getItemSelection = function(){
   return this.item_selection;
 }
 
-
 Project.prototype.getSelectedNotes = function(){
   var self = this;
   if(!this.item_selection){ return; }
@@ -735,6 +708,7 @@ Project.prototype.getSelectedNotes = function(){
     });
   }
 }
+
 Project.prototype.getSelectedGraphs = function(){
   var self = this;
   if(!this.item_selection){ return; }
@@ -745,6 +719,7 @@ Project.prototype.getSelectedGraphs = function(){
     return self.item_selection.shadows[idx];
   });
 }
+
 Project.prototype.getItemsFromSelection = function(){
   if(!this.item_selection){ 
     console.log("No items selected.");
@@ -810,6 +785,7 @@ Project.prototype.deleteSelectedGraphs = function(){
     this.startSelectionWith(this.graphs[0]);
   }
 }
+
 Project.prototype.deleteSelectedItems = function(){
   if(!this.item_selection){ 
     console.log("No items selected.");
@@ -825,6 +801,7 @@ Project.prototype.deleteSelectedItems = function(){
       break;
   }
 }
+
 /**
  * Sets the item closest to the list head as active instance (Note or Graph).
  */
@@ -873,6 +850,7 @@ Project.prototype.activateSelectionHead = function(){
       break;
   }
 }
+
 /**
  * Removes an item at given index from selection
  * 
@@ -940,6 +918,7 @@ Project.prototype.unselectItemInSelection = function(target_idx){
     this.item_selection.anchor = i + 1;
   }
 }
+
 /**
  * Adds an item at given index to selection
  * 
@@ -996,8 +975,9 @@ Project.prototype.selectItemInSelection = function(target_idx){
 
 /**
  * Toggles a given note in the current selection.
- * - Either: selected to unselected
- * - Or: unselected to selected
+ *   - Either: selected to unselected
+ *   - Or: unselected to selected
+ * 
  * @param {Note} note 
  */
 Project.prototype.toggleNoteInSelection = function(note){
@@ -1021,7 +1001,6 @@ Project.prototype.toggleNoteInSelection = function(note){
   // SELECT
   }else{
     this.selectItemInSelection(target_idx);
-
     // If this note is closer to head then active note make this note active
   }
 }
@@ -1052,6 +1031,7 @@ Project.prototype.toggleGraphInSelection = function(graph){
     // If this note is closer to head then active note make this note active
   }
 }
+
 /**
  * Called to select or unselect an item in the item list.
  * Used for Cmd+Click on list items.
@@ -1067,7 +1047,7 @@ Project.prototype.toggleItemInSelection = function(item){
     return;
   }
 
-  if(!this.item_selection){ // Something must be wrong if an active item exists a selection must exist too.
+  if(!this.item_selection){ // If an active item exists a selection must exist too.
     console.error("Project has no item selection object");
     return; 
   } 
@@ -1174,7 +1154,8 @@ Project.prototype.shiftExpandNoteSelection = function(note){
     this.item_selection.select_pointer = target_idx;
   }
 }
-// TODO: Support search for graphs too.
+
+// Support search for graphs too.
 Project.prototype.shiftExpandGraphSelection = function(graph){
   // TODO: Analog to notes
   if(!graph){
@@ -1264,6 +1245,7 @@ Project.prototype.shiftExpandGraphSelection = function(graph){
     this.item_selection.select_pointer = target_idx;
   }
 }
+
 /**
  * Called to select or unselect several items in the item list.
  * Used for Shift+Click on list items.
@@ -1353,8 +1335,6 @@ Project.prototype.singleShiftSelectTowardsTail = function(){
   console.log(this.item_selection);
 }
 
-
-
 /* ================================================================= */
 /* Trash functions                                                   */
 /*                                                                   */
@@ -1390,10 +1370,8 @@ Project.prototype.reviveNotes = function(notes){
   n_arr = notes.map(function(n){
     return n.getNoteJSON();
   });
-
   // Revive Notes in database
   this.db.reviveNotes(n_arr);
-
   // Load notes from database and activate 
   this.notes = this.loadNotes();
 }
@@ -1403,10 +1381,8 @@ Project.prototype.reviveGraphs = function(graphs){
   g_arr = graphs.map(function(g){
     return g.getGraphJSON();
   });
-
   // Revive Notes in database
   this.db.reviveGraphs(g_arr);
-
   // Load notes from database and activate 
   this.graphs = this.loadGraphs();
 }
@@ -1420,9 +1396,10 @@ Project.prototype.restoreDataBackup = function(backup){
   this.loadData();
 }
 
-/**
- * ====== Helper functions =====================================
- */
+/* ================================================================= */
+/* Helper functions                                                  */
+/*                                                                   */
+/* ================================================================= */
 
 Project.prototype.getPath = function(){
   return this.db.path;
@@ -1438,6 +1415,7 @@ Project.prototype.getDir = function(){
 
 /**
  * Checks whether file with dupilcate filename exists in same directory.
+ * 
  * @param {string} fn 
  */
 Project.prototype.validFileName = function(fn){
@@ -1477,6 +1455,7 @@ Project.prototype.deactivate = function(){
 
 /* ============================================================= */
 /* Compare functions for the sort function                       */
+/*                                                               */
 /* ============================================================= */
 
 /**

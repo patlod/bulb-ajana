@@ -23,7 +23,9 @@ function Vertex(graph, data = FileDatabaseManager.getEmptyVertexJSON())
   this.graph = graph;
 }
 
-
+/**
+ * Writes the vertex data to database.
+ */
 Vertex.prototype.saveData = function(){
   console.log("Vertex - saveData()");
   this.graph.getDB().insertVertex(this.graph.uuid, this.getVertexJSON());
@@ -34,7 +36,6 @@ Vertex.prototype.saveData = function(){
  * foreignObject filled with HTML note content.
  * 
  * The default origin of the foreignObject is the corner at North-West
- *
  */
 Vertex.prototype.calcDOMCenterCoords = function(){
   if(!this.width_dom || !this.height_dom){
@@ -56,7 +57,6 @@ Vertex.prototype.getGraph = function(){
 Vertex.prototype.compareTo = function(vertex){
   return ( JSON.stringify(this.getVertexJSON()).localeCompare( JSON.stringify(vertex.getVertexJSON()) ) === 0 );
 }
-
 
 Vertex.prototype.getVertexJSON = function(){
   return { 

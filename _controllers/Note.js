@@ -28,9 +28,7 @@ function Note(project, data = FileDatabaseManager.getEmptyNoteJSON())
 /*   Operations on note data                               */
 /* ======================================================= */
 Note.prototype.saveData = function(){
-  // Either insert
   this.getDB().insertNote(this.getNoteJSON());
-  // Or update existing..
 }
 
 Note.prototype.saveText = function(){
@@ -45,6 +43,7 @@ Note.prototype.saveText = function(){
 
 /**
  * NOTE: Duplicates are blocked by the tag input.
+ * 
  * @param {string} tag_value 
  */
 Note.prototype.addTag = function(tag_value){
@@ -52,7 +51,6 @@ Note.prototype.addTag = function(tag_value){
   let tag = this.getDB().insertNoteTag(this.uuid, tag_value);
   // Add tag to tag array 
   this.tags.push(tag);
-
   // Reload project's tag list
   this.project.loadTags();
 }
@@ -86,6 +84,7 @@ Note.prototype.removeTag = function(tag_value){
 /**
  * 
  * NOTE: Duplicates are blocked by the tag input.
+ * 
  * @param {string} new_val 
  * @param {string} pre_val 
  */
@@ -140,7 +139,7 @@ Note.prototype.searchNoteText = function(needle){
  * 
  * Returns array of matching tag objects.
  * 
- * @param {*} needle 
+ * @param {string} needle 
  */
 Note.prototype.searchNoteTags = function(needle){
   return this.tags.filter(function(t){ 
@@ -231,25 +230,18 @@ Note.prototype.needThumbUpdate = function(selectionStart, selectionEnd){
   let arr = StringFormatter.splitAtNewLine(this.text)
   if( selectionStart === selectionEnd ){
     if( arr.length === 1 && selectionStart <= 300 ){
-      /**
-       *  This is quite slow...
-       *  I think I should maybe write into the dom element directly..
-       *  Maybe create an instance method in NotesListView which can be
-       *  called from App to write into the element
-       */ 
-      return true; // [0]
+      return true;
     }else{
       if(arr.length >= 2){
         let indices = StringFormatter.getParagraphIndices(arr)
         if(indices.length === 1){
-          if(selectionStart >= indices[0] && selectionStart <= indices[0] + 300/*arr[indices[0]].length*/){
-            return true; // [indices[0]]
+          if(selectionStart >= indices[0] && selectionStart <= indices[0] + 300){
+            return true;
           }
         }else if( indices.length >= 2 ){
-          //let distance = indices[1] - indices[0]
           if( (selectionStart >= indices[0] && selectionStart <= indices[0] + 300 )
-            || (selectionStart >= indices[1] && selectionStart <= indices[1] + 300) ) {   // arr[indices[0]].length + arr[indices[1]].length + distance
-              return true; //[indices[0], indices[1]]
+            || (selectionStart >= indices[1] && selectionStart <= indices[1] + 300) ) {
+              return true;
           }else{
             return false; 
           }
@@ -260,7 +252,6 @@ Note.prototype.needThumbUpdate = function(selectionStart, selectionEnd){
       }
     }
   }
-  
 }
 
 /**
@@ -311,7 +302,6 @@ Note.prototype.getContentPreview = function(){
   }else{
     return "No additional text";
   }
-  //return (this.text.length > 0) ? this.text : "No additional text"
 }
 
 /**

@@ -1,6 +1,5 @@
 module.exports = Graph
 
-
 const FileDatabaseManager = require('../_models/FileDatabaseManager');
 const StringFormatter = require('../_util/StringFormatter');
 const Vertex = require('./Vertex');
@@ -30,7 +29,7 @@ function Graph(project, data = FileDatabaseManager.getEmptyGraphJSON())
 }
 
 Graph.prototype.loadData = function(){
-  //this.uuid = this.getDB().getGraph
+  // Not needed..
 }
 
 Graph.prototype.saveData = function(){
@@ -54,7 +53,6 @@ Graph.prototype.getVertices = function(){
 
 /**
  * Creates a new vertex from a note at given coordinates
- * 
  * 
  * @param {JSON} coords - Object with given coordinates x and y
  * @param {Note} note - Note the vertex represents 
@@ -91,11 +89,11 @@ Graph.prototype.deleteVertex = function(selectedVertex){
   let v_ids = self.vertices.map(function(v) { return v.uuid; })
   let idx = v_ids.indexOf(selectedVertex.uuid);
   if(idx >= 0){ 
-    // false can only happen when inconsistencies exsist.
+    // False only happens on inconsistencies.
     self.vertices.splice(idx, 1);
     self.spliceEdgesForVertex(selectedVertex);
     
-    // TODO: Delete from database
+    // Delete from database
     console.log("Deleting vertex from database");
     self.getDB().deleteVertices(self.uuid, [selectedVertex.getVertexJSON()]);
   }
@@ -152,7 +150,7 @@ Graph.prototype.getEdges = function(){
  * Creates a new edge between given vertices
  * 
  * @param {Vertex} source - Source vertex
- * @parma {Vertex} target - Target vertex
+ * @param {Vertex} target - Target vertex
  */
 Graph.prototype.createNewEdge = function(source, target){
   var self = this;
@@ -171,7 +169,7 @@ Graph.prototype.createNewEdge = function(source, target){
 }
 
 /**
- * Deletes edge
+ * Deletes Edge
  */
 Graph.prototype.deleteEdge = function(selectedEdge){
   var self = this;
@@ -188,7 +186,8 @@ Graph.prototype.deleteEdge = function(selectedEdge){
 }
 
 /**
- * Deltes all edges connected to a given vertex.
+ * Deletes all edges connected to a given vertex.
+ * 
  * @param {Vertex} vertex 
  */
 Graph.prototype.spliceEdgesForVertex = function(vertex) {
@@ -373,25 +372,18 @@ Graph.prototype.needThumbUpdate = function(selectionStart, selectionEnd){
   let arr = StringFormatter.splitAtNewLine(this.description);
   if( selectionStart === selectionEnd ){
     if( arr.length === 1 && selectionStart <= 300 ){
-      /**
-       *  This is quite slow...
-       *  I think I should maybe write into the dom element directly..
-       *  Maybe create an instance method in NotesListView which can be
-       *  called from App to write into the element
-       */ 
-      return true; // [0]
+      return true; 
     }else{
       if(arr.length >= 2){
         let indices = StringFormatter.getParagraphIndices(arr);
         if(indices.length === 1){
-          if(selectionStart >= indices[0] && selectionStart <= indices[0] + 300/*arr[indices[0]].length*/){
-            return true; // [indices[0]]
+          if(selectionStart >= indices[0] && selectionStart <= indices[0] + 300){
+            return true; 
           }
         }else if( indices.length >= 2 ){
-          //let distance = indices[1] - indices[0]
           if( (selectionStart >= indices[0] && selectionStart <= indices[0] + 300 )
-            || (selectionStart >= indices[1] && selectionStart <= indices[1] + 300) ) {   // arr[indices[0]].length + arr[indices[1]].length + distance
-              return true; //[indices[0], indices[1]]
+            || (selectionStart >= indices[1] && selectionStart <= indices[1] + 300) ) {  
+              return true; 
           }else{
             return false; 
           }
@@ -407,7 +399,7 @@ Graph.prototype.needThumbUpdate = function(selectionStart, selectionEnd){
 
 /**
  * For thumbnail: Returns header (first sentence) of the text
- * up until the first \newline.
+ * up until the first \n
  */
 Graph.prototype.getHeader = function(){
   let arr = StringFormatter.splitAtNewLine(this.description);
@@ -446,7 +438,6 @@ Graph.prototype.getContentPreview = function(){
   }else{
     return "No additional text";
   }
-  //return (this.text.length > 0) ? this.text : "No additional text"
 }
 
 /**
@@ -477,7 +468,6 @@ Graph.prototype.getNumberOfNotes = function(){
  Graph.prototype.compareTo = function(graph){
   return ( JSON.stringify(this.getGraphJSON()).localeCompare( JSON.stringify(graph.getGraphJSON()) ) === 0 );
 }
-
 
 Graph.prototype.getGraphJSON = function(){
   return {

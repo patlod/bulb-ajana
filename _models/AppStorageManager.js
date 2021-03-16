@@ -1,13 +1,10 @@
 module.exports = AppStorageManager
 
 const fs = require('fs');
-
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 
-const { v4: uuidv4 } = require('uuid');
 const FileDatabaseManager = require('./FileDatabaseManager');
-const { fstat } = require('fs');
 
 
 function AppStorageManager(path) {
@@ -66,7 +63,6 @@ AppStorageManager.prototype.getName = function(){
 AppStorageManager.prototype.updateDBName = function(name){
   this.db.set('name', name).write();
 }
-
 
 /* ================================================================= */
 /* Helper functions                                                  */

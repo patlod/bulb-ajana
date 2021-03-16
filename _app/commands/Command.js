@@ -10,11 +10,13 @@ module.exports = Command
  * is implemented at a central place.
  * 
  * @param {App} app -- Instance of the central App controller
+ * @param {Object} params -- Object of parameters needed for executing
  */
-function Command(app){
+function Command(app, params = null){
   var self = this;
 
   this.app = app;
+  this.params = params;
   this.backup = null
 }
 
