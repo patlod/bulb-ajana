@@ -275,7 +275,7 @@ FileDatabase.prototype.insertNoteTag = function(note_id, tag_name){
 }
 
 /**
- * [!!OBSOLETE!!]
+ * [!! NOT USED !!]
  * Called when a tag name is updated in a note
  * 
  * @param {string} note_id 
@@ -383,7 +383,7 @@ FileDatabase.prototype.getNoteTags = function(note_id){
 }
 
 /**
- * [!!OBSOLETE!!]
+ * [!! NOT USED !!]
  * Returns all notes the tag with tag_id points to 
  * 
  * @param {string} tag_id
@@ -495,7 +495,7 @@ FileDatabase.prototype.insertGraphTag = function(graph_id, tag_name){
 }
 
 /**
- * [!!OBSOLETE!!]
+ * [!! NOT USED !!]
  * Called when a tag name is updated in a graph
  * 
  * @param {string} graph_id 
@@ -603,7 +603,7 @@ FileDatabase.prototype.getGraphTags = function(graph_id){
 }
 
 /**
- * [!!OBSOLETE!!]
+ * [!! NOT USED !!]
  * Returns all graphs the tag with tag_id points to 
  * 
  * @param {string} tag_id
