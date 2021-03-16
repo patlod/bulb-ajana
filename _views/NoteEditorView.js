@@ -110,6 +110,7 @@ NoteEditorView.prototype.updateTag = function(e, tagify){
  * @param {[{Obj}]} tags 
  */
 NoteEditorView.prototype.makeTagifyValues = function(tags){
+  if(!tags){ return; }
   return JSON.stringify(tags.map(function(tag){ return { "value": tag.name } }));
 }
 

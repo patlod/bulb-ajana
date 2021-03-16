@@ -61,6 +61,7 @@ var FileDatabaseManager = {
         },
         scale: 1
       },
+      tags:       [],
       vertices:   [],
       edges:      []
     }

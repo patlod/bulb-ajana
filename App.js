@@ -520,11 +520,11 @@ function App(el){
   });
 
   self.on('newProject', function(){
-    self.session.newProject(render);
+    self.session.newProject(self.render);
   });
 
   function openProjectDialog(){
-    self.session.openProjectDialog(render);
+    self.session.openProjectDialog(self.render);
     // Empty trash of the opened if necessary
     self.session.getActiveProject().garbageDisposal();
   }
@@ -1373,12 +1373,15 @@ App.prototype.renderMain = function (lazy_load = false) {
 }
 
 App.prototype.render = function(lazy_load = false) {
-  console.log(this.commandManager);
+  // console.log(this.commandManager);
+  
   var self = this,
       newTree = this.renderMain(lazy_load);
   yo.update(this.tree, newTree);
+
   // Recreate split screen on new dom tree with sizes from old one
   self.split_manager.recreateFromBuffer();
+
   // Reinitialise the semantic UI left-menu dropdown
   $('.ui.dropdown').dropdown({
     silent: true

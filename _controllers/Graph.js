@@ -486,6 +486,7 @@ Graph.prototype.getGraphJSON = function(){
     modified:     this.modified,
     description:  this.description,
     position:     this.position,
+    tags:         this.tags,
     vertices:     this.vertices.map(function(v){ return v.getVertexJSON()}),
     edges:        this.edges.map(function(ed){ return ed.getEdgeJSON()})
   };

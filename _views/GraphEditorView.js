@@ -1013,7 +1013,7 @@ GraphEditorView.prototype.updateTag = function(e, tagify){
  * @param {[{Obj}]} tags 
  */
 GraphEditorView.prototype.makeTagifyValues = function(tags){
-  console.log(tags);
+  if(!tags){ return; }
   return JSON.stringify(tags.map(function(tag){ return { "value": tag.name } }));
 }
 

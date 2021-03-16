@@ -331,60 +331,6 @@ ProjectListView.prototype.render = function(projects, recents){
       </div>
     `;
 
-    // Make project-thumbs droppable elements
-    // $(project_thumb).droppable({
-    //   accept:'.item-thmb-wrap',
-    //   tolerance: 'pointer',
-    //   classes: {
-    //     "ui-droppable-active": "prjct-thmb-drppbl-active",
-    //     "ui-droppable-hover": "prjct-thmb-drppbl-hover"
-    //   },
-    //   over: function(event, ui) {
-    //     $('body').css("cursor", "copy")
-    //   },
-    //   out: function(event, ui) {
-    //     $('body').css("cursor", "no-drop")
-    //   },
-    //   drop: function(event,ui){
-    //     console.log("Dropped note on project thmb...")
-
-    //     let $item_thmb = ui.draggable.find('.item-thmb'),
-    //         data_object = $note_thmb.attr('data-object'),
-    //         item_id = $item_thmb.attr('data-id');
-
-    //     let active_project = project.session.getActiveProject();
-    //     if(project.uuid.localCompare(active_project.uuid) !== 0){ 
-    //       // Project dropped on is equal to the current project.
-    //       return; 
-    //     }
-
-    //     // Add note or graph to project
-    //     if(data_object !== "note"){ 
-    //       // Get note instance
-    //       let note = active_project.getNoteByUUID(note_id)
-    //       console.log(note)
-          
-    //       // TODO:
-    //       // Check whether note already exists in other project.
-    //       //    If not, insert
-    //       //       If inserted => render()
-          
-
-    //     }else{
-    //       if(data_object !== "graph"){
-    //         // Get graph instance
-    //         let graph = active_project.getGraphByUUID(note_id)
-    //         console.log(graph)
-            
-    //         // TODO:
-    //         // Check whether graph already exists in other project.
-    //         //    If not, insert
-    //         //       If inserted => render()
-    //       }
-    //     }
-    //   }
-    // });
-
     return project_thumb;
   })
 
@@ -407,8 +353,8 @@ ProjectListView.prototype.render = function(projects, recents){
 
   
 
-  return yo`
-      <div onclick=${clickProjectList}>
+  let list =  yo`
+      <div class="sortable" onclick=${clickProjectList}>
         <div id="prjct-list-head">
           <span>Projects</span>
         </div>
@@ -431,6 +377,8 @@ ProjectListView.prototype.render = function(projects, recents){
         </div>
       </div>
     `;
+
+    return list;
 }
 
 /*

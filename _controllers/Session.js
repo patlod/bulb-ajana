@@ -11,6 +11,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const App = require('../App.js');
 const Project = require('./Project');
+const Note = require('./Note');
 const { path } = require('d3');
 const GraphEditorView = require('../_views/GraphEditorView');
 const { inherits } = require('util');
@@ -85,6 +86,7 @@ Session.prototype.getDBFileNameFrom = function(path){
 Session.prototype.getActiveProject = function(){
   if(this.projects.length === 0) return null;
   for(var i in this.projects){
+    console.log(this.projects[i]);
     if(this.projects[i].isActive()) return this.projects[i];
   }
 }
@@ -290,6 +292,7 @@ Session.prototype.newProject = function(callback){
   // if(typeof callback === "function"){
   //   callback();
   // }
+  self.app.views.items.objectOfDisplay = Note;
   self.app.render();
 }
 
@@ -314,6 +317,7 @@ Session.prototype.openProjectWithPath = function(path, callback){
         return;
       }
     }
+    console.log(self.projects);
   }else{
     nP = chk[0];
   }
@@ -329,9 +333,7 @@ Session.prototype.openProjectWithPath = function(path, callback){
   self.app.appGlobalData.addRecentProject(path);
 
   // Trigger re-render
-  // if(typeof callback === "function"){
-  //   callback();
-  // }
+  self.app.views.items.objectOfDisplay = Note;
   self.app.render();
 }
 
@@ -381,10 +383,9 @@ Session.prototype.openProjectDialog = function(callback){
   if(first){
     self.toggleActiveProject(first);
 
+    // Set the display item to Note
+    self.views.items.objectOfDisplay = Note;
     // Trigger re-render
-    // if(typeof callback === "function"){
-    //   callback();
-    // }
     self.app.render();
   }
 
