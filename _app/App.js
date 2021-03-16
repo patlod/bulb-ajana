@@ -52,8 +52,8 @@ const UIAssistant = require('../_util/UIAssistant');
 inherits(App, EventEmitter);
 
 /**
- * This is the central app controller which references and interacts with all other
- * specialised controllers.
+ * Central App Controller
+ * Manages all other controllers and is center for event-handling mechanism.
  * 
  * @param {HTMLElement} el 
  */
@@ -72,13 +72,11 @@ function App(el){
   self.appGlobalData = new GlobalData(GLOBAL_DATA_PATH);
 
   self.commandManager = new CommandManager(self);
-
   self.session = new Session(self);     // The session stores all the open projects with notes
   self.appControls = new AppControls();
-
-
   self.focusManager = new FocusManager.constructor(self);
   self.focusManager.setFocusObject(self.focusManager.PROJECT_LIST);
+
   /* ====== Views ====== */
   // All view instance for different parts of the app's UI
   self.views = {
@@ -265,35 +263,31 @@ function App(el){
 
   
 
-  /* === Initial DOM tree render ================= */
+  /* ============================================== */
+  /*  Initial DOM tree render                       */
+  /* ============================================== */
   this.tree = this.renderMain();
   console.log(this.tree);
   el.appendChild(this.tree);
   // Render the AppView separately
   self.views.app.render();
-  /* ============================================= */
 
   // Initialise the split screen manager object
   self.split_manager = new SplitManager(this);
 
-
-  /**
-   * Inserts script tags 
-   */
+  // Insert script tags
   function addScripts(to){
     var script_el = document.createElement('script');
     script_el.src = "./scripts/dropdown_semantic_ui.js";
     to.appendChild(script_el);
   }
   addScripts(document.getElementById('layout'));
+  /* ============================================= */
 
-  /**
-   * == Listeners EventEmitter =====================================
-   */
+  /* ====================================================== */
+  /* Listeners EventEmitter                                 */
+  /* ====================================================== */
   self.on('render', function(){
-    // if(self.session.getGraphMode()){
-    //   self.views.graph.forceClearContentDOMEl();
-    // }
     this.render();
   });
 
@@ -570,6 +564,7 @@ function App(el){
     }
     self.render(true);
   }
+
   self.on('switchItemList', function(objectOfDisplay){
     self.switchItemList(objectOfDisplay);
   });
@@ -615,7 +610,6 @@ function App(el){
       return;
     }
 
-    // console.log(project.getGraphMode())
     if(project.getGraphMode()){
       project.toggleActiveNote(note);
       project.startSelectionWith(note);
@@ -631,7 +625,6 @@ function App(el){
       project.startSelectionWith(note);
       self.render(true);
     }
-    
   });
 
   
@@ -682,7 +675,7 @@ function App(el){
     }
 
     let nn = self.session.getActiveProject().createNewNote();
-    nn.saveData(); // REFACTOR: Maybe better move this in createNewNote()
+    nn.saveData(); // REFACTOR: Move to project.createNewNote()?
 
     if(self.session.getGraphMode()){
       transToNoteEditor();
@@ -825,7 +818,7 @@ function App(el){
   });
 
   this.createNewNoteVertexGraph = function(coords){
-        /**
+    /**
      * For now: New empty note is directly inserted into database
      * Better: Only insert once there is at least one char content.
      */
@@ -846,10 +839,10 @@ function App(el){
     }
  
     let nn = active_project.createNewNote();
-    nn.saveData(); // REFACTOR: Maybe move to createNewNote()
+    nn.saveData(); // REFACTOR: Move to graph.createNewNote()?
     
     let nV = active_graph.createNewVertexForNote( coords, nn );
-    nV.saveData(); // REFACTOR: Maybe move to createNewVertexForNote()
+    nV.saveData(); // REFACTOR: Move to graph.createNewVertexForNote()?
 
     // Update the create new graph button
     self.views.titlebar.updateCreateNewBtn(el, active_graph);
@@ -932,7 +925,6 @@ function App(el){
 
   self.on('createNewNoteLinkedVertexGraph', function(sourceVertex){
     console.log('createNewNoteLinkedVertexGraph -> TODO!');
-
     /**
      * For now: New empty note is directly inserted into database
      * Better: Only insert once there is at least one char content.
@@ -954,7 +946,7 @@ function App(el){
     }
 
     let nn = active_project.createNewNote();
-    nn.saveData(); // REFACTOR: Maybe move to createNewNote()
+    nn.saveData(); // REFACTOR: Move to project.createNewNote()?
     
     // TODO: Calculate coordinates here regarding the width and height
     //       of the sourceVertex and additional space in-between the vertices so 
@@ -964,7 +956,7 @@ function App(el){
       y: (sourceVertex.posY + sourceVertex.height_dom + 50)
     };
     let nV = active_graph.createNewVertexForNote( coords, nn );
-    nV.saveData(); // REFACTOR: Maybe move to createNewVertexForNote()
+    nV.saveData(); // REFACTOR: Move to graph.createNewVertexForNote()?
 
     // Create vertex pair here and execute code of createNewEdgeInGraph
     let vPair = {source: sourceVertex, target: nV},
@@ -992,7 +984,7 @@ function App(el){
 
   function transitionGraph(project, graph, trigger='item-thumb'){
     // TODO: 
-    //   - In case graph is empty delte it in prepProjectForTrans
+    //   - In case graph is empty delete it in prepProjectForTrans
     //   - Save the description text in case timer is not finsihed.
     // if(!project.getGraphMode()){
     //   self.session.prepProjectForTrans(project)
@@ -1113,12 +1105,7 @@ function App(el){
   self.on('DEPRECATED -- deleteSelectedGraphs', function(){
     console.log("App.js: deleteSelectedGraphs");
     var self = this;
-    /**
-     * For now: 
-     *  - Selection of multiple graphs not possible.
-     *     - Thus: Only delete the currently active graph. 
-     *  - The deleted graph is moved to trash been for defined period of time
-     */
+    
     if(self.session.getActiveProject() === null){
       console.log("App listener createNewNote -- No active project.");
       return;
@@ -1161,7 +1148,6 @@ function App(el){
   self.on('updateByGraphEditorContent', function(active_graph){
     console.log("App received: LIVE UPDATE TEXT OF NOTE THUMB");
     
-    // self.views.titlebar.updateCreateNewBtn(el, active_note)
     if(self.views.items.objectOfDisplay === Graph){
       self.views.items.updateActiveGraphThumb(el, active_graph);
     }
@@ -1170,8 +1156,7 @@ function App(el){
   
 
   function closeApp(){
-     // TODO: Check for graph or regular view
-    
+    // TODO: Check for graph or regular view
     // Save the text of active note
     let aP = self.session.getActiveProject();
     self.session.prepProjectForTrans(aP);
@@ -1261,9 +1246,8 @@ App.prototype.addNotesToGraphDnD = function(graph, notes, position){
  * Creates the UI element for the content area. 
  * 
  * @param {Boolean} lazy_load - When the graph mode is active lazy loading 
- * does not reload the full graph with rendering but treats it separate so once
- * it is initialised the graph content will updated by the GraphEditorView.
- * Benefitial when the graph svg deals with a lot of elements..
+ * does not reload the graph editor when application is in graph mode.
+ * This can be beneficial when graph svg contains lots of elements. 
  */
 App.prototype.renderContentArea = function(lazy_load = false){
   var self = this;
@@ -1300,21 +1284,18 @@ App.prototype.renderRightSideMenu = function(lazy_load = false){
 }
 
 App.prototype.renderMain = function (lazy_load = false) {
-  var self = this;
-  var views = self.views;
+  var self = this,
+      views = self.views;
 
-  // console.log("Active Project: ")
-  // console.log(self.session.getActiveProject())
 
   /**
-   * Refactor: 
-   *  - left-menu-1 could be handed the session instance
-   *  - content could be handed the note or graph
-   *  
+   * REFACTOR: 
+   * - left-menu-1 could be handed the session instance
+   * - content could be handed the note or graph
    * - Then the content matches the class hierarchy nicer
    */
-  let focusClassPrjcts = (self.focusManager.getFocusObject() === self.focusManager.PROJECT_LIST) ? 'focused' : '';
-  let focusClassItems = (self.focusManager.getFocusObject() === self.focusManager.ITEM_LIST) ? 'focused' : '';
+  let focusClassPrjcts = (self.focusManager.getFocusObject() === self.focusManager.PROJECT_LIST) ? 'focused' : '',
+       focusClassItems = (self.focusManager.getFocusObject() === self.focusManager.ITEM_LIST) ? 'focused' : '';
   if(lazy_load){
     return  yo`
       <div id="layout">
@@ -1373,8 +1354,6 @@ App.prototype.renderMain = function (lazy_load = false) {
 }
 
 App.prototype.render = function(lazy_load = false) {
-  // console.log(this.commandManager);
-  
   var self = this,
       newTree = this.renderMain(lazy_load);
   yo.update(this.tree, newTree);
@@ -1454,7 +1433,5 @@ App.prototype.render = function(lazy_load = false) {
     });
   }
 }
-
-
 
 module.exports = window.App = App

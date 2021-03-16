@@ -30,29 +30,19 @@ function createWindow () {
   });
 
   ipcMain.on('closed', _ => {
-    //win.close()
     win = null;
     if (process.platform !== 'darwin') {
       app.quit()
       //app.exit();
     }
     app.quit()
-    //app.exit();
   });
-
-  /*win.on('closed', function(){
-      //console.log("closed");
-      //client.sendMessage('closed');
-      win = null;
-      app.quit();
-  });*/
 
   app.on('activate-with-no-open-windows', function(){
       win.show();
   });
 
   var INDEX = 'file://' + path.join(__dirname, 'index.html')
-  //win.loadFile('index.html');
   win.loadURL(INDEX);
   win.webContents.openDevTools();
 
