@@ -381,29 +381,6 @@ ProjectListView.prototype.render = function(projects, recents){
     return list;
 }
 
-/*
-<div id="dummy-dp" class="ui dropdown floated" style="float: right;">
-          <i class="fas fa-ellipsis-v"></i>
-
-          <div class="menu">
-            <div class="item"  >Open Projects</div>
-            <div class="item" >New Project</div>
-            
-            <div class="divider"></div>
-            <div class="header">
-              Recent Projects
-            </div>
-            <div class="scrolling menu" >
-              <div class="item" data-value="important">
-                <div class="ui red empty circular label"></div>
-                Important
-              </div>
-            </div>
-            
-          </div>          
-        </div>
-        */
-
 ProjectListView.prototype.scrollToBottom = function (force) {
   if (!force && !this.shouldAutoScroll) return;
   var projectList = document.getElementById('prjct-list-scroll');
