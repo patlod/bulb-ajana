@@ -133,7 +133,6 @@ TitlebarView.prototype.render = function (session) {
                 }
             }    
         }
-        
     }
 
     function clickDeleteSelectedNotes(e){
@@ -158,7 +157,6 @@ TitlebarView.prototype.render = function (session) {
                         <button class="tb-btn" onclick=${clickDeleteSelectedGraphs}><i class="fas fa-trash-alt"></i></button>
                     `;
             }
-            
         }
     }
 
@@ -186,12 +184,10 @@ TitlebarView.prototype.render = function (session) {
         }else{
             self.send("clearGlobalSearch");
         }
-        
     }
 
     function clickClearSearch(e){
-        console.log("clickClearSearch");
-        console.log("Reset search, current value: ");
+        console.log("Clear search, current value: ");
         console.log(self.current_search);
         self.clearSearch();
         // Clear the search data in the controller/model structures

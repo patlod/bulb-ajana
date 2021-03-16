@@ -1,3 +1,6 @@
+/**
+ * Helper tasks for the revolving around the UI.
+ */
 var UIAssistant = {
   resizeElementByContent: function(el){
     if(!el){

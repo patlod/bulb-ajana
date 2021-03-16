@@ -91,7 +91,7 @@ ProjectListView.prototype.createLeftMenuDropdown = function(recents){
   var self = this;
   
   /**
-   * Event h
+   * Event Handlers
    */
   function clickOpenProjectDialog(e){
     self.send('openProjectDialog');
@@ -142,9 +142,7 @@ ProjectListView.prototype.createLeftMenuDropdown = function(recents){
           Recent Projects
         </div>
         <div class="scrolling menu" >
-
           ${mapRecentProjects(recents)}
-          
         </div>
       </div>          
     </div>
@@ -173,17 +171,12 @@ ProjectListView.prototype.render = function(projects, recents){
     /* ====================================================================== */
 
     function clickPrjctThmb(e){
-      //console.log(e.target)
       if(e.target !== this && (e.target.classList.contains('fa-ellipsis-h')
           || e.target.classList.contains("item"))){
         return;
       }
-      // if(e.target !== this){ 
-      //   return
-      // }
       // Send event to core App
       console.log("clickPrjctThmb -> transitionProject");
-
       self.focus_manager.setFocusObject(self.focus_manager.PROJECT_LIST);
       self.send('transitionProject', project);
     }
@@ -261,7 +254,6 @@ ProjectListView.prototype.render = function(projects, recents){
           if(this.classList.contains('alert')){
             this.classList.remove('alert');
           }
-          
           // Rename project
           project.renameProject(input_str);
           console.log("renamed project....");
@@ -273,7 +265,6 @@ ProjectListView.prototype.render = function(projects, recents){
           nSpan.textContent = input_str;
           nSpan.classList.toggle('hidden');
           nInput.classList.toggle('hidden');
-        
         }
       }
     }
@@ -290,7 +281,6 @@ ProjectListView.prototype.render = function(projects, recents){
           if(this.classList.contains('alert')){
             this.classList.remove('alert');
           }
-        
           if(e.keyCode === 13){
             // Rename project
             project.renameProject(input_str);
@@ -313,8 +303,7 @@ ProjectListView.prototype.render = function(projects, recents){
     
     
     var className = project.isActive() ? 'selected' : '';
-
-    let project_thumb = yo`
+    var project_thumb = yo`
       <div class="prjct-thmb ${className}" data-id="${project.uuid}"
       onclick="${clickPrjctThmb}"
       oncontextmenu="${contextMenuPrjctThmb}">
@@ -351,9 +340,7 @@ ProjectListView.prototype.render = function(projects, recents){
     self.scrollTop = this.scrollTop;
   }
 
-  
-
-  let list =  yo`
+  var list =  yo`
       <div class="sortable" onclick=${clickProjectList}>
         <div id="prjct-list-head">
           <span>Projects</span>

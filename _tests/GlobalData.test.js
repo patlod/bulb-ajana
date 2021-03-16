@@ -82,7 +82,6 @@ afterAll(() => {
 
 afterEach(() => {
   // Delete testdata from JSON file
-
   //cleanUpDBFile()
 })
 
@@ -160,33 +159,21 @@ test('PROVISORY__Test_Essential_Functions', () => {
 })
 
 test('loadRecentProjects', () => {
-
-  // deleteDummyProjectFiles(dPP)
-
-  expect(1).toEqual(1)
-  
+  expect(1).toEqual(1);
 })
 
 test('saveRecentProjects', () => {
-  
-  expect(1).toEqual(1)
-  
+  expect(1).toEqual(1);
 })
 
 test('addRecentProject', () => {
-  
-  expect(1).toEqual(1)
-  
+  expect(1).toEqual(1);
 })
 
 test('getAllRecentProjects', () => {
-  
-  expect(1).toEqual(1)
-  
+  expect(1).toEqual(1);
 })
 
 test('loadAndFilterZombies', () => {
-  
-  expect(1).toEqual(1)
-  
+  expect(1).toEqual(1);
 })

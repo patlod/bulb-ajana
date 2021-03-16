@@ -43,8 +43,7 @@ ItemListView.prototype.tagsHTML = function(item, pureHTML = false){
       return yo` 
       <span>${tag.name} </span>
       `;
-    })
-  
+    });
     return yo`
       <div class="item-thmb-tags">     
         ${tags}
@@ -58,7 +57,6 @@ ItemListView.prototype.updateActiveNoteThumb = function(dom_el, active_note){
 
   // Get active note thumb..
   let active_note_thmb = dom_el.getElementsByClassName('item-thmb selected')[0];
-  //console.log(dom_el.getElementsByClassName('item-thmb selected'))
   // ..update data.
   active_note_thmb.getElementsByClassName('item-thmb-head')[0].textContent = active_note.getHeader();
   active_note_thmb.getElementsByClassName('item-thmb-content')[0].textContent = active_note.getContentPreview();
@@ -70,7 +68,6 @@ ItemListView.prototype.updateActiveGraphThumb = function(dom_el, active_graph){
   if(self.objectOfDisplay === Note){ return; }
   // Get active graph thumb..
   let active_graph_thmb = dom_el.getElementsByClassName('item-thmb selected')[0];
-  //console.log(dom_el.getElementsByClassName('item-thmb selected'))
   // ..update data.
   active_graph_thmb.getElementsByClassName('item-thmb-head')[0].textContent = active_graph.getHeader();
   let nThmb_content = active_graph_thmb.getElementsByClassName('item-thmb-content');
@@ -82,18 +79,14 @@ ItemListView.prototype.updateActiveGraphThumb = function(dom_el, active_graph){
 ItemListView.prototype.updateActiveGraphNoteCount = function(dom_el, active_graph){
   var self = this;
   if(self.objectOfDisplay === Note){ return; }
-
   // Get active graph thumb..
   let active_graph_thmb = dom_el.getElementsByClassName('item-thmb selected')[0],
       nThmb_content = active_graph_thmb.getElementsByClassName('item-thmb-content');
-  
-  console.log(nThmb_content);
-  
   nThmb_content[1].textContent = active_graph.getNumberOfNotes() + "Notes linked";
 }
 
 ItemListView.prototype.updateNoteThmbColor = function(note){
-  let target = document.getElementsByClassName('item-thmb selected')[0];
+  let target = document.getElementsByClassName('item-thmb selected')[0],
       c = target.getElementsByClassName('color-pickr-circle-thmb')[0];
 
   c.style.backgroundColor = note.bg_color;

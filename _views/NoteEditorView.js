@@ -34,7 +34,7 @@ function NoteEditorView(target, focus_manager) {
   this.dirty_bit = false;
 
   this.search = null;
-  // this.iterator = iterator;
+
   this.overlay_DOMEl = null;
   this.current_needle_DOMEl = null;
 }
@@ -42,6 +42,7 @@ inherits(NoteEditorView, EventEmitterElement);
 
 /**
  * Returns a (white)list of key-value pairs of global project tags
+ * 
  * @param {Project} project 
  */
 NoteEditorView.prototype.fetchWhitelist = function(project){
@@ -52,52 +53,41 @@ NoteEditorView.prototype.fetchWhitelist = function(project){
 
 NoteEditorView.prototype.addTag = function(e, tagify){
   var self = this;
-
   // Add tag to list & database
   self.active_note.addTag(e.detail.data.value);
-
   // Update whitelist of tagify input
   let new_wL = this.fetchWhitelist(self.active_note.project);
   // Reset tagify whitelist
   tagify.settings.whitelist.length = 0;
   // Update tagify whitelist
   tagify.settings.whitelist.splice(0, new_wL.length, ...new_wL);
-
   // Trigger update of notes list
   self.send("updateByNoteEditorContent", self.active_note);
 }
 
 NoteEditorView.prototype.removeTag = function(e, tagify){
   var self = this;
-  console.log("removeTag() - Active Note:");
-  console.log(self.active_note);
-  // console.log(e)
   // Remove tag from list & database
   self.active_note.removeTag(e.detail.data.value);
-
   let new_wL = this.fetchWhitelist(self.active_note.project);
   // Reset tagify whitelist
   tagify.settings.whitelist.length = 0;
   // Update tagify whitelist
   tagify.settings.whitelist.splice(0, new_wL.length, ...new_wL);
-  
   // Trigger update of notes list
   self.send("updateByNoteEditorContent", self.active_note);
 }
 
 NoteEditorView.prototype.updateTag = function(e, tagify){
   var self = this;
-
   // Update tag in list & database
   self.active_note.updateTag(e.detail.data.value, e.detail.previousData.value);
-  
   // Update white list
   let new_wL = this.fetchWhitelist(self.active_note.project);
   // Reset tagify whitelist
   tagify.settings.whitelist.length = 0;
   // Update tagify whitelist
   tagify.settings.whitelist.splice(0, new_wL.length, ...new_wL);
-
   // Trigger update of notes list
   self.send("updateByNoteEditorContent", self.active_note);
 }
@@ -273,11 +263,9 @@ NoteEditorView.prototype.resetEditorState = function(){
     self.tagify.destroy();
     self.tagify = null;  /* Necessary to avoid null reference error. */
   }
-
   if (self.globalTimeout !== null) {
     clearTimeout(self.globalTimeout);
   }
-
   this.resetSearch();
 }
 
@@ -296,8 +284,6 @@ NoteEditorView.prototype.render = function(project){
   // Get active note
   self.active_note = project.getActiveNote();
   if(!self.active_note){ return; }
-
-
 
   /* ====================================================================== */
   /*  Event Handlers                                                        */
@@ -469,26 +455,18 @@ NoteEditorView.prototype.render = function(project){
         return;
     }else{
       if(!project.getGraphMode()){
-
         let colorCollection = CSSProcessor.getNoteBackgroundColors();
 
         function clickColorDPItem(e){
           let style = window.getComputedStyle(this.getElementsByTagName('span')[0]);
           let color_str = UnitConverter.rgbToHex( style.getPropertyValue('background-color') );
-          
-          // let targetColor = colorCollection.filter(function(x){
-          //   return x.color.localeCompare(color_str) === 0
-          // })
-
           // Set background of the note-editor
           document.getElementsByClassName('note-content-wrap')[0].style.backgroundColor = color_str;
-
-          
           self.send('updateNoteColor', active_note, color_str);
         }
 
-        let items_html = [];
-        let el = null;
+        let items_html = [],
+            el = null;
         colorCollection.map(function(x, idx){
           if(active_note.bg_color.localeCompare(x.color) === 0){
             el = yo` 
@@ -503,15 +481,12 @@ NoteEditorView.prototype.render = function(project){
               </div>
             `;
           }
-          
           items_html.push(el);
           if((idx + 1) % 5 === 0){
               items_html.push(yo`<div class="divider"></div>`);
           }
-            
-        })
-        
-          
+        });
+
         return yo`
           <div id="note-color-dp" class="ui floated dropdown">
               <i class="fas fa-palette"></i>
@@ -569,6 +544,7 @@ NoteEditorView.prototype.render = function(project){
       </div>
     </div>
     `;
+
   /**
    * HACK because html strings are not really processable with yo-yo
    * 
@@ -587,8 +563,7 @@ NoteEditorView.prototype.render = function(project){
         );
     }
   }
-  
-  
+
   /**
    * Initialise tagify input on the UI fragment.
    */
@@ -612,6 +587,4 @@ NoteEditorView.prototype.render = function(project){
   }else{
     return editor_view;
   }
-  
-  
 }

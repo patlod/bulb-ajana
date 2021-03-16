@@ -66,9 +66,10 @@ inherits(GraphEditorView, EventEmitterElement)
 
 /**
  * (Re)Initialises the GraphEditorView
- * @param {} svg    - The svg the GraphCreator is initialised on
- * @param {*} nodes - Array of nodes
- * @param {*} edges - Array of edges
+ * 
+ * @param {DOMElement} svg    - The svg the GraphCreator is initialised on
+ * @param {[Vertex]} nodes - Array of nodes
+ * @param {[Edge]} edges - Array of edges
  */
 
 GraphEditorView.prototype.init = function(svg){
@@ -275,7 +276,6 @@ GraphEditorView.prototype.takedown = function(){
 }
 
 // PROTOTYPE FUNCTIONS 
-
 GraphEditorView.prototype.dragmove = function(d) {
   var self = this;
 
@@ -534,8 +534,6 @@ GraphEditorView.prototype.applyProjectSearch = function(search){
       }
     }
   })
-
-  // Check whether search is active and whether note is contained in search result
 }
 
 GraphEditorView.prototype.showSvgContextMenu = function(d3node, d, coords){
@@ -571,11 +569,6 @@ GraphEditorView.prototype.showEdgeContextMenu = function(d3node, d){
 
 GraphEditorView.prototype.showVertexContextMenu = function(d3node, d){
   var self = this;
-
-  // var stop = d3.event.button || d3.event.ctrlKey || d3.event.metaKey;
-  // if (stop) d3.event.stopImmediatePropagation();
-  
-  // d3.event.preventDefault();
 
   self.state.vertexContextMenu = true;
   let template = [
@@ -643,16 +636,8 @@ GraphEditorView.prototype.updateGraph = function(graph = null){
       .attr('width', 427);
       
   newGs.each(function(d){
-    let foreignObj = d3.select(this);
-    // console.log(foreignObj)
-    // console.log(d)
-    let graph_note_html = foreignObj.select('.graph-note');
-    // console.log("offsetSizes:")
-    // console.log(gNote.offsetWidth)
-    // console.log(gNote.offsetHeight)
-    // console.log("clientSizes:")
-    // console.log(gNote.clientWidth)
-    // console.log(gNote.clientHeight)
+    let foreignObj = d3.select(this),
+        graph_note_html = foreignObj.select('.graph-note');
 
     // Set background color of graph-note
     graph_note_html.style("background", d.note.bg_color);
@@ -671,8 +656,6 @@ GraphEditorView.prototype.updateGraph = function(graph = null){
     `;
     graph_note_html.html(html_str);
 
-    
-    
     let gnNode = graph_note_html.node();
     // Associate vertex' UI dimensions with its data
     if(!d.width_dom || d.width_dom === 0){
@@ -706,12 +689,6 @@ GraphEditorView.prototype.updateGraph = function(graph = null){
 
   // Remove old nodes
   self.circles.exit().remove();
-
-  // console.log("updateGraph:")
-  // console.log("active project")
-  // console.log(active_project)
-  // console.log("active note")
-  // console.log(active_note)
 
   // Select vertex associated with active note if existing.
   let vertex = self.graph.getVertexForNote(active_note);
@@ -765,12 +742,6 @@ GraphEditorView.prototype.updateGraph = function(graph = null){
   // Remove old links
   paths.exit().remove();
 
-  // console.log("Graph controller vertices")
-  // console.log(self.graph.vertices)
-  // console.log("Local vertex data self.circles:")
-  // console.log(self.circles)
-  // console.log(self.paths)
-
   self.setGraphPosition(
     self.graph.position.translate.x,
     self.graph.position.translate.y,
@@ -782,14 +753,7 @@ GraphEditorView.prototype.updateGraph = function(graph = null){
 
 GraphEditorView.prototype.zoomed = function(){
   let self = this;
-
   this.state.justScaleTransGraph = true;
-
-  // console.log("d3.event.translate")
-  // console.log(d3.event.translate)
-  // console.log("D3 event scale")
-  // console.log(d3.event.scale)
-
   let d3_translate = d3.event.translate,
       d3_scale = d3.event.scale;
   let trans_setting = "translate(" + d3_translate + ") ";
@@ -884,11 +848,6 @@ GraphEditorView.prototype.resetZoom = function(){
 
     let bounds_svg = self.svg.node().getBoundingClientRect(),
         bounds_vertices = self.graph.getVerticesBoundingBox();
-    
-    // console.log(bounds_svg.width);
-    // console.log(bounds_svg.height);
-    // console.log(bounds_vertices.width);
-    // console.log(bounds_vertices.height);
 
     let scaleWidth = bounds_svg.width / bounds_vertices.width,
         scaleHeight = bounds_svg.height / (bounds_vertices.height === 0) ? 1.0 : bounds_vertices.height,
@@ -904,16 +863,6 @@ GraphEditorView.prototype.resetZoom = function(){
         transY = -bounds_vertices.startY * rescale;
     // let transX = (-bounds_vertices.startX < 0) ? -bounds_vertices.startX * rescale + marginX : -bounds_vertices.startX * rescale - marginX,
     //     transY = (-bounds_vertices.startY < 0) ? -bounds_vertices.startY * rescale - marginY : -bounds_vertices.startY * rescale + marginY;    
-    
-    // console.log("bounds_svg: " + bounds_svg);
-    // console.log("bounds_vertices: " + bounds_vertices)
-    // console.log("scaleWidth: " + scaleWidth)
-    // console.log("scaleHeight: " + scaleHeight)
-    // console.log("rescale: " + rescale)
-    // console.log("transX: " + transX)
-    // console.log("transY: " + transY)
-
-
     self.setGraphPosition(transX, transY, rescale);
     // Update the controllers
     self.graph.position = {
@@ -953,18 +902,14 @@ GraphEditorView.prototype.fetchWhitelist = function(project){
 
 GraphEditorView.prototype.addTag = function(e, tagify){
   var self = this;
-
   // Add tag to list & database
   self.graph.addTag(e.detail.data.value);
-
   // Update whitelist of tagify input
   let new_wL = this.fetchWhitelist(self.graph.project);
   // Reset tagify whitelist
   tagify.settings.whitelist.length = 0;
   // Update tagify whitelist
   tagify.settings.whitelist.splice(0, new_wL.length, ...new_wL);
-
-  // TODO
   // Trigger update of graph list
   self.send("updateByGraphEditorContent", self.graph);
 }
@@ -974,14 +919,11 @@ GraphEditorView.prototype.removeTag = function(e, tagify){
   var self = this;
   // Remove tag from list & database
   self.graph.removeTag(e.detail.data.value);
-
   let new_wL = this.fetchWhitelist(self.graph.project);
   // Reset tagify whitelist
   tagify.settings.whitelist.length = 0;
   // Update tagify whitelist
   tagify.settings.whitelist.splice(0, new_wL.length, ...new_wL);
-  
-  // TODO
   // Trigger update of notes list
   self.send("updateByGraphEditorContent", self.graph);
 }
@@ -989,18 +931,14 @@ GraphEditorView.prototype.removeTag = function(e, tagify){
 
 GraphEditorView.prototype.updateTag = function(e, tagify){
   var self = this;
-
   // Update tag in list & database
   self.graph.updateTag(e.detail.data.value, e.detail.previousData.value);
-  
   // Update white list
   let new_wL = this.fetchWhitelist(self.graph.project);
   // Reset tagify whitelist
   tagify.settings.whitelist.length = 0;
   // Update tagify whitelist
   tagify.settings.whitelist.splice(0, new_wL.length, ...new_wL);
-
-  // TODO
   // Trigger update of notes list
   self.send("updateByGraphEditorContent", self.graph);
 }

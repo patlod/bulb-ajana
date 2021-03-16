@@ -13,7 +13,6 @@ afterAll(() => {
 
 afterEach(() => {
   // Delete testdata from JSON file
-
   //cleanUpDBFile()
 })
 

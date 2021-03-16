@@ -1,14 +1,10 @@
 module.exports = GlobalData
 
-const AppStorageManager = require('./AppStorageManager');
-const Queue = require('../_util/Queue');
-
 const inherits = require('util').inherits;
 const fs = require('fs');
 
-
-
-
+const AppStorageManager = require('./AppStorageManager');
+const Queue = require('../_util/Queue');
 
 
 function GlobalData(path){
@@ -34,9 +30,6 @@ GlobalData.prototype.loadRecentProjects = function(){
   if(els){
     this.recent_projects = new Queue('string', this.MAX_RECENT_PROJECTS, els);
   }
-}
-
-GlobalData.prototype.removeDuplicates = function(){
 }
 
 GlobalData.prototype.loadAndFilterZombies = function(){
@@ -77,9 +70,7 @@ GlobalData.prototype.addRecentProject = function(path_str){
   }catch(err){
     console.error(err);
   }
-
   this.recent_projects.addItem(path_str);
-
   // Save to database
   this.saveRecentProjects();
 

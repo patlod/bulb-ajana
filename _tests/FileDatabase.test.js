@@ -47,21 +47,19 @@ afterAll(() => {
   //cleanUpDBFile()
   DB = null;
   ADAPTER = null;
-  // try {
-  //   fs.unlinkSync(TEST_DB_PATH)
-  //   //file removed
-  // } catch(err) {
-  //   console.error(err)
-  // }
+  try {
+    fs.unlinkSync(TEST_DB_PATH)
+    //file removed
+  } catch(err) {
+    console.error(err)
+  }
 })
 
 afterEach(() => {
   // Delete testdata from JSON file
-  // cleanUpDBFile()
+  cleanUpDBFile()
 })
 
-
-/*
 test('insertNote', () => {
   let fdb = new FileDatabase(TEST_DB_PATH)
 
@@ -79,8 +77,7 @@ test('insertNote', () => {
   let val = fdb.db.get('notes').value()
   expect(val[0]).toEqual(payload)
   expect(val.length).toEqual(1)
-
-})
+});
 
 
 test('insertManyNotes', () => {
@@ -109,8 +106,7 @@ test('insertManyNotes', () => {
   let val = fdb.db.get('notes').value()
   expect(val).toEqual(payload)
   expect(val.length).toEqual(2)
-
-})
+});
 
 test('updateManyNotes', () => {
   let fdb = new FileDatabase(TEST_DB_PATH)
@@ -187,8 +183,7 @@ test('updateManyNotes', () => {
   expect(val3.tags).toEqual(payload[1].tags)
   expect(val3.text).toEqual(payload[1].text)
   expect(val3.associations).toEqual(payload[1].associations)
-
-})
+});
 
 test('deleteNotes', () => {
   let fdb = new FileDatabase(TEST_DB_PATH)
@@ -240,8 +235,7 @@ test('deleteNotes', () => {
   expect(val[0].uuid).toEqual(dummies[0].uuid)
   expect(val[1].uuid).toEqual(dummies[2].uuid)
 
-})
-
+});
 
 test('selectManyNotes', () => {
   let fdb = new FileDatabase(TEST_DB_PATH)
@@ -294,8 +288,7 @@ test('selectManyNotes', () => {
   expect(ids_arr.indexOf(payload[0].uuid)).toBeGreaterThanOrEqual(0)
   expect(ids_arr.indexOf(payload[1].uuid)).toBeGreaterThanOrEqual(0)
 
-})
-
+});
 
 test('selectAllNotes', () => {
   let fdb = new FileDatabase(TEST_DB_PATH)
@@ -325,8 +318,7 @@ test('selectAllNotes', () => {
   expect(val).toEqual(payload)
   expect(val.length).toEqual(2)
 
-})
-
+});
 
 test('countNotes', () => {
   let fdb = new FileDatabase(TEST_DB_PATH)
@@ -364,8 +356,7 @@ test('countNotes', () => {
   let val = fdb.countNotes()
   expect(val).toEqual(3)
 
-})
-
+});
 
 test('insertNoteTag', () => {
   let fdb = new FileDatabase(TEST_DB_PATH)
@@ -402,7 +393,7 @@ test('insertNoteTag', () => {
 
   fdb.insertNoteTag(dummy_notes[0].uuid, dummy_tag.name)
 
-  let val = fdb.db.get('tags').value()
+  let val = fdb.db.get('tags').value();
   expect(val.length).toEqual(1)
   expect(val[0].name).toEqual(dummy_tag.name)
   expect(val[0].notes.length).toEqual(1)
@@ -411,14 +402,15 @@ test('insertNoteTag', () => {
   // Insert same tag for different note
   fdb.insertNoteTag(dummy_notes[1].uuid, dummy_tag.name)
   // Still one tag but two references
+  val = fdb.db.get('tags').value();
   expect(val.length).toEqual(1)
   expect(val[0].notes.length).toEqual(2)
-})
+});
 
 
 test('upateNoteTagName', () => { 
   expect(true).toEqual(true)
-})
+});
 
 test('deleteTags', () => {
   let fdb = new FileDatabase(TEST_DB_PATH)
@@ -463,7 +455,7 @@ test('deleteTags', () => {
 
   let val = fdb.db.get("tags").size().value()
   expect(val).toEqual(2)
-})
+});
 
 test('removeNoteTag', () => {
   let fdb = new FileDatabase(TEST_DB_PATH)
@@ -538,7 +530,7 @@ test('removeNoteTag', () => {
 
   val_arr = fdb.db.get('notes').find({uuid: dummy_notes[0].uuid}).get('tags').size().value()
   expect(val_arr).toEqual(0)
-})
+});
 
 test('deleteTagFromPoject', () => { 
   let fdb = new FileDatabase(TEST_DB_PATH)
@@ -568,7 +560,7 @@ test('deleteTagFromPoject', () => {
   fdb.deleteTagFromProject(dummy_tags[1].uuid)
   val = fdb.db.get('tags').value()
   expect(val.length).toEqual(0)
-})
+});
 
 test('getNoteTags', () => { 
   let fdb = new FileDatabase(TEST_DB_PATH)
@@ -644,7 +636,7 @@ test('getNoteTags', () => {
   expect(val_arr.length).toEqual(3)
   val_arr = fdb.getNoteTags(dummy_notes[1].uuid)
   expect(val_arr.length).toEqual(1)
-})
+});
 
 test('getNotesFromTag', () => {
   let fdb = new FileDatabase(TEST_DB_PATH)
@@ -705,7 +697,7 @@ test('getNotesFromTag', () => {
   let val_arr = fdb.getNotesFromTag(dummy_tags[0].uuid)
   expect(val_arr.length).toEqual(4)
   expect(val_arr.map(function(x){return x.uuid}).indexOf(dummy_notes[2].uuid)).toBeGreaterThan(0)
-})
+});
 
 test('getProjectTags', () => {
   let fdb = new FileDatabase(TEST_DB_PATH)
@@ -745,18 +737,15 @@ test('getProjectTags', () => {
 
   let val_arr = fdb.getProjectTags()
   expect(val_arr.length).toEqual(4)
-
- })
+ });
 
 
 test('getPath', () => {
   let fdb = new FileDatabase(TEST_DB_PATH)
   let path = fdb.getPath()
   expect(path).toEqual(TEST_DB_PATH)
- })*/
+ });
 
-
-/*
 test('weirdBugInsertNote', () => {
   let fdb = new FileDatabase(TEST_DB_PATH)
 
@@ -822,7 +811,7 @@ test('weirdBugInsertNote', () => {
   fdb.insertNote(payload)
 
 
-})*/
+});
 
 test('selectAllVertices', () => {
   let fdb = new FileDatabase(TEST_DB_PATH)
@@ -889,24 +878,20 @@ test('selectAllVertices', () => {
   let ed_query = fdb.selectAllEdges(dummy_graph.uuid)
   console.log(ed_query)
 
-})
+});
 
 
 
 // test('Dynamically push attributes to JSON', () => {
 //   let fdb = new FileDatabase(TEST_DB_PATH)
-
 //   fdb.db.set('MOESE', ['feucht']).write()
 //   console.log("BLÖÖÖÖÖÖD")
-
 //   //fdb.db.get("tags").push(...dummy_tags).write()
 //   expect(1).toEqual(1)
-  
 // })
 
 // test('createDummyDBFile', () => {
 //   let fdb = new FileDatabase(TEST_DB_PATH)
-
 //   const dummy_tags = [
 //     {
 //       uuid: uuidv4(),
@@ -923,7 +908,6 @@ test('selectAllVertices', () => {
 //       notes: [], 
 //     }
 //   ]
-
 //   const dummy_notes = [
 //     { 
 //       uuid: uuidv4(),
@@ -942,7 +926,6 @@ test('selectAllVertices', () => {
 //       associations: []
 //     }
 //   ]
-
 //   // Set references in the dummy json
 //   // First tag has only one note pointers
 //   dummy_tags[0].notes.push(dummy_notes[0].uuid)
@@ -952,7 +935,6 @@ test('selectAllVertices', () => {
 //   dummy_notes[0].tags.push(dummy_tags[1].uuid)
 //   dummy_tags[1].notes.push(dummy_notes[1].uuid)
 //   dummy_notes[1].tags.push(dummy_tags[1].uuid)
-
 //   // Prep DB with dummies
 //   fdb.db.get('tags').push(...dummy_tags).write()
 //   fdb.db.get('notes').push(...dummy_notes).write()

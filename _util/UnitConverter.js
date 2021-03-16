@@ -1,7 +1,6 @@
 /**
- * Static class object that offers methods to unit conversions of any kind.
+ * Offers methods to unit conversions of any kind.
  */
-
 var UnitConverter = {
   rgbToHex: function(rgb_string){
     let rgb_arr = rgb_string.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);

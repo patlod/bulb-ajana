@@ -1,8 +1,6 @@
 module.exports = FileDatabase
 
 const fs = require('fs');
-const FDM = require('./FileDatabaseManager');
-
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 
@@ -10,68 +8,13 @@ const { v4: uuidv4 } = require('uuid');
 
 const DateFormatter = require('../_util/DateFormatter');
 
-/**
- * TODO Refactoring:
- *  - Ideally the database interface code is moved into a specific object
- *    which interacts wiht database on low level
- *  - Then  separate models (e.g. Project, Note) which both use a DB object.
- */
+
 
 /**
- * Class interfacing the JSON storage file which serves
- * as database.
+ * Class interfacing the JSON file database.
  * 
- * The JSON file is structured as follows:
+ * NOTE: To see how JSON file is structured see JSON templates in FileDatabaseManager.js
  * 
- * db.json = {
- *  "uuid":           uuid,
- *  "created":       aaaa,
- *  "name":   bbbb,
- *  "tags": [
- *     {
- *        "uuid":      cccc,
- *        "created":   dddd,
- *        "modified":  eeee,
- *        "name":      ffff,
- *        "notes":    [uuid,...]
- *     }
- *  ],
- *  "notes": [
- *    {
- *        "uuid":            uuid,
- *        "created":         eeee,
- *        "modified":        gggg,
- *        "tags":           [uuid, ...]   // References to tags array. 
- *        "text":           "Lorem ipsum ...."
- *        "associations":   [
- *            // Ids i.e. datetime of other notes.
- *        ]
- *    }
- *  ],
- *  "graphs": [
- *    {
- *      "uuid":       uuid,
- *      "created":    created,
- *      "vertices":   [
- *        {
- *          "uuid":       this.uuid,
- *          "created":    this.created,
- *          "note":       <Note: UUIDv4>, 
- *          "posX":       this.posX, 
- *          "posY":       this.posY,
- *        } 
- *      ],
- *      "edges":      [
- *        {
- *          "uuid":       this.uuid,
- *          "created":    this.created,
- *          "source":     <Vertex: UUIDv4>,
- *          "target":     <Vertex: UUIDv4>, 
- *        }
- *      ]
- *    }
- *  ]
- * }
  */
 function FileDatabase(path) {
   var self = this;
@@ -118,6 +61,7 @@ FileDatabase.prototype.getProjectName = function(){
 
 /**
  * Updates the name of the project (DB file) and its path
+ * 
  * @param {string} name 
  */
 FileDatabase.prototype.updateDBName = function(name){
@@ -134,6 +78,7 @@ FileDatabase.prototype.updateDBName = function(name){
  * Takes single Note JSON as argument
  * 
  * NOTE: insertNotes is enough just pass array with single object 
+ * 
  * @param {object} note 
  */
 FileDatabase.prototype.insertNote = function(note){
@@ -213,11 +158,9 @@ FileDatabase.prototype.updateManyNotes = function(data){
  * Removes one to many notes
  * 
  * @param {[object]} data 
- * 
  */
 FileDatabase.prototype.deleteNotes = function(data){
   this.db.read();
-
   let note = null,
       arr = data.map(function(x){ return { uuid: x.uuid } } );
   for(var i in arr){
@@ -247,7 +190,6 @@ FileDatabase.prototype.selectManyNotes = function(data){
   for(var i in arr){
     res.push(this.db.get('notes').find(arr[i]).value());
   }
-  //console.log(res)
   return res;
 }
 
@@ -297,7 +239,7 @@ FileDatabase.prototype.insertNoteTag = function(note_id, tag_name){
       .push(note_id)
       .write();
     }
-    // Update note here too!!
+    // Update Note
     this.db.get('notes')
     .find({uuid: note_id})
     .assign({modified: Date.now()})
@@ -551,6 +493,7 @@ FileDatabase.prototype.insertGraphTag = function(graph_id, tag_name){
     return tag;
   }
 }
+
 /**
  * [!!OBSOLETE!!]
  * Called when a tag name is updated in a graph
@@ -595,6 +538,7 @@ FileDatabase.prototype.updateGraphTagName = function(graph_id, cur_tag_id, new_n
     }
   }
 }
+
 /**
  * Removes tag from a note. If there are no more references to the note
  * the tag will globally deleted.
@@ -637,6 +581,7 @@ FileDatabase.prototype.removeGraphTag = function(graph_id, tag_id){
     }
   }
 }
+
 /**
  * Returns all the tags and their data for a specific graph
  * @param {string} graph_id 
@@ -656,6 +601,7 @@ FileDatabase.prototype.getGraphTags = function(graph_id){
   }
   return arr;
 }
+
 /**
  * [!!OBSOLETE!!]
  * Returns all graphs the tag with tag_id points to 
@@ -677,30 +623,6 @@ FileDatabase.prototype.getGraphsFromTag = function(tag_id){
 /* Graph data                                                        */
 /* ================================================================= */
 
-
-  /*  {
-  *      "uuid":       uuid,
-  *      "created":    created,
-  *      "vertices":   [
-  *        {
-  *          "uuid":       this.uuid,
-  *          "created":    this.created,
-  *          "note":       <Note: UUIDv4>, 
-  *          "posX":       this.posX, 
-  *          "posY":       this.posY,
-  *        } 
-  *      ],
-  *      "edges":      [
-  *        {
-  *          "uuid":       this.uuid,
-  *          "created":    this.created,
-  *          "source":     <Vertex: UUIDv4>,
-  *          "target":     <Vertex: UUIDv4>, 
-  *        }
-  *      ]
-  *    }
-  */
-
 FileDatabase.prototype.makeGraphTable = function(){
   this.db.read();
   this.db.set('graphs', []).write();
@@ -708,7 +630,7 @@ FileDatabase.prototype.makeGraphTable = function(){
 
 FileDatabase.prototype.insertGraph = function(graph){
   this.db.read();
-  // NOTE: Check graph JSON so that only references are used.
+  // NOTE: Check graph JSON so that only references are used
 
   // Check whether note is already in database
   let s = this.db.get('graphs').find({uuid: graph.uuid}).value();
@@ -847,9 +769,7 @@ FileDatabase.prototype.selectAllEdges = function(graph_id){
 
 FileDatabase.prototype.emptyNotesTrash = function(delta){
   this.db.read();
-
   console.log("emptyNotesTrash with delta: " + delta);
-
   this.db.get('trash').get('notes')
    // mutates the trash.notes array..
   .remove(note => DateFormatter.checkDateDiffDaysPastNow(note.modified, delta))
@@ -858,7 +778,6 @@ FileDatabase.prototype.emptyNotesTrash = function(delta){
 
 FileDatabase.prototype.emptyGraphsTrash = function(delta){
   this.db.read();
-
   console.log("emptyGraphsTrash with delta: " + delta);
   // Analog to emptyNotesTrash
   this.db.get('trash').get('graphs')
@@ -950,6 +869,7 @@ FileDatabase.prototype.makeBackup = function(){
 
 /**
  * Restores the database file to specific backup string.
+ * 
  * @param {string} backup -- Backup to set database file to
  */
 FileDatabase.prototype.restoreFromBackup = function(backup){

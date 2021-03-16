@@ -5,7 +5,7 @@ const { app, dialog } = remote;
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 
-const App = require('../App.js');
+const App = require('../_app/App.js');
 const FileDatabaseManager = require('../_models/FileDatabaseManager');
 const Project = require('./Project');
 const Note = require('./Note');
@@ -84,7 +84,6 @@ Session.prototype.getDBFileNameFrom = function(path){
 Session.prototype.getActiveProject = function(){
   if(this.projects.length === 0) return null;
   for(var i in this.projects){
-    console.log(this.projects[i]);
     if(this.projects[i].isActive()) return this.projects[i];
   }
 }
@@ -231,8 +230,6 @@ Session.prototype.newProject = function(callback){
 
   if (!path) { console.log('Nothing to save'); return; }
 
-  console.log("Path to new project: " + path);
-
   // Get name of DB file
   let file_name = self.getDBFileNameFrom(path);
   let file_name_split = file_name.split(".");
@@ -241,8 +238,6 @@ Session.prototype.newProject = function(callback){
     file_name = file_name_split[0].concat(".json");
     path = path.concat(".json");
   }
-
-  console.log("after .json concat: " + path);
 
   /**
    *  TODO Refactor: Save project name instead of file name. 
@@ -299,7 +294,6 @@ Session.prototype.openProjectWithPath = function(path, callback){
         return;
       }
     }
-    console.log(self.projects);
   }else{
     nP = chk[0];
   }
@@ -381,7 +375,6 @@ Session.prototype.closeProject = function(project_id, callback){
   console.log("Session -- closeProject - uuid: " + project_id);
 
   let targets = self.getProjectByUUID(project_id);
-  console.log(targets);
   if(targets.length !== 1){
     return;
   }
@@ -422,8 +415,6 @@ Session.prototype.deleteProject = function(project_id, callback){
     console.log("Duplicate project!!");
     return;
   }
-
-  console.log(p);
   let options = {
     type : "question",
     buttons: ["Yes", "No"],

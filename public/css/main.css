@@ -50,7 +50,6 @@ body {
   width: calc(100% - 2px);
   /*Compensate for body 1px border*/
   background: #f7f7f7;
-  /*f7f7f7;*/
   padding-top: 1px;
   text-align: center;
   font-size: 13px;
@@ -194,14 +193,13 @@ body {
   height: 100%;
 }
 #prjct-list-scroll {
-  /*position: relative; */
   display: block;
   width: 100%;
   height: calc(100% - 26.38px - 31px);
   overflow-y: auto;
-  /* REASON for semantic-ui dropdown not to exceed container.*/
+  /* For semantic-ui dropdown not to exceed container.*/
 }
-/* Makes semantic-ui dropdown work with overflow-y: auto on 
+/* So semantic-ui dropdown works with overflow-y: auto on 
   the parent #prjct-list-scroll container */
 #prjct-list-scroll:after {
   clear: both;
@@ -239,7 +237,6 @@ body {
   background: #999;
 }
 .prjct-thmb-drppbl-active {
-  /*box-shadow: 0px 0px 0px 3px #0094E3;*/
   border: 3px solid #0094E3;
   border-radius: 2px;
 }
@@ -320,8 +317,6 @@ body {
 .dropdown .item {
   font-size: 11px !important;
 }
-/* Overwriting the padding defined by semantic.min.css
-   for dropdown items */
 .ui.dropdown .menu > .item {
   padding: 0.6em 1.1em !important;
 }
@@ -468,7 +463,6 @@ body {
 .item-thmb-tags > span {
   padding: 2px 4px;
   background: #D6D7F1;
-  /*opacity: 0.3;*/
   margin-left: 2px;
   margin-right: 2px;
   color: #262626;
@@ -518,7 +512,6 @@ body {
 .note-content-wrap {
   position: relative;
   background-color: #e8e8e8;
-  /*#E4E4E4;*/
 }
 .note-content-ctrls {
   display: block;
@@ -545,7 +538,6 @@ body {
 }
 #note-color-dp .item {
   display: inline-block !important;
-  /*padding: 2px 4px !important;*/
   padding: 0.5em 0.8em !important;
 }
 #note-color-dp .item.active {
@@ -554,11 +546,9 @@ body {
 #note-color-dp .header {
   margin-top: 0.5em !important;
   margin-bottom: 0.5em !important;
-  /*padding: 2px 4px !important;*/
 }
 #note-color-dp .divider {
   margin: 0px !important;
-  /*padding: 2px 4px !important;*/
 }
 #note-color-dp .menu.scrolling {
   max-height: 200px;
@@ -755,16 +745,13 @@ path.link.selected {
   display: block;
   width: 100%;
   padding: 4px 4px;
-  /*border-top:1px solid #666;*/
   border-bottom: 1px solid #666;
-  /*#3595f6;*/
   background: inherit;
 }
 .graph-note-tags > span {
   display: inline-block;
   padding: 2px 4px;
   background: #D6D7F1;
-  /*opacity: 0.3;*/
   margin-left: 2px;
   margin-right: 2px;
   margin-top: 2px;
@@ -782,12 +769,9 @@ foreignObject.selected {
   z-index: 20;
   position: absolute;
   top: 0;
-  /*@titlebar-height*/
   right: 0px;
   height: 100%;
-  /* calc(100% - @titlebar-height);*/
   width: 342.1px;
-  /*transition: right 1s ease;*/
 }
 #right-side-menu > .side-menu-content {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
@@ -809,7 +793,6 @@ foreignObject.selected {
 }
 #right-side-menu.hidden {
   right: -313px;
-  /*width: 28.1px;*/
 }
 #right-menu-toggle {
   float: left;
@@ -823,7 +806,6 @@ foreignObject.selected {
   cursor: pointer;
 }
 #graph-description {
-  /*border-style: none;*/
   border: 1px solid #666;
   resize: none;
   outline: none;
@@ -855,7 +837,7 @@ foreignObject.selected {
  * Each scheme is a less list with comma separated elements. Accessed with extract function
  */
 /* Standard */
-/* Post-It */
+/* Post-It Colors */
 .postit-bg-std-1 {
   background: #FFF;
   box-shadow: 0px 0px 0px 1px #E4E4E4;
@@ -1040,7 +1022,6 @@ foreignObject.selected {
   margin: 0.65em 0.85em;
   color: #d9d9d9;
   background: #404040;
-  /*333333;/*#F53435;*/
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   font-size: 11px !important;
 }
@@ -1054,7 +1035,6 @@ foreignObject.selected {
 }
 .notification-list > .notification > .content {
   display: table;
-  /*width: 100%;*/
 }
 .notification-list > .notification > .content > .row {
   display: table-row;

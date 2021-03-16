@@ -13,5 +13,5 @@ inherits(UserPreferences, AppStorageManager)
 
 
 UserPreferences.prototype.createNewProperty = function(key, value){
-  // Insert the key, value pair into database
+  // TODO: Insert (key, value) pair into database
 }
