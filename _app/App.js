@@ -307,7 +307,6 @@ function App(el){
         if(idx >= 1){
           transitionToProject(self.session.getProjectByIndex(idx - 1));
         }
-
         break;
 
       case self.focusManager.ITEM_LIST:
