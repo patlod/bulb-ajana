@@ -11,6 +11,7 @@ While you can write notes in the way you are used to it, Bulb offers two (or thr
 2. __Tagging__: Setting tags on the notes can assist that process as it allows to form any kind of categories on your data such as prioritisation, grouping, pointing out features, etc.
 
 
+
 ## Usage
 Bulb works project based. You simply create one to several databases within your project (research, code, etc.), thus you have everything in one place. 
 
@@ -19,16 +20,20 @@ This introduces the following advantages:
 1. If you have a project of any kind you can conveniently store all your note data within the specific project. Thus you have your data in one place. 
 2. You can directly access and modify your data also without your notes application.
 
-### Development
+## Development
 
-- Installing the modules:
-  ```bash 
-      npm install 
-  ```
-- Running the development server:
+__Installing the modules:__
+```bash 
+npm install 
+```
+__Running the development server:__
 ```bash
 gulp start
 ```
+
+## Architecture Overview
+
+
 
 
 
