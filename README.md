@@ -16,7 +16,7 @@ __Next writing notes & search, Bulb offers additional features such as:__
 
 ![Graph Editor](/images/bulb_graph_editor.png)
 
-![Graph Global Search](/images/bulb_graph_global_search.png)
+![Graph Global Search](/images/bulb_graph_editor_global_search.png)
 
 ## Usage
 Simply create one to several databases within your project (research, code, etc.).
