@@ -58,6 +58,30 @@ var StringFormatter = {
       }
     }
     return indices;
+  },
+
+  /**
+   * Adds HTML to the string.
+   * This is useful when string with \n should be displayed in normal <div> or similar
+   * HTML elements.
+   * 
+   * NOTE: Same annotation as in a 'contenteditible' element.
+   * 
+   * @param {string} string 
+   */
+   spiceStringWithMarkup: function(string){
+    if(!string){ return null; }
+    let i = 0,
+        arr = this.splitAtNewLine(string);
+        spiced = ``;
+    for(i in arr){
+      if(arr[i].length > 0){
+        spiced += `<div>` + arr[i] + `</div>`;
+      }else{
+        spiced += `<div><br></div>`;
+      }
+    }
+    return spiced;
   }
 }
 

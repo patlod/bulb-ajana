@@ -17,7 +17,6 @@ const GlobalData = require('../_models/GlobalData');
 
 // Commandss
 const CommandManager = require('./commands/CommandManager');
-const Command = require('./commands/Command');
 const NewNoteCmd = require('./commands/NewNoteCmd');
 const DeleteSelectedNotesCmd = require('./commands/DeleteSelectedNotesCmd');
 const NewGraphCmd = require('./commands/NewGraphCmd');

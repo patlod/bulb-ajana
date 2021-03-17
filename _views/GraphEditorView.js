@@ -10,6 +10,7 @@ const d3 = require("d3");
 const Tagify = require('@yaireo/tagify');
 
 const DateFormatter = require('../_util/DateFormatter');
+const StringFormatter = require('../_util/StringFormatter');
 const UIAssistant = require('../_util/UIAssistant');
 
 
@@ -611,15 +612,13 @@ GraphEditorView.prototype.updateGraph = function(graph = null){
     return;
   }
 
-  // console.log(self.graph);
-  let active_project = self.graph.project;
-  let active_note = active_project.getActiveNote();
+  let active_project = self.graph.project,
+      active_note = active_project.getActiveNote();
 
   // Update existing nodes 
   // Should happen before edges as the width and height attributes are set dynamically on depending on the content.
   // Associate vertex data in the graph controller with the UI elements
   self.circles = self.circles.data(self.graph.vertices, function(d){ return d.uuid;});
-
   self.circles.attr("transform", function(d){return "translate(" + d.posX + "," + d.posY + ")";});
 
   // Add new nodes
@@ -648,10 +647,10 @@ GraphEditorView.prototype.updateGraph = function(graph = null){
         <div class="datetime">
           <span id="dt-created">Created: ${DateFormatter.formatDateEditor(d.note.created)}</span>
         </div>
-          ${self.makeTagsHTMLString(d.note.getTags())}
+        ${self.makeTagsHTMLString(d.note.getTags())}
       </div>
       <div class="graph-note-content" >
-        ${d.note.getContent()}
+        ${StringFormatter.spiceStringWithMarkup(d.note.getContent())}
       </div>
     `;
     graph_note_html.html(html_str);
