@@ -7,9 +7,10 @@ Very similar to Apple Notes App for a simple reason, in my opinion one of the be
 
 ![Note Editor](/images/bulb_note_editor.png)
 
-__Next writing notes & search, Bulb offers two additional features:__
+__Next writing notes & search, Bulb offers additional features such as:__
 1. __Graph View__: You can switch between a note editor and a graph editor display where you can set connections between your notes. This should assist your work process in a mindmap way. _E.g. in a one man software development endeavor, during a more advanced writing process, systems analysis, investigation, information gathering, etc. you often find yourself in a situation, where you benefit from organising your thoughts in a map display or something similar, to see connections and change the perspective on the data, to minimise the efforts of your brain to do so and then focus its energy on the actual analytical thought process._
 2. __Tagging__: Setting tags on the notes can assist that process as it allows to form any kind of categories on your data such as prioritisation, grouping, pointing out features, etc.
+3. __Note Coloring__: Color your notes like Post-Its.
 
 ![Graph Editor](/images/bulb_graph_editor.png)
 
