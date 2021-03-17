@@ -5,7 +5,9 @@ A customised brainstorming tool that saves tons of paper (notebooks or plain DIN
 It's functionality is inspired by note taking apps and extended to enable better visual display of your thoughts and ideas while staying as simple as possible. (therefore: __A__ lmost __J__ ust __A__ nother __N__ otes __A__ pp)
 Very similar to Apple Notes App for a simple reason, in my opinion one of the best notes applications out there, simply for the reason that creates the perfect combination of usability and simplicity.
 
-![Note Editor](/images/bulb_note_editor.png)
+![Note Editor](/images/bulb_note_editor_2.png)
+
+![Note Editor Local Search](/images/bulb_note_editor_local_search.png)
 
 __Next writing notes & search, Bulb offers additional features such as:__
 1. __Graph View__: You can switch between a note editor and a graph editor display where you can set connections between your notes. This should assist your work process in a mindmap way. _E.g. in a one man software development endeavor, during a more advanced writing process, systems analysis, investigation, information gathering, etc. you often find yourself in a situation, where you benefit from organising your thoughts in a map display or something similar, to see connections and change the perspective on the data, to minimise the efforts of your brain to do so and then focus its energy on the actual analytical thought process._
@@ -14,7 +16,7 @@ __Next writing notes & search, Bulb offers additional features such as:__
 
 ![Graph Editor](/images/bulb_graph_editor.png)
 
-![Active Search](/images/bulb_active_search.png)
+![Graph Global Search](/images/bulb_graph_global_search.png)
 
 ## Usage
 Bulb works project based. You simply create one to several databases within your project (research, code, etc.), thus you have everything in one place. 
@@ -35,7 +37,7 @@ __Running the development server:__
 gulp start
 ```
 
-## Architecture Overview
+## Architectural Overview
 ![App Architecture](/images/app_architecture.png)
 
 
