@@ -40,22 +40,26 @@ AppView.prototype.render = function(){
         }
       }
     }
-    if(e.key === "ArrowUp"){
-      e.preventDefault();
-      if(self.shiftKey_active){
-        self.send('arrowShiftSelectToHead');
+
+    if(self.focus_manager.getFocusObject() === self.focus_manager.ITEM_LIST 
+        || self.focus_manager.getFocusObject() === self.focus_manager.PROJECT_LIST ){
+      if(e.key === "ArrowUp"){
+        e.preventDefault();
+        if(self.shiftKey_active){
+          self.send('arrowShiftSelectToHead');
+        }else{
+          self.send('arrowNavigationToHead');
+        }
+      }else if(e.key === "ArrowDown"){
+        e.preventDefault();
+        if(self.shiftKey_active){
+          self.send('arrowShiftSelectToTail');
+        }else{
+          self.send('arrowNavigationToTail');
+        }
       }else{
-        self.send('arrowNavigationToHead');
+        // Nothing
       }
-    }else if(e.key === "ArrowDown"){
-      e.preventDefault();
-      if(self.shiftKey_active){
-        self.send('arrowShiftSelectToTail');
-      }else{
-        self.send('arrowNavigationToTail');
-      }
-    }else{
-      // Nothing
     }
   });
 
