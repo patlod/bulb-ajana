@@ -19,11 +19,11 @@ __Next writing notes & search, Bulb offers additional features such as:__
 ![Graph Global Search](/images/bulb_graph_global_search.png)
 
 ## Usage
-Bulb works project based. You simply create one to several databases within your project (research, code, etc.), thus you have everything in one place. 
+Simply create one to several databases within your project (research, code, etc.).
 
 Data is stored as JSON format in file databases which can be stored anywhere on your computer. 
-This introduces the following advantages: 
-1. If you have a project of any kind you can conveniently store all your note data within the specific project. Thus you have your data in one place. 
+This has the following advantages: 
+1. If you have a project of any kind you can conveniently store all your note data within the specific project. Thus you have all your data in one place. 
 2. You can directly access and modify your data also without your notes application.
 
 ## Development
