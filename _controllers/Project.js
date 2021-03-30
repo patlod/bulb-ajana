@@ -1,7 +1,9 @@
 module.exports = Project
 
 const fs = require('fs');
+const { inherits } = require('util');
 
+const EventEmitterElement = require('../_app/EventEmitterElement');
 const FileDatabase = require("../_models/FileDatabase");
 const FileDatabaseManager = require('../_models/FileDatabaseManager');
 const Graph = require('./Graph');
@@ -18,6 +20,7 @@ const Edge = require('./Edge');
  */
 function Project(path, session, data = FileDatabaseManager.getEmptyProjectJSON()) {
   var self = this;
+  EventEmitterElement.call(this, session.app);
 
   // Database interface object
   this.db = new FileDatabase(path);
@@ -46,6 +49,7 @@ function Project(path, session, data = FileDatabaseManager.getEmptyProjectJSON()
   this.loadData();
   console.log(this)
 }
+inherits(Project, EventEmitterElement);
 
 
 /**
@@ -168,7 +172,8 @@ Project.prototype.resetActiveNote = function(){
  * 
  */
 Project.prototype.getEmptyNotes = function(){
-  let empties = [];
+  var self = this,
+      empties = [];
   for(var i in this.notes){
     if(this.notes[i].isEmpty()){
       empties.push(this.notes[i]);
@@ -176,6 +181,10 @@ Project.prototype.getEmptyNotes = function(){
   }
   if(empties.length > 1){
     console.error("ERROR: More than one empty note in project");
+    // self.session.app.views.notifications.addNotification(
+    //   self.session.app.views.notifications.ERROR,
+    //   "Database inconsistencies! More than one empty note in project!");
+    // self.send("renderLazy");
     return null;
   }
   return empties;

@@ -3,16 +3,14 @@ module.exports = Session
 const { remote } = require('electron');
 const { app, dialog } = remote;
 const fs = require('fs');
-const { v4: uuidv4 } = require('uuid');
+const { inherits } = require('util');
 
+const EventEmitterElement = require('../_app/EventEmitterElement');
 const App = require('../_app/App.js');
 const FileDatabaseManager = require('../_models/FileDatabaseManager');
 const Project = require('./Project');
 const Note = require('./Note');
-const { path } = require('d3');
-const GraphEditorView = require('../_views/GraphEditorView');
-const { inherits } = require('util');
-const EventEmitterElement = require('../_app/EventEmitterElement');
+
 
 
 /**
